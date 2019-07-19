@@ -22,7 +22,7 @@ class ClaimMainMenu extends Component {
             route: "/claim/review"
           },
           {
-            text: formatMessage(this.props.intl, "claim", "batch"),
+            text: formatMessage(this.props.intl, "claim", "menu.batch"),
             icon: <Subscriptions />,
             route: "/claim/batch"
           }
