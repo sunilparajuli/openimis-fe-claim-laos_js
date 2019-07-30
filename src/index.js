@@ -4,8 +4,8 @@ import { ReviewPage } from "./components/ReviewPage";
 import { BatchPage } from "./components/BatchPage";
 import messages_en from "./translations/en.json";
 
-const ClaimModule = {
-  "translations": [{key: 'en', messages: messages_en}],
+const DEFAULT_CONFIG = {
+  "translations": [{ key: 'en', messages: messages_en }],
   "core.Router": [
     { path: "claim/claims", component: ClaimsPage },
     { path: "claim/review", component: ReviewPage },
@@ -14,4 +14,6 @@ const ClaimModule = {
   "core.MainMenu": [ClaimMainMenu]
 }
 
-export { ClaimModule };
+export const ClaimModule = (cfg) => {
+  return { ...DEFAULT_CONFIG, ...(cfg && cfg['fe-claim'] || {}) };
+}
