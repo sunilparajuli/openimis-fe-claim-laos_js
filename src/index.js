@@ -15,5 +15,5 @@ const DEFAULT_CONFIG = {
 }
 
 export const ClaimModule = (cfg) => {
-  return { ...DEFAULT_CONFIG, ...(cfg && cfg['fe-claim'] || {}) };
+  return { ...DEFAULT_CONFIG, ...cfg };
 }
