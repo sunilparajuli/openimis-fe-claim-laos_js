@@ -1,0 +1,1 @@
+export const CLAIM_STATUS = [1, 2, 4, 8, 16]
