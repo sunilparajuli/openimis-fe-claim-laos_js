@@ -9,7 +9,11 @@ function reducer(
         fetchingClaims: false,
         fetchedClaims: false,
         errorClaims: null,
-        claims: null,        
+        claims: null,   
+        fetchingBatchRuns: false,
+        fetchedBatchRuns: false,
+        errorBatchRuns: null,
+        batchRuns: [],                   
     },
     action,
 ) {
@@ -58,6 +62,28 @@ function reducer(
                 fetchingClaims: false,
                 errorClaims: formatServerError(action.payload)
             };
+        case 'CLAIM_BATCH_RUNS_REQ':
+            return {
+                ...state,
+                fetchingBatchRuns: true,
+                fetchedBatchRuns: false,
+                batchRuns: [],
+                errorBatchRuns: null,
+            };
+        case 'CLAIM_BATCH_RUNS_RESP':
+            return {
+                ...state,
+                fetchingBatchRuns: false,
+                fetchedBatchRuns: true,
+                batchRuns: parseData(action.payload.data.batchRuns),
+                errorBatchRuns: formatGraphQLError(action.payload)
+            };
+        case 'CLAIM_BATCH_RUNS_ERR':
+            return {
+                ...state,
+                fetchingBatchRuns: false,
+                errorBatchRuns: formatServerError(action.payload)
+            };            
         default:
             return state;
     }

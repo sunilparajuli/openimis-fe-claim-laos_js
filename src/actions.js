@@ -11,7 +11,15 @@ export function fetchClaimAdmins() {
 export function fetchClaimSummaries(filters) {
   let payload = formatPageQuery( "claims",
     filters,
-    ["id", "code", "healthFacility { code, name }", "dateClaimed", "feedbackStatus", "reviewStatus", "claimed", "approved", "status"]
+    ["id", "code", "healthFacility { id, code, name }", "dateClaimed", "feedbackStatus", "reviewStatus", "claimed", "approved", "status"]
   );
   return graphql(payload, 'CLAIM_CLAIMS');
+}
+
+export function fetchBatchRuns(scope) {
+  let payload = formatPageQuery( "batchRuns",
+    [`location_Id: "${scope.id}"`],
+    ["id", "runDate"]
+  );
+  return graphql(payload, 'CLAIM_BATCH_RUNS');
 }

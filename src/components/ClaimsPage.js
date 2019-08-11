@@ -16,9 +16,10 @@ import SendIcon from "@material-ui/icons/Send";
 import AddIcon from "@material-ui/icons/Add";
 import { Searcher } from "@openimis/fe-core";
 import ClaimFilterDialog from "./ClaimFilterDialog";
+import ClaimFilter from "./ClaimFilter";
 import {
     withModulesManager,
-    formatMessage, formatDateFromIso, formatAmount, chipSelect,
+    formatMessage, formatDateFromIso, formatAmount, chip,
     FormattedMessage, ProgressOrError, SmallTable
 } from "@openimis/fe-core";
 import { fetchClaimSummaries } from "../actions";
@@ -48,15 +49,25 @@ class ClaimsPage extends Component {
         open: false,
         filters: {},
     }
-    
+
+    withDialog = false;
+
     componentDidMount() {
-        let defaultFilters = this.props.modulesManager.getConfiguration(
+        this.withDialog = this.props.modulesManager.getConf(
+            "fe-claim",
+            "filterWithDialog",
+            false
+        );
+        let defaultFilters = this.props.modulesManager.getConf(
             "fe-claim",
             "defaultFilters",
             {
                 "claimStatus": {
                     "value": 2,
-                    "chip": chipSelect(this.props.intl, "claim", "claimStatus", 2),
+                    "chip": chip(
+                        this.props.intl, "claim", "claimStatus",
+                        formatMessage(this.props.intl, "claim", "claimStatus.2")
+                    ),
                     "filter": "status: 2"
                 }
             }
@@ -70,10 +81,23 @@ class ClaimsPage extends Component {
 
     filtersToQueryParams = () => Object.keys(this.state.filters).map(f => this.state.filters[f]['filter']);
 
-    applyFilters = (fltrs) => {
+    onChangeFilter = (id, value, chip, filter) => {
+        let fltrs = this.state.filters;
+        if (value === null) {
+            delete (fltrs[id]);
+        } else {
+            fltrs[id] = { value, chip, filter };
+        }
+        this.setState({
+            filters: fltrs
+        },
+            e => !this.withDialog && this.applyFilters()
+        )
+    }
+
+    applyFilters = () => {
         this.setState({
             open: false,
-            filters: fltrs,
         },
             e => this.props.fetchClaimSummaries(this.filtersToQueryParams())
         )
@@ -97,16 +121,25 @@ class ClaimsPage extends Component {
         const { intl, classes, claims, fetchingClaims, fetchedClaims, errorClaims } = this.props;
         return (
             <Fragment>
-                <ClaimFilterDialog
+                {!!this.withDialog && (<ClaimFilterDialog
                     open={this.state.open}
                     onClose={e => this.setState({ open: false })}
                     filters={this.state.filters}
-                    apply={this.applyFilters} />
-                <Searcher title={formatMessage(intl, "claim", "searchCriteria.title")}
+                    apply={this.applyFilters}
+                    onChangeFilter={this.onChangeFilter} />
+                )}
+                <Searcher
+                    module="claim"
                     open={e => this.setState({ open: true })}
                     apply={this.applyFilters}
                     del={this.deleteFilter}
                     filters={this.state.filters}
+                    filterPane={
+                        !this.withDialog && <ClaimFilter
+                            filters={this.state.filters}
+                            apply={this.applyFilters}
+                            onChangeFilter={this.onChangeFilter}
+                        />}
                 />
                 <ProgressOrError progress={fetchingClaims} error={errorClaims} />
                 {!!fetchedClaims && (
@@ -144,7 +177,7 @@ class ClaimsPage extends Component {
                                         "claimSummaries.approved",
                                         "claimSummaries.claimStatus"
                                     ]}
-                                    aligns={[, , , , , "center", "center"]}
+                                    aligns={[, , , , , "right", "right"]}
                                     itemFormatters={[
                                         c => c.code,
                                         c => `${c.healthFacility.code} ${c.healthFacility.name}`,

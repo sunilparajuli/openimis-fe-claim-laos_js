@@ -21,23 +21,26 @@ class ClaimAdminSelect extends Component {
 
     formatSuggestion = a => `${a.code} ${a.lastName} ${a.otherName || ""}`;
 
-    onSuggestionSelected = v => this.props.onClaimAdminSelected(v, this.formatSuggestion(v));
+    onSuggestionSelected = v => this.props.onChange(v, this.formatSuggestion(v));
 
     render() {
-        const { intl, claimAdmins, fetchingClaimAdmins, fetchedClaimAdmins, errorClaimAdmins } = this.props;
+        const { 
+            intl, initValue, claimAdmins, 
+            fetchingClaimAdmins, fetchedClaimAdmins, errorClaimAdmins,
+            withLabel=true, label
+        } = this.props;
         return (
             <Fragment>
                 <ProgressOrError progress={fetchingClaimAdmins} error={errorClaimAdmins} />
                 {fetchedClaimAdmins && (
-                    <FormControl fullWidth={true}>
+                    <FormControl fullWidth>
                         <AutoSuggestion
                             items={claimAdmins}
-                            label={formatMessage(intl, "claim", "ClaimAdminSelect.label")}
-                            lookup={this.formatSuggestion}
+                            label={!!withLabel && (label || formatMessage(intl, "claim", "ClaimAdminSelect.label"))}
                             getSuggestions={this.claimAdmins}
-                            renderSuggestion={a => <span>{this.formatSuggestion(a)}</span>}
                             getSuggestionValue={this.formatSuggestion}
                             onSuggestionSelected={this.onSuggestionSelected}
+                            initValue={initValue}
                         />
                     </FormControl>
                 )}
