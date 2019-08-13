@@ -1,4 +1,4 @@
-import { graphql, formatPageQuery } from "@openimis/fe-core";
+import { graphql, formatPageQuery, formatPageQueryWithCount } from "@openimis/fe-core";
 
 export function fetchClaimAdmins() {
   let payload = formatPageQuery( "claimAdmins",
@@ -9,7 +9,7 @@ export function fetchClaimAdmins() {
 }
 
 export function fetchClaimSummaries(filters) {
-  let payload = formatPageQuery( "claims",
+  let payload = formatPageQueryWithCount( "claims",
     filters,
     ["id", "code", "healthFacility { id, code, name }", "dateClaimed", "feedbackStatus", "reviewStatus", "claimed", "approved", "status"]
   );
@@ -22,4 +22,16 @@ export function fetchBatchRuns(scope) {
     ["id", "runDate"]
   );
   return graphql(payload, 'CLAIM_BATCH_RUNS');
+}
+
+export function selectForFeedback(claims) {
+  //TODO
+}
+
+export function selectForReview(claims) {
+  //TODO
+}
+
+export function submit(claims) {
+  //TODO
 }

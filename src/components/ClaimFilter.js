@@ -5,7 +5,7 @@ import { injectIntl } from 'react-intl';
 import _ from "lodash";
 import { Grid } from "@material-ui/core";
 import {
-    formatMessage, chip, withModulesManager, 
+    formatMessage, chip, toISODate, withModulesManager,
     PublishedComponent, DatePicker, InputText
 } from "@openimis/fe-core";
 
@@ -126,7 +126,7 @@ class Details extends Component {
                 </Grid>
                 <Grid item xs={1} className={classes.formItem}>
                     <PublishedComponent
-                        id="location.FeedbackStatusSelect"
+                        id="claim.FeedbackStatusSelect"
                         name="feedbackStatus"
                         value={(filters['feedbackStatus'] && filters['feedbackStatus']['value']) || null}
                         onChange={(v, s) => onChangeFilter(
@@ -153,36 +153,64 @@ class Details extends Component {
                         module="claim" label="ClaimFilter.insureeCHFID"
                         name="chfId"
                         value={(filters['chfId'] && filters['chfId']['value']) || null}
-                        onChange={v => debouncedOnChangeFilter(
+                        onChange={v => this.debouncedOnChangeFilter(
                             'chfId', v,
                             chip(intl, "claim", "ClaimFilter.chfId", v),
                             `insuree_ChfId: "${v}"`
                         )}
                     />
                 </Grid>
-                <Grid item xs={2}>
-                    {"AMOUNT >="}
+                <Grid item xs={2} className={classes.formItem}>
+                    <InputText
+                        module="claim" label="ClaimFilter.claimedAbove"
+                        name="claimedAbove"
+                        type="number"
+                        value={(filters['claimedbove'] && filters['claimedAbove']['value']) || null}
+                        onChange={v => this.debouncedOnChangeFilter(
+                            'claimedAbove', (!v ? null : v),
+                            chip(intl, "claim", "ClaimFilter.claimedAbove", v),
+                            `claimed_Gte: ${v}`
+                        )}
+                    />
                 </Grid>
-                <Grid item xs={2}>
-                    {"AMOUNT <="}
+                <Grid item xs={2} className={classes.formItem}>
+                    <InputText
+                        module="claim" label="ClaimFilter.claimedUnder"
+                        name="claimedUnder"
+                        type="number"
+                        value={(filters['claimedUnder'] && filters['claimedUnder']['value']) || null}
+                        onChange={v => this.debouncedOnChangeFilter(
+                            'claimedUnder', (!v ? null : v),
+                            chip(intl, "claim", "ClaimFilter.claimedUnder", v),
+                            `claimed_Lte: ${v}`
+                        )}
+                    />
                 </Grid>
                 <Grid item xs={3}>
                     <Grid container>
                         <Grid item xs={6} className={classes.formItem}>
                             <DatePicker
+                                value={(filters['visitDateFrom'] && filters['visitDateFrom']['value']) || null}
                                 module="claim"
-                                label="ClaimFilter.visitDateFrom.label"
-                                onChange={d => change(
-                                    'visitDateFrom',
-                                    !!d && d.toISOString().subString(0, 10))} />
+                                label="ClaimFilter.visitDateFrom"
+                                onChange={d => onChangeFilter(
+                                    'visitDateFrom', d,
+                                    chip(intl, "claim", "ClaimFilter.visitDateFrom", toISODate(d)),
+                                    `dateFrom: "${toISODate(d)}"`
+                                )}
+                            />
                         </Grid>
                         <Grid item xs={6} className={classes.formItem}>
                             <DatePicker
+                                value={(filters['visitDateTo'] && filters['visitDateTo']['value']) || null}
                                 module="claim"
-                                label="ClaimFilter.visitDateTo.label"
-                                onChange={d => change(
-                                    'visitDateTo',
-                                    !!d && d.toISOString().subString(0, 10))} />
+                                label="ClaimFilter.visitDateTo"
+                                onChange={d => onChangeFilter(
+                                    'visitDateTo', d,
+                                    chip(intl, "claim", "ClaimFilter.visitDateTo", toISODate(d)),
+                                    `dateTo: "${toISODate(d)}"`
+                                )}
+                            />
                         </Grid>
                     </Grid>
                 </Grid>
@@ -190,19 +218,27 @@ class Details extends Component {
                     <Grid container>
                         <Grid item xs={6} className={classes.formItem}>
                             <DatePicker
+                                value={(filters['claimDateFrom'] && filters['claimDateFrom']['value']) || null}
                                 module="claim"
-                                label="ClaimFilter.claimDateFrom.label"
-                                onChange={d => change(
-                                    'claimDateFrom',
-                                    !!d && d.toISOString().subString(0, 10))} />
+                                label="ClaimFilter.claimDateFrom"
+                                onChange={d => onChangeFilter(
+                                    'claimDateFrom', d,
+                                    chip(intl, "claim", "ClaimFilter.claimDateFrom", toISODate(d)),
+                                    `dateClaimed_Gte: "${toISODate(d)}"`
+                                )}
+                            />
                         </Grid>
                         <Grid item xs={6} className={classes.formItem}>
                             <DatePicker
+                                value={(filters['claimDateTo'] && filters['claimDateTo']['value']) || null}
                                 module="claim"
-                                label="ClaimFilter.claimDateTo.label"
-                                onChange={d => change(
-                                    'claimDateTo',
-                                    !!d && d.toISOString().subString(0, 10))} />
+                                label="ClaimFilter.claimDateTo"
+                                onChange={d => onChangeFilter(
+                                    'claimDateTo', d,
+                                    chip(intl, "claim", "ClaimFilter.claimDateTo", toISODate(d)),
+                                    `dateClaimed_Lte: "${toISODate(d)}"`
+                                )}
+                            />
                         </Grid>
                     </Grid>
                 </Grid>

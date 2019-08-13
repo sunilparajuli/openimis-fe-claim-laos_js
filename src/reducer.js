@@ -1,4 +1,4 @@
-import { parseData, formatServerError, formatGraphQLError } from '@openimis/fe-core';
+import { parseData, pageInfo, formatServerError, formatGraphQLError } from '@openimis/fe-core';
 
 function reducer(
     state = {
@@ -9,7 +9,8 @@ function reducer(
         fetchingClaims: false,
         fetchedClaims: false,
         errorClaims: null,
-        claims: null,   
+        claims: null,
+        claimsPageInfo: {totalCount: 0},
         fetchingBatchRuns: false,
         fetchedBatchRuns: false,
         errorBatchRuns: null,
@@ -46,6 +47,7 @@ function reducer(
                 fetchingClaims: true,
                 fetchedClaims: false,
                 claims: null,
+                claimsTotalCount: 0,
                 errorClaims: null,
             };
         case 'CLAIM_CLAIMS_RESP':
@@ -54,6 +56,7 @@ function reducer(
                 fetchingClaims: false,
                 fetchedClaims: true,
                 claims: parseData(action.payload.data.claims),
+                claimsPageInfo: pageInfo(action.payload.data.claims),
                 errorClaims: formatGraphQLError(action.payload)
             };
         case 'CLAIM_CLAIMS_ERR':
