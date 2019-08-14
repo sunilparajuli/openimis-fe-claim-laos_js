@@ -228,6 +228,9 @@ class ClaimsPage extends Component {
     applyFilters = () => {
         this.setState({
             open: false,
+            page: 0,
+            afterCursor: null,
+            beforeCursor: null,
         },
             e => this.props.fetchClaimSummaries(this.filtersToQueryParams())
         )
@@ -237,7 +240,10 @@ class ClaimsPage extends Component {
         let fltrs = this.state.filters;
         delete (fltrs[filter]);
         this.setState({
-            filters: fltrs
+            filters: fltrs,
+            page: 0,
+            afterCursor: null,
+            beforeCursor: null,
         },
             e => this.props.fetchClaimSummaries(this.filtersToQueryParams())
         )
@@ -278,7 +284,12 @@ class ClaimsPage extends Component {
 
     onChangeRowsPerPage = (cnt) => {
         this.setState(
-            { pageSize: cnt },
+            {
+                pageSize: cnt,
+                page: 0,
+                afterCursor: null,
+                beforeCursor: null,
+            },
             e => this.props.fetchClaimSummaries(this.filtersToQueryParams())
         )
     }
