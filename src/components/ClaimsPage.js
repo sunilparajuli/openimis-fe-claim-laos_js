@@ -15,9 +15,7 @@ import {
     Menu,
     MenuItem,
 } from "@material-ui/core";
-import DeleteIcon from "@material-ui/icons/Delete";
 import MoreHoriz from "@material-ui/icons/MoreHoriz";
-import SendIcon from "@material-ui/icons/Send";
 import AddIcon from "@material-ui/icons/Add";
 import { Searcher } from "@openimis/fe-core";
 import ClaimFilterDialog from "./ClaimFilterDialog";
@@ -167,7 +165,7 @@ class ClaimsPage extends Component {
 
     constructor(props) {
         super(props);
-        this.rowsPerPageOptions = props.modulesManager.getConf("fe-claim", "claimFilter.rowsPerPageOptions", [2, 10, 20, 50, 100]);
+        this.rowsPerPageOptions = props.modulesManager.getConf("fe-claim", "claimFilter.rowsPerPageOptions", [10, 20, 50, 100]);
         this.defaultPageSize = props.modulesManager.getConf("fe-claim", "claimFilter.defaultPageSize", 10);
         this.withDialog = this.props.modulesManager.getConf(
             "fe-claim",
