@@ -16,7 +16,9 @@ const styles = theme => ({
 class ClaimAdminSelect extends Component {
 
     componentDidMount() {
-        this.props.fetchClaimAdmins();
+        if (!this.props.fetchedClaimAdmins) {
+            this.props.fetchClaimAdmins();
+        }
     }
 
     formatSuggestion = a => `${a.code} ${a.lastName} ${a.otherName || ""}`;
@@ -24,10 +26,10 @@ class ClaimAdminSelect extends Component {
     onSuggestionSelected = v => this.props.onChange(v, this.formatSuggestion(v));
 
     render() {
-        const { 
-            intl, initValue, claimAdmins, 
+        const {
+            intl, initValue, claimAdmins,
             fetchingClaimAdmins, fetchedClaimAdmins, errorClaimAdmins,
-            withLabel=true, label
+            withLabel = true, label
         } = this.props;
         return (
             <Fragment>
