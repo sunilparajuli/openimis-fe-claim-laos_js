@@ -805,10 +805,10 @@
     prop-types "^15.7.2"
     react-is "^16.8.0"
 
-"@openimis/fe-core@^0.0.12":
-  version "0.0.12"
-  resolved "https://registry.yarnpkg.com/@openimis/fe-core/-/fe-core-0.0.12.tgz#c6db6c8338fcd3c1ecabb697369d950c3f9aa5f6"
-  integrity sha512-dF4muwa1bG3aaQpWHp+gwVc+gQ5siioubOvUzDhitem2TdZjMq+OrntfamEaNX3VqfqGVDxosHMJ3y+CYmYzyw==
+"@openimis/fe-core@^0.0.14":
+  version "0.0.14"
+  resolved "https://registry.yarnpkg.com/@openimis/fe-core/-/fe-core-0.0.14.tgz#4f78974a082893d467795a76feb567255e9b1e4e"
+  integrity sha512-idzeoCJIR1EHbp1XouWnroZIFWPD/OMwuxslKFngcsdNYmCqMi8FoqJSn59G6vjKRc3yIjQ4bSe4jwsoLlf2cg==
 
 "@svgr/core@^2.4.1":
   version "2.4.1"
