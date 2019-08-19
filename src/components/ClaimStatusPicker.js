@@ -1,11 +1,11 @@
 import React, { Component } from "react";
-import { InputSelect } from "@openimis/fe-core";
+import { SelectInput } from "@openimis/fe-core";
 import { injectIntl } from "react-intl";
 import { formatMessage } from "@openimis/fe-core";
 
 import { CLAIM_STATUS } from "./constants";
 
-class ClaimStatusSelect extends Component {
+class ClaimStatusPicker extends Component {
 
     _onChange = v => this.props.onChange(
         v,
@@ -15,7 +15,7 @@ class ClaimStatusSelect extends Component {
     render() {
         const { intl, name, value } = this.props;
         return (
-            <InputSelect
+            <SelectInput
                 module="claim" label="claimStatus"
                 options={[{
                     value: null,
@@ -25,11 +25,11 @@ class ClaimStatusSelect extends Component {
                     label: formatMessage(intl, "claim", "claimStatus." + v)
                 }))]}
                 name={name}
-                value={value || null}
+                value={value}
                 onChange={this._onChange}
             />
         );
     }
 }
 
-export default injectIntl(ClaimStatusSelect);
+export default injectIntl(ClaimStatusPicker);

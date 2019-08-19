@@ -21,9 +21,9 @@ import { Searcher } from "@openimis/fe-core";
 import ClaimFilterDialog from "./ClaimFilterDialog";
 import ClaimFilter from "./ClaimFilter";
 import {
-    withModulesManager,
+    withModulesManager, withHistory, historyPush,
     formatMessage, formatDateFromIso, formatAmount, chip,
-    FormattedMessage, ProgressOrError, SmallTable
+    FormattedMessage, ProgressOrError, ResultTable
 } from "@openimis/fe-core";
 import { fetchClaimSummaries, selectForFeedback, selectForReview, submit } from "../actions";
 
@@ -31,9 +31,7 @@ const styles = theme => ({
     root: {
         width: "100%"
     },
-    paper: {
-        marginTop: theme.spacing(1),
-    },
+    paper: theme.paper.body,
     paperHeader: theme.paper.header,
     paperHeaderTitle: theme.paper.title,
     paperHeaderMessage: theme.paper.message,
@@ -193,7 +191,10 @@ class ClaimsPage extends Component {
             filters: this.defaultFilters,
             pageSize: this.defaultPageSize,
         },
-            e => this.props.fetchClaimSummaries(this.filtersToQueryParams())
+            e => this.props.fetchClaimSummaries(
+                this.props.modulesManager,
+                this.filtersToQueryParams()
+            )
         );
     }
 
@@ -230,7 +231,10 @@ class ClaimsPage extends Component {
             afterCursor: null,
             beforeCursor: null,
         },
-            e => this.props.fetchClaimSummaries(this.filtersToQueryParams())
+            e => this.props.fetchClaimSummaries(
+                this.props.modulesManager,
+                this.filtersToQueryParams()
+            )
         )
     }
 
@@ -243,12 +247,15 @@ class ClaimsPage extends Component {
             afterCursor: null,
             beforeCursor: null,
         },
-            e => this.props.fetchClaimSummaries(this.filtersToQueryParams())
+            e => this.props.fetchClaimSummaries(
+                this.props.modulesManager,
+                this.filtersToQueryParams()
+            )
         )
     }
 
     onDoubleClick = (c) => {
-        alert('EDITING CLAIM #' + c.code);
+        historyPush(this.props.history, `/claim/claim/${c.id}`);
     }
 
     markSelectedForFeedback = (e) => {
@@ -288,7 +295,10 @@ class ClaimsPage extends Component {
                 afterCursor: null,
                 beforeCursor: null,
             },
-            e => this.props.fetchClaimSummaries(this.filtersToQueryParams())
+            e => this.props.fetchClaimSummaries(
+                this.props.modulesManager,
+                this.filtersToQueryParams()
+            )
         )
     }
 
@@ -300,7 +310,10 @@ class ClaimsPage extends Component {
                     beforeCursor: null,
                     afterCursor: this.props.claimsPageInfo.endCursor,
                 },
-                e => this.props.fetchClaimSummaries(this.filtersToQueryParams())
+                e => this.props.fetchClaimSummaries(
+                    this.props.modulesManager,
+                    this.filtersToQueryParams()
+                )
             )
         } else if (nbr < this.state.page) {
             this.setState(
@@ -309,7 +322,10 @@ class ClaimsPage extends Component {
                     beforeCursor: this.props.claimsPageInfo.startCursor,
                     afterCursor: null,
                 },
-                e => this.props.fetchClaimSummaries(this.filtersToQueryParams())
+                e => this.props.fetchClaimSummaries(
+                    this.props.modulesManager,
+                    this.filtersToQueryParams()
+                )
             )
         }
     }
@@ -381,7 +397,7 @@ class ClaimsPage extends Component {
                                 <Divider />
                             </Grid>
                             <Grid item xs={12}>
-                                <SmallTable
+                                <ResultTable
                                     module="claim"
                                     headers={[
                                         "claimSummaries.code",
@@ -442,11 +458,17 @@ const mapStateToProps = state => ({
 
 
 const mapDispatchToProps = dispatch => {
-    return bindActionCreators({ fetchClaimSummaries, selectForFeedback, selectForReview, submit }, dispatch);
+    return bindActionCreators(
+        {
+            fetchClaimSummaries,
+            selectForFeedback,
+            selectForReview,
+            submit,
+        },
+        dispatch);
 };
 
 export default withModulesManager(connect(mapStateToProps, mapDispatchToProps)(
-    injectIntl(withTheme(
+    withHistory(injectIntl(withTheme(
         withStyles(styles)(ClaimsPage)
-    )))
-);
+    )))));

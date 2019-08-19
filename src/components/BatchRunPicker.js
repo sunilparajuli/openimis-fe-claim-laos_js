@@ -2,15 +2,15 @@ import React, { Component } from "react";
 import { connect } from "react-redux";
 import { bindActionCreators } from "redux";
 import { injectIntl } from 'react-intl';
-import { formatMessage, AutoSuggestion, InputSelect, withModulesManager } from "@openimis/fe-core";
+import { formatMessage, AutoSuggestion, SelectInput, withModulesManager } from "@openimis/fe-core";
 import { fetchBatchRuns } from "../actions";
 import _debounce from "lodash/debounce";
 
-class BatchRunSelect extends Component {
+class BatchRunPicker extends Component {
 
     componentDidUpdate(prevProps, prevState, snapshot) {        
         if (prevProps.scope !== this.props.scope) {
-            this.props.fetchBatchRuns(this.props.scope);
+            this.props.fetchBatchRuns(this.props.modulesManager, this.props.scope);
         }
     }
 
@@ -22,9 +22,9 @@ class BatchRunSelect extends Component {
     )
 
     render() {
-        const { name, scope, batchRuns, initValue } = this.props;
+        const { name, scope, batchRuns, value } = this.props;
         return (
-            <InputSelect
+            <SelectInput
                 disabled={!scope}
                 module="claim" label="BatchRun"
                 options={[
@@ -33,7 +33,7 @@ class BatchRunSelect extends Component {
                         label: this.formatSuggestion(v)
                     }))]}
                 name={name}
-                value={initValue}
+                value={value}
                 onChange={this._onChange}
             />
         );
@@ -49,4 +49,4 @@ const mapDispatchToProps = dispatch => {
 };
 
 export default withModulesManager(injectIntl(connect(mapStateToProps, mapDispatchToProps)(
-    BatchRunSelect)));
+    BatchRunPicker)));

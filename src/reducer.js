@@ -14,7 +14,11 @@ function reducer(
         fetchingBatchRuns: false,
         fetchedBatchRuns: false,
         errorBatchRuns: null,
-        batchRuns: [],                   
+        batchRuns: [],
+        fetchingClaim: false,
+        fetchedClaim: false,
+        errorClaim: null,
+        claim: {},
     },
     action,
 ) {
@@ -65,6 +69,29 @@ function reducer(
                 fetchingClaims: false,
                 errorClaims: formatServerError(action.payload)
             };
+        case 'CLAIM_CLAIM_REQ':
+            return {
+                ...state,
+                fetchingClaim: true,
+                fetchedClaim: false,
+                claim: null,
+                errorClaim: null,
+            };
+        case 'CLAIM_CLAIM_RESP':
+            let claims = parseData(action.payload.data.claims);
+            return {
+                ...state,
+                fetchingClaim: false,
+                fetchedClaim: true,
+                claim: (!!claims && claims.length > 0) ? claims[0] : null,
+                errorClaims: formatGraphQLError(action.payload)
+            };
+        case 'CLAIM_CLAIM_ERR':
+            return {
+                ...state,
+                fetchingClaim: false,
+                errorClaim: formatServerError(action.payload)
+            };            
         case 'CLAIM_BATCH_RUNS_REQ':
             return {
                 ...state,
@@ -86,7 +113,12 @@ function reducer(
                 ...state,
                 fetchingBatchRuns: false,
                 errorBatchRuns: formatServerError(action.payload)
-            };            
+            };   
+        case 'CLAIM_EDIT':
+            return {
+                ...state,
+                claimId: action.payload
+            }
         default:
             return state;
     }

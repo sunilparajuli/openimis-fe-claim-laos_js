@@ -1,15 +1,15 @@
 import React, { Component } from "react";
-import { InputSelect } from "@openimis/fe-core";
+import { SelectInput } from "@openimis/fe-core";
 import { injectIntl } from "react-intl";
 import { formatMessage } from "@openimis/fe-core";
 
 import { REVIEW_STATUS } from "./constants";
 
-class ReviewStatusSelect extends Component {
+class ReviewStatusPicker extends Component {
     render() {
         const { intl, name, value, onChange } = this.props;
         return (
-            <InputSelect
+            <SelectInput
                 module="claim" label="reviewStatus"
                 options={[{
                     value: null,
@@ -19,11 +19,11 @@ class ReviewStatusSelect extends Component {
                     label: formatMessage(intl, "claim", "reviewStatus." + status)
                 }))]}
                 name={name}
-                value={value || null}
+                value={value}
                 onChange={onChange}
             />
         );
     }
 }
 
-export default injectIntl(ReviewStatusSelect);
+export default injectIntl(ReviewStatusPicker);

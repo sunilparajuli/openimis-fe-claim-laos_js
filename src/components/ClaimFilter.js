@@ -5,8 +5,8 @@ import { injectIntl } from 'react-intl';
 import _ from "lodash";
 import { Grid } from "@material-ui/core";
 import {
-    formatMessage, chip, toISODate, withModulesManager,
-    PublishedComponent, DatePicker, InputText
+    formatMessage, chip, withModulesManager,
+    PublishedComponent, DatePicker, TextInput
 } from "@openimis/fe-core";
 
 const styles = theme => ({
@@ -15,7 +15,7 @@ const styles = theme => ({
     form: {
         padding: 0
     },
-    formItem: {
+    item: {
         padding: theme.spacing(1)
     },
 });
@@ -27,59 +27,59 @@ class Admin extends Component {
         const { intl, classes, filters, onChangeFilter } = this.props;
         return (
             <Grid container className={classes.form}>
-                <Grid item xs={2} className={classes.formItem}>
+                <Grid item xs={2} className={classes.item}>
                     <PublishedComponent
-                        id="location.RegionSelect"
-                        initValue={(filters['region'] && filters['region']['value']) || null}
+                        id="location.RegionPicker"
+                        value={(filters['region'] && filters['region']['value'])}
                         onChange={(v, s) => onChangeFilter(
                             'region', v,
                             chip(intl, "claim", "ClaimFilter.region", s),
-                            `healthFacility_Location_Parent_Id: "${!!v && v.id}"`
+                            `healthFacility_Location_Parent_Id: "${v.id}"`
                         )}
                     />
                 </Grid>
-                <Grid item xs={2} className={classes.formItem}>
+                <Grid item xs={2} className={classes.item}>
                     <PublishedComponent
-                        id="location.DistrictSelect"
-                        initValue={(filters['district'] && filters['district']['value']) || null}
+                        id="location.DistrictPicker"
+                        value={(filters['district'] && filters['district']['value'])}
                         onChange={(v, s) => onChangeFilter(
                             'district', v,
                             chip(intl, "claim", "ClaimFilter.district", s),
-                            `healthFacility_Location_Id: "${!!v && v.id}"`
+                            `healthFacility_Location_Id: "${v.id}"`
                         )}
                     />
                 </Grid>
-                <Grid item xs={3} className={classes.formItem}>
+                <Grid item xs={3} className={classes.item}>
                     <PublishedComponent
-                        id="location.HealthFacilitySelect"
-                        initValue={(filters['healthFacility'] && filters['healthFacility']['value']) || null}
+                        id="location.HealthFacilityPicker"
+                        value={(filters['healthFacility'] && filters['healthFacility']['value'])}
                         onChange={(v, s) => onChangeFilter(
                             'healthFacility', v,
                             chip(intl, "claim", "ClaimFilter.healthFacility", s),
-                            `healthFacility_Id: "${!!v && v.id}"`
+                            `healthFacility_Id: "${v.id}"`
                         )}
                     />
                 </Grid>
-                <Grid item xs={2} className={classes.formItem}>
+                <Grid item xs={2} className={classes.item}>
                     <PublishedComponent
-                        id="claim.ClaimAdminSelect"
-                        initValue={(filters['claimAdmin'] && filters['claimAdmin']['value']) || null}
+                        id="claim.ClaimAdminPicker"
+                        value={(filters['claimAdmin'] && filters['claimAdmin']['value'])}
                         onChange={(v, s) => onChangeFilter(
                             'claimAdmin', v,
                             chip(intl, "claim", "ClaimFilter.claimAdmin", s),
-                            `admin_Id: "${!!v && v.id}"`
+                            `admin_Id: "${v.id}"`
                         )}
                     />
                 </Grid>
-                <Grid item xs={3} className={classes.formItem}>
+                <Grid item xs={3} className={classes.item}>
                     <PublishedComponent
-                        id="claim.BatchRunSelect"
-                        initValue={(filters['batchRun'] && filters['batchRun']['value']) || null}
+                        id="claim.BatchRunPicker"
+                        value={(filters['batchRun'] && filters['batchRun']['value'])}
                         scope={!!filters['district'] && filters['district']['value']}
                         onChange={(v, s) => onChangeFilter(
                             'batchRun', v,
                             chip(intl, "claim", "BatchRun", s),
-                            `batchRun_Id: "${!!v && v.id}"`
+                            `batchRun_Id: "${v.id}"`
                         )}
                     />
                 </Grid>
@@ -100,11 +100,11 @@ class Details extends Component {
         const { intl, classes, filters, onChangeFilter } = this.props;
         return (
             <Grid container className={classes.form}>
-                <Grid item xs={1} className={classes.formItem}>
+                <Grid item xs={1} className={classes.item}>
                     <PublishedComponent
-                        id="claim.ClaimStatusSelect"
+                        id="claim.ClaimStatusPicker"
                         name="claimStatus"
-                        value={(filters['claimStatus'] && filters['claimStatus']['value']) || null}
+                        value={(filters['claimStatus'] && filters['claimStatus']['value'])}
                         onChange={(v, s) => onChangeFilter(
                             'claimStatus', v,
                             chip(intl, "claim", "claimStatus", s),
@@ -112,11 +112,11 @@ class Details extends Component {
                         )}
                     />
                 </Grid>
-                <Grid item xs={1} className={classes.formItem}>
+                <Grid item xs={1} className={classes.item}>
                     <PublishedComponent
-                        id="claim.ReviewStatusSelect"
+                        id="claim.ReviewStatusPicker"
                         name="reviewStatus"
-                        value={(filters['reviewStatus'] && filters['reviewStatus']['value']) || null}
+                        value={(filters['reviewStatus'] && filters['reviewStatus']['value'])}
                         onChange={(v, s) => onChangeFilter(
                             'reviewStatus', v,
                             chip(intl, "claim", "reviewStatus", s),
@@ -124,11 +124,11 @@ class Details extends Component {
                         )}
                     />
                 </Grid>
-                <Grid item xs={1} className={classes.formItem}>
+                <Grid item xs={1} className={classes.item}>
                     <PublishedComponent
-                        id="claim.FeedbackStatusSelect"
+                        id="claim.FeedbackStatusPicker"
                         name="feedbackStatus"
-                        value={(filters['feedbackStatus'] && filters['feedbackStatus']['value']) || null}
+                        value={(filters['feedbackStatus'] && filters['feedbackStatus']['value'])}
                         onChange={(v, s) => onChangeFilter(
                             'feedbackStatus', v,
                             chip(intl, "claim", "feedbackStatus", s),
@@ -136,11 +136,11 @@ class Details extends Component {
                         )}
                     />
                 </Grid>
-                <Grid item xs={2} className={classes.formItem}>
-                    <InputText
+                <Grid item xs={2} className={classes.item}>
+                    <TextInput
                         module="claim" label="ClaimFilter.claimNo"
                         name="claimNo"
-                        value={(filters['claimNo'] && filters['claimNo']['value']) || null}
+                        value={(filters['claimNo'] && filters['claimNo']['value'])}
                         onChange={v => this.debouncedOnChangeFilter(
                             'claimNo', v,
                             chip(intl, "claim", "ClaimFilter.claimNo", v),
@@ -148,11 +148,11 @@ class Details extends Component {
                         )}
                     />
                 </Grid>
-                <Grid item xs={3} className={classes.formItem}>
-                    <InputText
+                <Grid item xs={3} className={classes.item}>
+                    <TextInput
                         module="claim" label="ClaimFilter.insureeCHFID"
                         name="chfId"
-                        value={(filters['chfId'] && filters['chfId']['value']) || null}
+                        value={(filters['chfId'] && filters['chfId']['value'])}
                         onChange={v => this.debouncedOnChangeFilter(
                             'chfId', v,
                             chip(intl, "claim", "ClaimFilter.chfId", v),
@@ -160,12 +160,12 @@ class Details extends Component {
                         )}
                     />
                 </Grid>
-                <Grid item xs={2} className={classes.formItem}>
-                    <InputText
+                <Grid item xs={2} className={classes.item}>
+                    <TextInput
                         module="claim" label="ClaimFilter.claimedAbove"
                         name="claimedAbove"
                         type="number"
-                        value={(filters['claimedbove'] && filters['claimedAbove']['value']) || null}
+                        value={(filters['claimedbove'] && filters['claimedAbove']['value'])}
                         onChange={v => this.debouncedOnChangeFilter(
                             'claimedAbove', (!v ? null : v),
                             chip(intl, "claim", "ClaimFilter.claimedAbove", v),
@@ -173,12 +173,12 @@ class Details extends Component {
                         )}
                     />
                 </Grid>
-                <Grid item xs={2} className={classes.formItem}>
-                    <InputText
+                <Grid item xs={2} className={classes.item}>
+                    <TextInput
                         module="claim" label="ClaimFilter.claimedUnder"
                         name="claimedUnder"
                         type="number"
-                        value={(filters['claimedUnder'] && filters['claimedUnder']['value']) || null}
+                        value={(filters['claimedUnder'] && filters['claimedUnder']['value'])}
                         onChange={v => this.debouncedOnChangeFilter(
                             'claimedUnder', (!v ? null : v),
                             chip(intl, "claim", "ClaimFilter.claimedUnder", v),
@@ -188,27 +188,27 @@ class Details extends Component {
                 </Grid>
                 <Grid item xs={3}>
                     <Grid container>
-                        <Grid item xs={6} className={classes.formItem}>
+                        <Grid item xs={6} className={classes.item}>
                             <DatePicker
                                 value={(filters['visitDateFrom'] && filters['visitDateFrom']['value']) || null}
                                 module="claim"
-                                label="ClaimFilter.visitDateFrom"
+                                label="visitDateFrom"
                                 onChange={d => onChangeFilter(
                                     'visitDateFrom', d,
-                                    chip(intl, "claim", "ClaimFilter.visitDateFrom", toISODate(d)),
-                                    `dateFrom: "${toISODate(d)}"`
+                                    chip(intl, "claim", "visitDateFrom", d),
+                                    `dateFrom: "${d}"`
                                 )}
                             />
                         </Grid>
-                        <Grid item xs={6} className={classes.formItem}>
+                        <Grid item xs={6} className={classes.item}>
                             <DatePicker
                                 value={(filters['visitDateTo'] && filters['visitDateTo']['value']) || null}
                                 module="claim"
-                                label="ClaimFilter.visitDateTo"
+                                label="visitDateTo"
                                 onChange={d => onChangeFilter(
                                     'visitDateTo', d,
-                                    chip(intl, "claim", "ClaimFilter.visitDateTo", toISODate(d)),
-                                    `dateTo: "${toISODate(d)}"`
+                                    chip(intl, "claim", "visitDateTo", d),
+                                    `dateTo: "${d}"`
                                 )}
                             />
                         </Grid>
@@ -216,35 +216,35 @@ class Details extends Component {
                 </Grid>
                 <Grid item xs={3}>
                     <Grid container>
-                        <Grid item xs={6} className={classes.formItem}>
+                        <Grid item xs={6} className={classes.item}>
                             <DatePicker
                                 value={(filters['claimDateFrom'] && filters['claimDateFrom']['value']) || null}
                                 module="claim"
                                 label="ClaimFilter.claimDateFrom"
                                 onChange={d => onChangeFilter(
                                     'claimDateFrom', d,
-                                    chip(intl, "claim", "ClaimFilter.claimDateFrom", toISODate(d)),
-                                    `dateClaimed_Gte: "${toISODate(d)}"`
+                                    chip(intl, "claim", "ClaimFilter.claimDateFrom", d),
+                                    `dateClaimed_Gte: "${d}"`
                                 )}
                             />
                         </Grid>
-                        <Grid item xs={6} className={classes.formItem}>
+                        <Grid item xs={6} className={classes.item}>
                             <DatePicker
                                 value={(filters['claimDateTo'] && filters['claimDateTo']['value']) || null}
                                 module="claim"
                                 label="ClaimFilter.claimDateTo"
                                 onChange={d => onChangeFilter(
                                     'claimDateTo', d,
-                                    chip(intl, "claim", "ClaimFilter.claimDateTo", toISODate(d)),
-                                    `dateClaimed_Lte: "${toISODate(d)}"`
+                                    chip(intl, "claim", "ClaimFilter.claimDateTo", d),
+                                    `dateClaimed_Lte: "${d}"`
                                 )}
                             />
                         </Grid>
                     </Grid>
                 </Grid>
-                <Grid item xs={3} className={classes.formItem}>
+                <Grid item xs={3} className={classes.item}>
                     <PublishedComponent
-                        id="medical.DiagnosisSelect"
+                        id="medical.DiagnosisPicker"
                         name="mainDiagnosis"
                         label={formatMessage(intl, "claim", "mainDiagnosis")}
                         value={(filters['mainDiagnosis'] && filters['mainDiagnosis']['value']) || null}
@@ -255,9 +255,9 @@ class Details extends Component {
                         )}
                     />
                 </Grid>
-                <Grid item xs={3} className={classes.formItem}>
+                <Grid item xs={3} className={classes.item}>
                     <PublishedComponent
-                        id="medical.VisitTypeSelect"
+                        id="medical.VisitTypePicker"
                         name="visitType"
                         value={(filters['visitType'] && filters['visitType']['value']) || null}
                         onChange={(v, s) => onChangeFilter(

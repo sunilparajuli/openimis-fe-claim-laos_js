@@ -33,7 +33,7 @@ class ClaimFilterDialog extends Component {
                 fullWidth={true}
                 maxWidth="lg"
             >
-                <DialogTitle className={classes.dialogTitle} id="form-dialog-title">
+                <DialogTitle className={classes.dialogTitle}>
                     <FormattedMessage module="claim" id="search.dialog.title" />
                 </DialogTitle>
                 <Divider />

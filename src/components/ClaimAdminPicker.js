@@ -4,7 +4,7 @@ import { bindActionCreators } from "redux";
 import { withTheme, withStyles } from "@material-ui/core/styles";
 import { injectIntl } from 'react-intl';
 import { fetchClaimAdmins } from "../actions";
-import { formatMessage, AutoSuggestion, ProgressOrError } from "@openimis/fe-core";
+import { formatMessage, AutoSuggestion, ProgressOrError, withModulesManager } from "@openimis/fe-core";
 import { FormControl } from "@material-ui/core";
 
 const styles = theme => ({
@@ -13,11 +13,11 @@ const styles = theme => ({
     }
 });
 
-class ClaimAdminSelect extends Component {
+class ClaimAdminPicker extends Component {
 
     componentDidMount() {
         if (!this.props.fetchedClaimAdmins) {
-            this.props.fetchClaimAdmins();
+            this.props.fetchClaimAdmins(this.props.modulesManager);
         }
     }
 
@@ -27,7 +27,7 @@ class ClaimAdminSelect extends Component {
 
     render() {
         const {
-            intl, initValue, claimAdmins,
+            intl, value, claimAdmins,
             fetchingClaimAdmins, fetchedClaimAdmins, errorClaimAdmins,
             withLabel = true, label
         } = this.props;
@@ -38,11 +38,11 @@ class ClaimAdminSelect extends Component {
                     <FormControl fullWidth>
                         <AutoSuggestion
                             items={claimAdmins}
-                            label={!!withLabel && (label || formatMessage(intl, "claim", "ClaimAdminSelect.label"))}
+                            label={!!withLabel && (label || formatMessage(intl, "claim", "ClaimAdminPicker.label"))}
                             getSuggestions={this.claimAdmins}
                             getSuggestionValue={this.formatSuggestion}
                             onSuggestionSelected={this.onSuggestionSelected}
-                            initValue={initValue}
+                            value={value}
                         />
                     </FormControl>
                 )}
@@ -62,4 +62,6 @@ const mapDispatchToProps = dispatch => {
     return bindActionCreators({ fetchClaimAdmins }, dispatch);
 };
 
-export default connect(mapStateToProps, mapDispatchToProps)(injectIntl(withTheme(withStyles(styles)(ClaimAdminSelect))));
+export default withModulesManager(
+    connect(mapStateToProps, mapDispatchToProps)(injectIntl(withTheme(withStyles(styles)(ClaimAdminPicker))))
+);
