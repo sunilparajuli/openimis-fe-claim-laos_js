@@ -70,11 +70,13 @@
     "claim.edit.services.price": "Price",
     "claim.edit.services.explanation": "Explanation",
     "claim.edit.services.justification": "Justification",
+    "claim.edit.services.delete": " ",
     "claim.noitem": "No Item To Display",
     "claim.edit.items.title": "Items ({totalAmount})",
     "claim.edit.items.item": "Item",
     "claim.edit.items.quantity": "Quantity",
     "claim.edit.items.price": "Price",
     "claim.edit.items.explanation": "Explanation",
-    "claim.edit.items.justification": "Justification"
+    "claim.edit.items.justification": "Justification",
+    "claim.edit.items.delete": " "
 }

@@ -23,7 +23,7 @@ import ClaimFilter from "./ClaimFilter";
 import {
     withModulesManager, withHistory, historyPush,
     formatMessage, formatDateFromIso, formatAmount, chip,
-    FormattedMessage, ProgressOrError, ResultTable
+    FormattedMessage, ProgressOrError, Table
 } from "@openimis/fe-core";
 import { fetchClaimSummaries, selectForFeedback, selectForReview, submit } from "../actions";
 
@@ -397,7 +397,7 @@ class ClaimsPage extends Component {
                                 <Divider />
                             </Grid>
                             <Grid item xs={12}>
-                                <ResultTable
+                                <Table
                                     module="claim"
                                     headers={[
                                         "claimSummaries.code",
