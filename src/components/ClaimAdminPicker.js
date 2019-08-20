@@ -21,7 +21,7 @@ class ClaimAdminPicker extends Component {
         }
     }
 
-    formatSuggestion = a => `${a.code} ${a.lastName} ${a.otherName || ""}`;
+    formatSuggestion = a => !a ? "" : `${a.code} ${a.lastName} ${a.otherName || ""}`;
 
     onSuggestionSelected = v => this.props.onChange(v, this.formatSuggestion(v));
 

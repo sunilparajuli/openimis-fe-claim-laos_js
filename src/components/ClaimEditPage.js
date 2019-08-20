@@ -43,7 +43,7 @@ class RawHeadPanel extends Component {
                     <DatePicker
                         value={fromISODate(edited.dateClaimed)}
                         module="claim"
-                        label="dateClaimed"
+                        label="claimedDate"
                         onChange={d => updateAttribute("dateClaimed", d)}
                     />
                 </Grid>

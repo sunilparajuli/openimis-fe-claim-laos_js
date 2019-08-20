@@ -402,7 +402,7 @@ class ClaimsPage extends Component {
                                     headers={[
                                         "claimSummaries.code",
                                         "claimSummaries.healthFacility",
-                                        "claimSummaries.dateClaimed",
+                                        "claimSummaries.claimedDate",
                                         "claimSummaries.feedbackStatus",
                                         "claimSummaries.reviewStatus",
                                         "claimSummaries.claimed",

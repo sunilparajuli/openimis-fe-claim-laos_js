@@ -34,7 +34,7 @@ class Admin extends Component {
                         onChange={(v, s) => onChangeFilter(
                             'region', v,
                             chip(intl, "claim", "ClaimFilter.region", s),
-                            `healthFacility_Location_Parent_Id: "${v.id}"`
+                            `healthFacility_Location_Parent_Id: "${!!v && v.id}"`
                         )}
                     />
                 </Grid>
@@ -45,7 +45,7 @@ class Admin extends Component {
                         onChange={(v, s) => onChangeFilter(
                             'district', v,
                             chip(intl, "claim", "ClaimFilter.district", s),
-                            `healthFacility_Location_Id: "${v.id}"`
+                            `healthFacility_Location_Id: "${!!v && v.id}"`
                         )}
                     />
                 </Grid>
@@ -56,7 +56,7 @@ class Admin extends Component {
                         onChange={(v, s) => onChangeFilter(
                             'healthFacility', v,
                             chip(intl, "claim", "ClaimFilter.healthFacility", s),
-                            `healthFacility_Id: "${v.id}"`
+                            `healthFacility_Id: "${!!v && v.id}"`
                         )}
                     />
                 </Grid>
@@ -67,7 +67,7 @@ class Admin extends Component {
                         onChange={(v, s) => onChangeFilter(
                             'claimAdmin', v,
                             chip(intl, "claim", "ClaimFilter.claimAdmin", s),
-                            `admin_Id: "${v.id}"`
+                            `admin_Id: "${!!v && v.id}"`
                         )}
                     />
                 </Grid>
@@ -79,7 +79,7 @@ class Admin extends Component {
                         onChange={(v, s) => onChangeFilter(
                             'batchRun', v,
                             chip(intl, "claim", "BatchRun", s),
-                            `batchRun_Id: "${v.id}"`
+                            `batchRun_Id: "${!!v && v.id}"`
                         )}
                     />
                 </Grid>
@@ -220,10 +220,10 @@ class Details extends Component {
                             <DatePicker
                                 value={(filters['claimDateFrom'] && filters['claimDateFrom']['value']) || null}
                                 module="claim"
-                                label="ClaimFilter.claimDateFrom"
+                                label="ClaimFilter.claimedDateFrom"
                                 onChange={d => onChangeFilter(
                                     'claimDateFrom', d,
-                                    chip(intl, "claim", "ClaimFilter.claimDateFrom", d),
+                                    chip(intl, "claim", "ClaimFilter.claimedDateFrom", d),
                                     `dateClaimed_Gte: "${d}"`
                                 )}
                             />
@@ -232,10 +232,10 @@ class Details extends Component {
                             <DatePicker
                                 value={(filters['claimDateTo'] && filters['claimDateTo']['value']) || null}
                                 module="claim"
-                                label="ClaimFilter.claimDateTo"
+                                label="ClaimFilter.claimedDateTo"
                                 onChange={d => onChangeFilter(
                                     'claimDateTo', d,
-                                    chip(intl, "claim", "ClaimFilter.claimDateTo", d),
+                                    chip(intl, "claim", "ClaimFilter.claimedDateTo", d),
                                     `dateClaimed_Lte: "${d}"`
                                 )}
                             />
