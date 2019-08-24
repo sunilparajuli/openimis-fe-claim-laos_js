@@ -25,10 +25,11 @@ const DEFAULT_CONFIG = {
     { key: "claim.FeedbackStatusPicker.projection", ref: null },
     { key: "claim.BatchRunPicker", ref: BatchRunPicker },
     { key: "claim.BatchRunPicker.projection", ref: ["id", "runDate"] },
+    { key: "claim.CreateClaim.status", ref: 1 },
   ],
   "core.Router": [
     { path: "claim/claims", component: ClaimsPage },
-    { path: "claim/claim/:claim_id", component: ClaimEditPage },
+    { path: "claim/claim/:claim_id?", component: ClaimEditPage },
     { path: "claim/review", component: ReviewPage },
     { path: "claim/batch", component: BatchPage }
   ],

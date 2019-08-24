@@ -37,11 +37,7 @@ const styles = theme => ({
     paperHeaderMessage: theme.paper.message,
     paperHeaderAction: theme.paper.action,
     paperDivider: theme.paper.divider,
-    fab: {
-        position: "absolute",
-        bottom: theme.spacing(2),
-        right: theme.spacing(2)
-    }
+    fab: theme.fab,
 });
 
 class SelectionPane extends Component {
@@ -254,6 +250,10 @@ class ClaimsPage extends Component {
         )
     }
 
+    onAdd = () => {
+        historyPush(this.props.history, "/claim/claim");
+    }
+
     onDoubleClick = (c) => {
         historyPush(this.props.history, `/claim/claim/${c.id}`);
     }
@@ -440,7 +440,7 @@ class ClaimsPage extends Component {
                         </Grid>
                     </Paper>
                 )}
-                <Fab color="primary" aria-label="Add" className={classes.fab}>
+                <Fab color="primary" className={classes.fab} onClick={this.onAdd}>
                     <AddIcon />
                 </Fab>
             </Fragment>

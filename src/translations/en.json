@@ -78,5 +78,6 @@
     "claim.edit.items.price": "Price",
     "claim.edit.items.explanation": "Explanation",
     "claim.edit.items.justification": "Justification",
-    "claim.edit.items.delete": " "
+    "claim.edit.items.delete": " ",
+    "claim.CreateClaim.mutationLabel": "Enter Claim"
 }

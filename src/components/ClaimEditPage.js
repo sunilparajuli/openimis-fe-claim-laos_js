@@ -5,12 +5,15 @@ import { connect } from "react-redux";
 import { bindActionCreators } from "redux";
 import {
     formatMessage, formatAmount, NumberInput, ProgressOrError, Form, Table,
-    PublishedComponent, DatePicker, fromISODate, AmountInput, TextInput, withModulesManager
+    PublishedComponent, DatePicker, fromISODate, AmountInput, TextInput,
+    withModulesManager, withHistory, historyPush,
+    journalize
 } from "@openimis/fe-core";
 import { Grid, IconButton } from "@material-ui/core";
 import DeleteIcon from "@material-ui/icons/Delete";
-import { fetchClaim } from "../actions";
+import { fetchClaim, createClaim } from "../actions";
 import _ from "lodash";
+import { uuid } from "lodash-uuid";
 
 const styles = theme => ({
     paper: theme.paper.paper,
@@ -67,6 +70,7 @@ class RawHeadPanel extends Component {
                     <PublishedComponent
                         id="medical.VisitTypePicker"
                         name="visitType"
+                        withNull={false}
                         label={formatMessage(intl, "claim", "visitType")}
                         value={edited.visitType}
                         onChange={(v, s) => updateAttribute("visitType", v)}
@@ -158,7 +162,7 @@ const HeadPanel = injectIntl(withTheme(withStyles(styles)(RawHeadPanel)))
 
 class RawChildPanel extends Component {
     state = {
-        data: []
+        data: [{}]
     }
 
     componentDidMount() {
@@ -168,7 +172,11 @@ class RawChildPanel extends Component {
     }
 
     componentDidUpdate(prevProps, prevState, snapshot) {
-        if (!!this.props.edited[`${this.props.type}s`]
+        if (prevProps.edited_id && !this.props.edited_id) {
+            this.setState({
+                data: [{}],
+            });
+        } else if (!!this.props.edited[`${this.props.type}s`]
             && !_.isEqual(prevProps.edited[`${this.props.type}s`], this.props.edited[`${this.props.type}s`])) {
             this.setState({ data: (this.props.edited[`${this.props.type}s`] || []).concat([{}]) })
         }
@@ -183,7 +191,7 @@ class RawChildPanel extends Component {
             data.push({});
         }
         this.setState({ data });
-    }    
+    }
 
     _onDelete = idx => {
         const data = this.state.data;
@@ -222,7 +230,7 @@ class RawChildPanel extends Component {
                     (i, idx) => <AmountInput value={i.priceAsked} onChange={v => this._onChange(idx, "priceAsked", v)} />,
                     (i, idx) => <TextInput value={i.explanation} onChange={v => this._onChange(idx, "explanation", v)} />,
                     (i, idx) => <TextInput value={i.justification} onChange={v => this._onChange(idx, "justification", v)} />,
-                    (i, idx) => idx === this.state.data.length - 1 ? null : <IconButton onClick={e => this._onDelete(idx)}><DeleteIcon/></IconButton>
+                    (i, idx) => idx === this.state.data.length - 1 ? null : <IconButton onClick={e => this._onDelete(idx)}><DeleteIcon /></IconButton>
                 ]}
                 items={this.state.data}
             />
@@ -247,22 +255,53 @@ const ItemsPanel = injectIntl(withTheme(withStyles(styles)(RawItemsPanel)))
 
 class ClaimEditPage extends Component {
 
+    state = {
+        reset: 0,
+        claim: {},
+    }
+
     componentDidMount() {
         if (this.props.claim_id) {
             this.props.fetchClaim(this.props.modulesManager, this.props.claim_id);
+        } else {
+            this.setState({ dirty: true });
         }
     }
 
     componentDidUpdate(prevProps, prevState, snapshot) {
-        if (prevProps.fetchedClaim !== this.props.fetchedClaim && !!this.props.fetchedClaim) {
+        if (prevProps.claim_id && !this.props.claim_id) {
             this.setState({
-                dirty: false,
+                claim: {},
+            });
+        } else if (prevProps.fetchedClaim !== this.props.fetchedClaim && !!this.props.fetchedClaim) {
+            this.setState({
+                claim: this.props.claim,
             })
+        } else if (prevProps.submittingMutation && !this.props.submittingMutation) {
+            this.props.journalize(this.props.claimMutation);
+            this.setState({ reset: this.state.reset + 1 });
         }
     }
 
+    add = () => {
+        historyPush(this.props.history, "/claim/claim");
+        this.setState({claim: {}})
+    }
+
     save = (claim) => {
-        console.log("SAVE " + JSON.stringify(claim));
+        claim.code = uuid().substring(0, 8);  //code should be defined by backend!!
+        if (!this.props.claim_id) {
+            this.props.createClaim(
+                this.props.modulesManager,
+                claim,
+                formatMessage(
+                    this.props.intl,
+                    "claim",
+                    "CreateClaim.mutationLabel"
+                ),
+                claim.code
+            );
+        }
     }
 
     reload = () => {
@@ -270,17 +309,20 @@ class ClaimEditPage extends Component {
     }
 
     render() {
-        const { fetchingClaim, fetchedClaim, errorClaim } = this.props;
+        const { claim_id, fetchingClaim, fetchedClaim, errorClaim } = this.props;
         return (
             <Fragment>
                 <ProgressOrError progress={fetchingClaim} error={errorClaim} />
-                {!!fetchedClaim && (
+                {(!!fetchedClaim || !claim_id) && (
                     <Form back="/claim/claims"
                         module="claim"
-                        edited={this.props.claim}
+                        edited_id={claim_id}
+                        edited={this.state.claim}
+                        reset={this.state.reset}
                         title="edit.title"
+                        add={this.add}
                         save={this.save}
-                        reload={this.reload}
+                        reload={claim_id && this.reload}
                         HeadPanel={HeadPanel}
                         Panels={[
                             ServicesPanel,
@@ -299,14 +341,16 @@ const mapStateToProps = (state, props) => ({
     fetchedClaim: state.claim.fetchedClaim,
     errorClaim: state.claim.errorClaim,
     claim_id: props.match.params.claim_id,
+    submittingMutation: state.claim.submittingMutation,
+    claimMutation: state.claim.claimMutation,
 });
 
 const mapDispatchToProps = dispatch => {
-    return bindActionCreators({ fetchClaim }, dispatch);
+    return bindActionCreators({ fetchClaim, createClaim, journalize }, dispatch);
 };
 
-export default withModulesManager(connect(mapStateToProps, mapDispatchToProps)(
+export default withHistory(withModulesManager(connect(mapStateToProps, mapDispatchToProps)(
     injectIntl(withTheme(
         withStyles(styles)(ClaimEditPage)
-    )))
+    ))))
 );

@@ -10,7 +10,7 @@ function reducer(
         fetchedClaims: false,
         errorClaims: null,
         claims: null,
-        claimsPageInfo: {totalCount: 0},
+        claimsPageInfo: { totalCount: 0 },
         fetchingBatchRuns: false,
         fetchedBatchRuns: false,
         errorBatchRuns: null,
@@ -19,6 +19,8 @@ function reducer(
         fetchedClaim: false,
         errorClaim: null,
         claim: {},
+        submittingMutation: false,
+        claimMutation: {},
     },
     action,
 ) {
@@ -91,7 +93,7 @@ function reducer(
                 ...state,
                 fetchingClaim: false,
                 errorClaim: formatServerError(action.payload)
-            };            
+            };
         case 'CLAIM_BATCH_RUNS_REQ':
             return {
                 ...state,
@@ -113,11 +115,24 @@ function reducer(
                 ...state,
                 fetchingBatchRuns: false,
                 errorBatchRuns: formatServerError(action.payload)
-            };   
-        case 'CLAIM_EDIT':
+            };
+        case 'CLAIM_CREATE_CLAIM_REQ':
             return {
                 ...state,
-                claimId: action.payload
+                submittingMutation: true,
+                claimMutation: action.meta,
+            }
+        case 'CLAIM_CREATE_CLAIM_RESP':
+            var claimMutation = state.claimMutation;
+            claimMutation.internalId = action.payload.data.createClaim.internalId;
+            return {
+                ...state,
+                submittingMutation: false,
+                claimMutation,
+            }
+        case 'CLAIM_CREATE_CLAIM_ERR':
+            return {
+                ...state,
             }
         default:
             return state;
