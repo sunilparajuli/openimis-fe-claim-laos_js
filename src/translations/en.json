@@ -83,5 +83,8 @@
     "claim.edit.items.explanation": "Explanation",
     "claim.edit.items.justification": "Justification",
     "claim.edit.items.delete": " ",
-    "claim.CreateClaim.mutationLabel": "Enter Claim"
+    "claim.CreateClaim.mutationLabel": "Enter Claim",
+    "claim.BatchesLauncher.title": "Batch Processing",
+    "claim.BatchesSearcher.title": "Batches",
+    "claim.BatchesPreviewer.title": "Filter for Accounts"
 }

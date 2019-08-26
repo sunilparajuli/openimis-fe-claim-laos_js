@@ -2,7 +2,7 @@ import ClaimMainMenu from "./components/ClaimMainMenu";
 import HealthFacilitiesPage from "./components/HealthFacilitiesPage";
 import ClaimEditPage from "./components/ClaimEditPage";
 import ReviewsPage from "./components/ReviewsPage";
-import { BatchesPage } from "./components/BatchesPage";
+import BatchesPage from "./components/BatchesPage";
 import ClaimAdminPicker from "./components/ClaimAdminPicker";
 import BatchRunPicker from "./components/BatchRunPicker";
 import ClaimStatusPicker from "./components/ClaimStatusPicker";

@@ -9,21 +9,23 @@ class ClaimStatusPicker extends Component {
 
     _onChange = v => this.props.onChange(
         v,
-        formatMessage(this.props.intl, "claim", "claimStatus." + v)
+        formatMessage(this.props.intl, "claim", `claimStatus.${v}`)
     )
 
     render() {
-        const { intl, name, value } = this.props;
+        const { intl, name, value, withNull = true } = this.props;
+        const options = withNull ? [{
+            value: null,
+            label: formatMessage(intl, "claim", "claimStatus.null")
+        }] : [];
+        options.push(...CLAIM_STATUS.map(v => ({
+            value: v,
+            label: formatMessage(intl, "claim", `claimStatus.${v}`)
+        })));        
         return (
             <SelectInput
                 module="claim" label="claimStatus"
-                options={[{
-                    value: null,
-                    label: formatMessage(intl, "claim", "claimStatus.null")
-                }, ...CLAIM_STATUS.map(v => ({
-                    value: v,
-                    label: formatMessage(intl, "claim", "claimStatus." + v)
-                }))]}
+                options={oprions}
                 name={name}
                 value={value}
                 onChange={this._onChange}
