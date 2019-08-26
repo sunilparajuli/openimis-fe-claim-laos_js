@@ -284,7 +284,7 @@ class ClaimEditPage extends Component {
     }
 
     add = () => {
-        historyPush(this.props.history, "/claim/claim");
+        historyPush(this.props.history, "claim.route.editClaim");
         this.setState({claim: {}})
     }
 
@@ -314,7 +314,7 @@ class ClaimEditPage extends Component {
             <Fragment>
                 <ProgressOrError progress={fetchingClaim} error={errorClaim} />
                 {(!!fetchedClaim || !claim_id) && (
-                    <Form back="/claim/claims"
+                    <Form
                         module="claim"
                         edited_id={claim_id}
                         edited={this.state.claim}
@@ -340,9 +340,9 @@ const mapStateToProps = (state, props) => ({
     fetchingClaim: state.claim.fetchingClaim,
     fetchedClaim: state.claim.fetchedClaim,
     errorClaim: state.claim.errorClaim,
-    claim_id: props.match.params.claim_id,
     submittingMutation: state.claim.submittingMutation,
     claimMutation: state.claim.claimMutation,
+    claim_id: props.match.params.claim_id
 });
 
 const mapDispatchToProps = dispatch => {

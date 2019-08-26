@@ -5,7 +5,6 @@ import { injectIntl } from 'react-intl';
 import _ from "lodash";
 import { withTheme, withStyles } from "@material-ui/core/styles";
 import {
-    Fab,
     Grid,
     Paper,
     Divider,
@@ -16,16 +15,15 @@ import {
     MenuItem,
 } from "@material-ui/core";
 import MoreHoriz from "@material-ui/icons/MoreHoriz";
-import AddIcon from "@material-ui/icons/Add";
 import { Searcher } from "@openimis/fe-core";
 import ClaimFilterDialog from "./ClaimFilterDialog";
 import ClaimFilter from "./ClaimFilter";
 import {
-    withModulesManager, withHistory, historyPush,
-    formatMessage, formatDateFromIso, formatAmount, chip,
+    withModulesManager,
+    formatMessage, formatDateFromIso, formatAmount,
     FormattedMessage, ProgressOrError, Table
 } from "@openimis/fe-core";
-import { fetchClaimSummaries, selectForFeedback, selectForReview, submit } from "../actions";
+import { fetchClaimSummaries } from "../actions";
 
 const styles = theme => ({
     root: {
@@ -37,7 +35,6 @@ const styles = theme => ({
     paperHeaderMessage: theme.paper.message,
     paperHeaderAction: theme.paper.action,
     paperDivider: theme.paper.divider,
-    fab: theme.fab,
 });
 
 class SelectionPane extends Component {
@@ -73,16 +70,10 @@ class SelectionMenu extends Component {
     action = (a) => {
         this.setState(
             { anchorEl: null },
-            e => a()
+            e => a(this.props.selection)
         )
     }
     canSelectAll = () => this.props.claims.map(s => s.id).filter(s => !this.props.selection.map(s => s.id).includes(s)).length
-
-    canMarkSelectedForFeedback = () => this.props.selection.filter(s => s.feedbackStatus <= 2).length === this.props.selection.length
-
-    canMarkSelectedForReview = () => this.props.selection.filter(s => s.reviewStatus <= 2).length === this.props.selection.length
-
-    canSubmitSelected = () => this.props.selection.filter(s => s.status === 2).length === this.props.selection.length
 
     renderButtons = (entries) => (
         <Fragment>
@@ -114,7 +105,7 @@ class SelectionMenu extends Component {
     }
 
     render() {
-        const { intl, selection, clearSelected, selectAll, markSelectedForFeedback, markSelectedForReview, submitSelected } = this.props;
+        const { intl, selection, clearSelected, selectAll, actions } = this.props;
         let entries = [];
         let selectionCount = selection.length;
         if (!!selectionCount) {
@@ -123,15 +114,11 @@ class SelectionMenu extends Component {
         if (this.canSelectAll()) {
             entries.push({ text: formatMessage(intl, "claim", "selectAll"), action: selectAll });
         }
-        if (!!selectionCount && this.canMarkSelectedForFeedback()) {
-            entries.push({ text: formatMessage(intl, "claim", "claimSummaries.markSelectedForFeedback"), action: markSelectedForFeedback });
-        }
-        if (!!selectionCount && this.canMarkSelectedForReview()) {
-            entries.push({ text: formatMessage(intl, "claim", "claimSummaries.markSelectedForReview"), action: markSelectedForReview });
-        }
-        if (!!selectionCount && this.canSubmitSelected()) {
-            entries.push({ text: formatMessage(intl, "claim", "claimSummaries.submitSelected"), action: submitSelected });
-        }
+        actions.forEach(a => {
+            if (a.enabled(selection)) {
+                entries.push({ text: formatMessage(intl, "claim", a.label), action: a.action });
+            }
+        });
         if (entries.length > 2) {
             return this.renderMenu(entries);
         } else {
@@ -142,7 +129,7 @@ class SelectionMenu extends Component {
 
 const StyledSelectionMenu = injectIntl(withTheme(withStyles(styles)(SelectionMenu)))
 
-class ClaimsPage extends Component {
+class ClaimsSearcher extends Component {
 
     state = {
         open: false,
@@ -166,25 +153,11 @@ class ClaimsPage extends Component {
             "claimFilter.withDialog",
             false
         );
-        this.defaultFilters = this.props.modulesManager.getConf(
-            "fe-claim",
-            "defaultFilters",
-            {
-                "claimStatus": {
-                    "value": 2,
-                    "chip": chip(
-                        this.props.intl, "claim", "claimStatus",
-                        formatMessage(this.props.intl, "claim", "claimStatus.2")
-                    ),
-                    "filter": "status: 2"
-                }
-            }
-        );
     }
 
     componentDidMount() {
         this.setState({
-            filters: this.defaultFilters,
+            filters: this.props.defaultFilters,
             pageSize: this.defaultPageSize,
         },
             e => this.props.fetchClaimSummaries(
@@ -194,14 +167,23 @@ class ClaimsPage extends Component {
         );
     }
 
+    componentDidUpdate(prevProps, prevState, snapshot) {
+        if (!_.isEqual(prevProps.forcedFilters, this.props.forcedFilters)) {
+            this.applyFilters();
+        }
+    }
+
     filtersToQueryParams = () => {
         let prms = Object.keys(this.state.filters).map(f => this.state.filters[f]['filter']);
         prms = prms.concat(`first: ${this.state.pageSize}`);
         if (!!this.state.afterCursor) {
-            prms = prms.concat(`after: "${this.state.afterCursor}"`)
+            prms.push(`after: "${this.state.afterCursor}"`)
         }
         if (!!this.state.beforeCursor) {
-            prms = prms.concat(`before: "${this.state.beforeCursor}"`)
+            prms.push(`before: "${this.state.beforeCursor}"`)
+        }
+        if (!!this.props.forcedFilters) {
+            prms.push(...this.props.forcedFilters);
         }
         return prms;
     }
@@ -250,30 +232,6 @@ class ClaimsPage extends Component {
         )
     }
 
-    onAdd = () => {
-        historyPush(this.props.history, "/claim/claim");
-    }
-
-    onDoubleClick = (c) => {
-        historyPush(this.props.history, `/claim/claim/${c.id}`);
-    }
-
-    markSelectedForFeedback = (e) => {
-        alert('SELECT FOR FEEDBACK #' + this.state.selection.length);
-        //this.props.selectForFeedback(this.state.selection);
-    }
-
-    markSelectedForReview = (e) => {
-        alert('SELECT FOR REVIEW #' + this.state.selection.length);
-        //this.props.selectForReview(this.state.selection);
-    }
-
-
-    submitSelected = (e) => {
-        alert('SUBMIT #' + this.state.selection.length);
-        //this.props.submit(this.state.selection);
-    }
-
     clearSelected = (e) => {
         this.setState({ clearAll: this.state.clearAll + 1 })
     }
@@ -281,7 +239,6 @@ class ClaimsPage extends Component {
     selectAll = (e) => {
         this.setState({ selectAll: this.state.selectAll + 1 })
     }
-
 
     onChangeSelection = (s) => {
         this.setState({ selection: s });
@@ -341,7 +298,8 @@ class ClaimsPage extends Component {
     rowIdentifier = (r) => r.id
 
     render() {
-        const { intl, classes, claims, claimsPageInfo, fetchingClaims, fetchedClaims, errorClaims } = this.props;
+        const { intl, classes, claims, claimsPageInfo, fetchingClaims, fetchedClaims, errorClaims,
+            actions, onDoubleClick, fixFilter } = this.props;
         return (
             <Fragment>
                 {!!this.withDialog && (
@@ -361,6 +319,7 @@ class ClaimsPage extends Component {
                     filters={this.state.filters}
                     filterPane={
                         !this.withDialog && <ClaimFilter
+                            fixFilter={fixFilter}
                             filters={this.state.filters}
                             apply={this.applyFilters}
                             onChangeFilter={this.onChangeFilter}
@@ -383,12 +342,11 @@ class ClaimsPage extends Component {
                             <Grid item xs={4}>
                                 <Grid container direction="row" justify="flex-end">
                                     <StyledSelectionMenu
-                                        selection={this.state.selection} claims={this.props.claims}
+                                        selection={this.state.selection}
+                                        claims={claims}
                                         clearSelected={this.clearSelected}
                                         selectAll={this.selectAll}
-                                        markSelectedForFeedback={this.markSelectedForFeedback}
-                                        markSelectedForReview={this.markSelectedForReview}
-                                        submitSelected={this.submitSelected}
+                                        actions={actions}
                                     />
                                 </Grid>
 
@@ -428,7 +386,7 @@ class ClaimsPage extends Component {
                                     selectAll={this.state.selectAll}
                                     clearAll={this.state.clearAll}
                                     onChangeSelection={this.onChangeSelection}
-                                    onDoubleClick={this.onDoubleClick}
+                                    onDoubleClick={onDoubleClick}
                                     page={this.state.page}
                                     pageSize={this.state.pageSize}
                                     count={claimsPageInfo.totalCount}
@@ -440,9 +398,6 @@ class ClaimsPage extends Component {
                         </Grid>
                     </Paper>
                 )}
-                <Fab color="primary" className={classes.fab} onClick={this.onAdd}>
-                    <AddIcon />
-                </Fab>
             </Fragment>
         )
     }
@@ -459,16 +414,11 @@ const mapStateToProps = state => ({
 
 const mapDispatchToProps = dispatch => {
     return bindActionCreators(
-        {
-            fetchClaimSummaries,
-            selectForFeedback,
-            selectForReview,
-            submit,
-        },
+        { fetchClaimSummaries },
         dispatch);
 };
 
 export default withModulesManager(connect(mapStateToProps, mapDispatchToProps)(
-    withHistory(injectIntl(withTheme(
-        withStyles(styles)(ClaimsPage)
-    )))));
+    injectIntl(withTheme(
+        withStyles(styles)(ClaimsSearcher)
+    ))));

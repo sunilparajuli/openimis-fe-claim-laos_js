@@ -14,17 +14,17 @@ class ClaimMainMenu extends Component {
           {
             text: formatMessage(this.props.intl, "claim", "menu.healthFacilityClaims"),
             icon: <Keyboard />,
-            route: "/claim/claims"
+            route: "/claim/healthFacilities"
           },
           {
             text: formatMessage(this.props.intl, "claim", "menu.review"),
             icon: <Assignment />,
-            route: "/claim/review"
+            route: "/claim/reviews"
           },
           {
             text: formatMessage(this.props.intl, "claim", "menu.batch"),
             icon: <Subscriptions />,
-            route: "/claim/batch"
+            route: "/claim/batches"
           }
         ]}
       />

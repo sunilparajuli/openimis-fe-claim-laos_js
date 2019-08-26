@@ -3,7 +3,7 @@ import _debounce from "lodash/debounce";
 import { withTheme, withStyles } from "@material-ui/core/styles";
 import { injectIntl } from 'react-intl';
 import _ from "lodash";
-import { Grid } from "@material-ui/core";
+import { Grid, Divider } from "@material-ui/core";
 import {
     formatMessage, chip, withModulesManager,
     PublishedComponent, DatePicker, TextInput
@@ -18,10 +18,11 @@ const styles = theme => ({
     item: {
         padding: theme.spacing(1)
     },
+    paperDivider: theme.paper.divider,
 });
 
 
-class Admin extends Component {
+class Head extends Component {
 
     render() {
         const { intl, classes, filters, onChangeFilter } = this.props;
@@ -95,9 +96,8 @@ class Details extends Component {
         this.props.modulesManager.getConf("fe-claim", "debounceTime", 800)
     )
 
-
     render() {
-        const { intl, classes, filters, onChangeFilter } = this.props;
+        const { intl, classes, filters, onChangeFilter, fixFilter } = this.props;
         return (
             <Grid container className={classes.form}>
                 <Grid item xs={1} className={classes.item}>
@@ -164,7 +164,7 @@ class Details extends Component {
                     <TextInput
                         module="claim" label="ClaimFilter.claimedAbove"
                         name="claimedAbove"
-                        type="number"
+                        inputProps={{ type: "number" }}
                         value={(filters['claimedbove'] && filters['claimedAbove']['value'])}
                         onChange={v => this.debouncedOnChangeFilter(
                             'claimedAbove', (!v ? null : v),
@@ -177,7 +177,7 @@ class Details extends Component {
                     <TextInput
                         module="claim" label="ClaimFilter.claimedUnder"
                         name="claimedUnder"
-                        type="number"
+                        inputProps={{ type: "number" }}
                         value={(filters['claimedUnder'] && filters['claimedUnder']['value'])}
                         onChange={v => this.debouncedOnChangeFilter(
                             'claimedUnder', (!v ? null : v),
@@ -267,6 +267,16 @@ class Details extends Component {
                         )}
                     />
                 </Grid>
+                {!!fixFilter && (
+                    <Fragment>
+                        <Grid item xs={12} className={classes.paperDivider}>
+                            <Divider />
+                        </Grid>
+                        <Grid item xs={12}>
+                            {fixFilter}
+                        </Grid>
+                    </Fragment>
+                )}
             </Grid>
         );
     }
@@ -278,7 +288,7 @@ class ClaimFilter extends Component {
         const { classes } = this.props;
         return (
             <form className={classes.container} noValidate autoComplete="off">
-                <Admin {...this.props} />
+                <Head {...this.props} />
                 <Details {...this.props} />
             </form>
         )
