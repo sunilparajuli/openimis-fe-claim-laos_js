@@ -6,6 +6,10 @@ function reducer(
         fetchedClaimAdmins: false,
         errorClaimAdmins: null,
         claimAdmins: null,
+        fetchingClaimOfficers: false,
+        fetchedClaimOfficers: false,
+        errorClaimOfficers: null,
+        claimOfficers: null,
         fetchingClaims: false,
         fetchedClaims: false,
         errorClaims: null,
@@ -46,6 +50,28 @@ function reducer(
                 ...state,
                 fetchingClaimAdmins: false,
                 errorClaimAdmins: formatServerError(action.payload)
+            };
+        case 'CLAIM_CLAIM_OFFICERS_REQ':
+            return {
+                ...state,
+                fetchingClaimOfficers: true,
+                fetchedClaimOfficers: false,
+                claimOfficers: null,
+                errorClaimOfficers: null,
+            };
+        case 'CLAIM_CLAIM_OFFICERS_RESP':
+            return {
+                ...state,
+                fetchingClaimOfficers: false,
+                fetchedClaimOfficers: true,
+                claimOfficers: parseData(action.payload.data.claimOfficers),
+                errorClaimOfficers: formatGraphQLError(action.payload)
+            };
+        case 'CLAIM_CLAIM_OFFICERS_ERR':
+            return {
+                ...state,
+                fetchingClaimOfficers: false,
+                errorClaimOfficers: formatServerError(action.payload)
             };
         case 'CLAIM_CLAIMS_REQ':
             return {

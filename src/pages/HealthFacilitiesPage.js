@@ -6,7 +6,7 @@ import { Fab } from "@material-ui/core";
 import { withTheme, withStyles } from "@material-ui/core/styles";
 import AddIcon from "@material-ui/icons/Add";
 import { withHistory, historyPush, withModulesManager, formatMessage, chip } from "@openimis/fe-core";
-import ClaimsSearcher from "./ClaimsSearcher";
+import ClaimsSearcher from "../components/ClaimsSearcher";
 
 import { selectForFeedback, selectForReview, submit } from "../actions";
 

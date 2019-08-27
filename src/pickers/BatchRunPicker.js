@@ -2,7 +2,7 @@ import React, { Component } from "react";
 import { connect } from "react-redux";
 import { bindActionCreators } from "redux";
 import { injectIntl } from 'react-intl';
-import { formatMessage, AutoSuggestion, SelectInput, withModulesManager } from "@openimis/fe-core";
+import { SelectInput, withModulesManager } from "@openimis/fe-core";
 import { fetchBatchRuns } from "../actions";
 import _debounce from "lodash/debounce";
 

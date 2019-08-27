@@ -3,7 +3,7 @@ import { SelectInput } from "@openimis/fe-core";
 import { injectIntl } from "react-intl";
 import { formatMessage } from "@openimis/fe-core";
 
-import { REVIEW_STATUS } from "./constants";
+import { REVIEW_STATUS } from "../constants";
 
 class ReviewStatusPicker extends Component {
 
@@ -13,14 +13,14 @@ class ReviewStatusPicker extends Component {
     )
 
     render() {
-        const { intl, name, value, withNull = null } = this.props;
+        const { intl, name, value, withNull = true } = this.props;
         const options = withNull ? [{
             value: null,
             label: formatMessage(intl, "claim", "reviewStatus.null")
         }] : [];
         options.push(...REVIEW_STATUS.map(v => ({
             value: v,
-            label: formatMessage(intl, "claim", `reviewStatus.${status}`)
+            label: formatMessage(intl, "claim", `reviewStatus.${v}`)
         })));           
         return (
             <SelectInput
@@ -28,7 +28,7 @@ class ReviewStatusPicker extends Component {
                 options={options}
                 name={name}
                 value={value}
-                onChange={_onChange}
+                onChange={this._onChange}
             />
         );
     }

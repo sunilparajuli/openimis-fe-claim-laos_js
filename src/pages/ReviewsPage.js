@@ -2,10 +2,15 @@ import React, { Component, Fragment } from "react";
 import { bindActionCreators } from "redux";
 import { connect } from "react-redux";
 import { injectIntl } from 'react-intl';
-import { Grid, InputAdornment, IconButton } from "@material-ui/core";
+import { Grid, InputAdornment, IconButton, Tooltip } from "@material-ui/core";
 import FilterIcon from "@material-ui/icons/FilterList";
-import { formatMessage, chip, TextInput, AmountInput, withModulesManager } from "@openimis/fe-core";
-import ClaimsSearcher from "./ClaimsSearcher";
+import FeedbackIcon from "@material-ui/icons/SpeakerNotesOutlined";
+import ReviewIcon from "@material-ui/icons/PersonAdd";
+import {
+    formatMessage, chip, TextInput, AmountInput,
+    withHistory, historyPush, withModulesManager, PublishedComponent
+} from "@openimis/fe-core";
+import ClaimsSearcher from "../components/ClaimsSearcher";
 import { selectForFeedback, selectForReview, submit } from "../actions";
 import { withTheme, withStyles } from "@material-ui/core/styles";
 
@@ -34,7 +39,7 @@ class RawFixFilter extends Component {
     }
     randomChange = (v) => {
         let filters = this.state.filters;
-        delete(filters.random)
+        delete (filters.random)
         this.setState({
             random: parseFloat(v),
             filters
@@ -42,7 +47,7 @@ class RawFixFilter extends Component {
     }
     valueChange = (v) => {
         let filters = this.state.filters;
-        delete(filters.value)
+        delete (filters.value)
         this.setState({
             value: parseFloat(v),
             filters
@@ -50,7 +55,7 @@ class RawFixFilter extends Component {
     }
     varianceChange = (v) => {
         let filters = this.state.filters;
-        delete(filters.value)
+        delete (filters.value)
         this.setState({
             variance: parseFloat(v),
             filters
@@ -206,8 +211,44 @@ class ReviewsPage extends Component {
         //this.props.submit(this.state.selection);
     }
 
+    onChangeFeedbackStatus = v => console.log("Change Feedback status:" + v)
+    provideFeedback = c => historyPush(this.props.modulesManager, this.props.history, "claim.route.feedback", [c.id])
+
+    feedbackColFormatter = c => (
+        <Grid container>
+            <Grid item xs={6}>
+                <PublishedComponent
+                    id="claim.FeedbackStatusPicker"
+                    name="feedbackStatus"
+                    value={c.feedbackStatus}
+                    onChange={(v, s) => this.onChangeFeedbackStatus(v)}
+                />
+            </Grid>
+            <Grid item xs={6}>
+                <IconButton onClick={e => this.provideFeedback(c)}><FeedbackIcon /></IconButton>
+            </Grid>
+        </Grid>
+    )
+
+    onChangeReviewStatus = v => console.log("Change Review status:" + v)
+    review = c => historyPush(this.props.modulesManager, this.props.history, "claim.route.review", [c.id])
+    reviewColFormatter = c => (
+        <Grid container>
+            <Grid item xs={6}>
+                <PublishedComponent
+                    id="claim.ReviewStatusPicker"
+                    name="reviewStatus"
+                    value={c.reviewStatus}
+                    onChange={(v, s) => this.onChangeReviewStatus(v)}
+                />
+            </Grid>
+            <Grid item xs={6}>
+                <IconButton onClick={e => this.review(c)}><ReviewIcon /></IconButton>
+            </Grid>
+        </Grid>
+    )
+
     render() {
-        const { classes } = this.props;
         return (
             <ClaimsSearcher
                 defaultFilters={this.defaultFilters}
@@ -217,7 +258,10 @@ class ReviewsPage extends Component {
                     { label: "claimSummaries.markSelectedForFeedback", enabled: this.canMarkSelectedForFeedback, action: this.markSelectedForFeedback },
                     { label: "claimSummaries.markSelectedForReview", enabled: this.canMarkSelectedForReview, action: this.markSelectedForReview },
                     { label: "claimSummaries.processSelected", enabled: this.canProcessSelected, action: this.processSelected },
-                ]} />
+                ]}
+                feedbackColFormatter={this.feedbackColFormatter}
+                reviewColFormatter={this.reviewColFormatter}
+            />
         );
     }
 }
@@ -236,6 +280,6 @@ const mapDispatchToProps = dispatch => {
         dispatch);
 };
 
-export default injectIntl(connect(mapStateToProps, mapDispatchToProps)(
+export default injectIntl(withHistory(connect(mapStateToProps, mapDispatchToProps)(
     withTheme(withStyles(styles)(ReviewsPage))
-));
+)));

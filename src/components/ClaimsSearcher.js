@@ -297,6 +297,15 @@ class ClaimsSearcher extends Component {
 
     rowIdentifier = (r) => r.id
 
+    feedbackColFormatter = c =>
+        !!this.props.feedbackColFormatter ?
+            this.props.feedbackColFormatter(c) :
+            formatMessage(this.props.intl, "claim", `feedbackStatus.${c.feedbackStatus}`)
+    reviewColFormatter = c =>
+        !!this.props.reviewColFormatter ?
+            this.props.reviewColFormatter(c) :
+            formatMessage(this.props.intl, "claim", `reviewStatus.${c.reviewStatus}`)
+
     render() {
         const { intl, classes, claims, claimsPageInfo, fetchingClaims, fetchedClaims, errorClaims,
             actions, onDoubleClick, fixFilter } = this.props;
@@ -372,8 +381,8 @@ class ClaimsSearcher extends Component {
                                         c => c.code,
                                         c => `${c.healthFacility.code} ${c.healthFacility.name}`,
                                         c => formatDateFromIso(intl, c.dateClaimed),
-                                        c => formatMessage(intl, "claim", `feedbackStatus.${c.feedbackStatus}`),
-                                        c => formatMessage(intl, "claim", `reviewStatus.${c.reviewStatus}`),
+                                        c => this.feedbackColFormatter(c),
+                                        c => this.reviewColFormatter(c),
                                         c => formatAmount(intl, c.claimed),
                                         c => formatAmount(intl, c.approved),
                                         c => formatMessage(intl, "claim", `claimStatus.${c.status}`)

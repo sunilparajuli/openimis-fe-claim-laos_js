@@ -3,29 +3,29 @@ import { SelectInput } from "@openimis/fe-core";
 import { injectIntl } from "react-intl";
 import { formatMessage } from "@openimis/fe-core";
 
-import { CLAIM_STATUS } from "./constants";
+import { FEEDBACK_STATUS } from "../constants";
 
-class ClaimStatusPicker extends Component {
+class FeedbackStatusPicker extends Component {
 
     _onChange = v => this.props.onChange(
         v,
-        formatMessage(this.props.intl, "claim", `claimStatus.${v}`)
+        formatMessage(this.props.intl, "claim", `feedbackStatus.${v}`)
     )
 
     render() {
         const { intl, name, value, withNull = true } = this.props;
         const options = withNull ? [{
             value: null,
-            label: formatMessage(intl, "claim", "claimStatus.null")
+            label: formatMessage(intl, "claim", "feedbackStatus.null")
         }] : [];
-        options.push(...CLAIM_STATUS.map(v => ({
+        options.push(...FEEDBACK_STATUS.map(v => ({
             value: v,
-            label: formatMessage(intl, "claim", `claimStatus.${v}`)
-        })));        
+            label: formatMessage(intl, "claim", `feedbackStatus.${v}`)
+        })));  
         return (
             <SelectInput
-                module="claim" label="claimStatus"
-                options={oprions}
+                module="claim" label="feedbackStatus"
+                options={options}
                 name={name}
                 value={value}
                 onChange={this._onChange}
@@ -34,4 +34,4 @@ class ClaimStatusPicker extends Component {
     }
 }
 
-export default injectIntl(ClaimStatusPicker);
+export default injectIntl(FeedbackStatusPicker);

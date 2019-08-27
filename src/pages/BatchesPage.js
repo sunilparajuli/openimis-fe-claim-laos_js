@@ -1,9 +1,8 @@
 import React, { Component, Fragment } from "react";
 import { withTheme, withStyles } from "@material-ui/core/styles";
-import BatchesLauncher from "./BatchesLauncher";
-import BatchesSearcher from "./BatchesSearcher";
-import BatchesPreviewer from "./BatchesPreviewer";
-import { Grid } from "@material-ui/core";
+import BatchesLauncher from "../components/BatchesLauncher";
+import BatchesSearcher from "../components/BatchesSearcher";
+import BatchesPreviewer from "../components/BatchesPreviewer";
 
 const styles = theme => ({
 

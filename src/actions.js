@@ -11,6 +11,14 @@ export function fetchClaimAdmins(mm) {
   return graphql(payload, 'CLAIM_CLAIM_ADMINS');
 }
 
+export function fetchClaimOfficers(mm) {
+  const payload = formatPageQuery("claimOfficers",
+    null,
+    mm.getRef("claim.ClaimOfficerPicker.projection")
+  );
+  return graphql(payload, 'CLAIM_CLAIM_OFFICERS');
+}
+
 export function fetchClaimSummaries(mm, filters) {
   const payload = formatPageQueryWithCount("claims",
     filters,
@@ -54,22 +62,29 @@ export function createClaim(mm, claim, label, detail) {
   )
 }
 
-export function fetchClaim(mm, claimId) {
+export function fetchClaim(mm, claimId, forFeedback) {
+  let projections = ["id", "code", "dateFrom", "dateTo", "dateClaimed", "claimed", "approved", "status",
+    "feedbackStatus", "reviewStatus", "guaranteeId", "explanation", "adjustment",
+    "healthFacility" + mm.getProjection("location.HealthFacilityPicker.projection"),
+    "insuree" + mm.getProjection("insuree.InsureePicker.projection"),
+    "visitType" + mm.getProjection("medical.VisitTypePicker.projection"),
+    "icd" + mm.getProjection("medical.DiagnosisPicker.projection"),
+    "icd1" + mm.getProjection("medical.DiagnosisPicker.projection"),
+    "icd2" + mm.getProjection("medical.DiagnosisPicker.projection"),
+    "icd3" + mm.getProjection("medical.DiagnosisPicker.projection"),
+    "icd4" + mm.getProjection("medical.DiagnosisPicker.projection"),
+  ]
+  if (!!forFeedback) {
+    projections.push("feedback{id, careRendered, paymentAsked, drugPrescribed, drugReceived, asessment, feedbackDate, chfOfficerCode}")
+  } else {
+    projections.push(
+      "services{id, qtyProvided, priceAsked, qtyApproved, priceApproved, priceValuated, explanation, justification, rejectionReason, status, service" + mm.getProjection("medical.ServicePicker.projection") + "}",
+      "items{id, qtyProvided, priceAsked, qtyApproved, priceApproved, priceValuated, explanation, justification, rejectionReason, status, item" + mm.getProjection("medical.ItemPicker.projection") + "}",  
+    )
+  }
   const payload = formatPageQuery("claims",
     [`id: "${claimId}"`],
-    ["id", "code", "dateFrom", "dateTo", "dateClaimed", "claimed", "approved", "status",
-      "feedbackStatus", "reviewStatus", "guaranteeId", "explanation", "adjustment",
-      "healthFacility" + mm.getProjection("location.HealthFacilityPicker.projection"),
-      "insuree" + mm.getProjection("insuree.InsureePicker.projection"),
-      "services{id, qtyProvided, priceAsked, explanation, justification, service" + mm.getProjection("medical.ServicePicker.projection") + "}",
-      "items{id, qtyProvided, priceAsked, explanation, justification, item" + mm.getProjection("medical.ItemPicker.projection") + "}",
-      "visitType" + mm.getProjection("medical.VisitTypePicker.projection"),
-      "icd" + mm.getProjection("medical.DiagnosisPicker.projection"),
-      "icd1" + mm.getProjection("medical.DiagnosisPicker.projection"),
-      "icd2" + mm.getProjection("medical.DiagnosisPicker.projection"),
-      "icd3" + mm.getProjection("medical.DiagnosisPicker.projection"),
-      "icd4" + mm.getProjection("medical.DiagnosisPicker.projection"),
-    ]
+    projections
   );
   return graphql(payload, 'CLAIM_CLAIM');
 }
