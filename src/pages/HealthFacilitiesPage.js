@@ -6,7 +6,7 @@ import { Fab } from "@material-ui/core";
 import { withTheme, withStyles } from "@material-ui/core/styles";
 import AddIcon from "@material-ui/icons/Add";
 import { withHistory, historyPush, withModulesManager, formatMessage, chip } from "@openimis/fe-core";
-import ClaimsSearcher from "../components/ClaimsSearcher";
+import ClaimSearcher from "../components/ClaimSearcher";
 
 import { selectForFeedback, selectForReview, submit } from "../actions";
 
@@ -52,7 +52,7 @@ class HealthFacilitiesPage extends Component {
         const { classes } = this.props;
         return (
             <Fragment>
-                <ClaimsSearcher
+                <ClaimSearcher
                     defaultFilters={this.defaultFilters}
                     onDoubleClick={this.onDoubleClick}
                     actions={[

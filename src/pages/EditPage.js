@@ -9,7 +9,7 @@ import {
 import ClaimForm from "../components/ClaimForm";
 import { createClaim } from "../actions";
 import _ from "lodash";
-import { uuid } from "lodash-uuid";
+import _uuid from "lodash-uuid";
 
 class EditPage extends Component {
 
@@ -19,7 +19,7 @@ class EditPage extends Component {
     }
 
     save = (claim) => {
-        claim.code = uuid().substring(0, 8);  //code should be defined by backend!!
+        claim.code = _uuid().substring(0, 8);  //code should be defined by backend!!
         if (!this.props.claim_id) {
             this.props.createClaim(
                 this.props.modulesManager,

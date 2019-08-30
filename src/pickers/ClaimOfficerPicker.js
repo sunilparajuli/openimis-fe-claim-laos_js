@@ -4,7 +4,7 @@ import { bindActionCreators } from "redux";
 import { withTheme, withStyles } from "@material-ui/core/styles";
 import { injectIntl } from 'react-intl';
 import { fetchClaimOfficers } from "../actions";
-import { formatMessage, AutoSuggestion, ProgressOrError, withModulesManager } from "@openimis/fe-core";
+import { formatMessage, AutoSuggestion, ProgressOrError, withModulesManager, decodeId } from "@openimis/fe-core";
 import { FormControl } from "@material-ui/core";
 
 const styles = theme => ({
@@ -31,6 +31,8 @@ class ClaimOfficerPicker extends Component {
             fetchingClaimOfficers, fetchedClaimOfficers, errorClaimOfficers,
             withLabel = true, label
         } = this.props;
+        let v = claimOfficers ? claimOfficers.filter(o => decodeId(o.id) === ""+value) : [];
+        v = v.length ? v[0] : null;
         return (
             <Fragment>
                 <ProgressOrError progress={fetchingClaimOfficers} error={errorClaimOfficers} />
@@ -42,7 +44,7 @@ class ClaimOfficerPicker extends Component {
                             getSuggestions={this.claimOfficers}
                             getSuggestionValue={this.formatSuggestion}
                             onSuggestionSelected={this.onSuggestionSelected}
-                            value={value}
+                            value={v}
                         />
                     </FormControl>
                 )}

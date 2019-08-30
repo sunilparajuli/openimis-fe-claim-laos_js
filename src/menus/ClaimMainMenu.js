@@ -1,7 +1,9 @@
 import React, { Component } from "react";
 import { injectIntl } from 'react-intl';
-import { Keyboard, ScreenShare, Subscriptions, Assignment } from "@material-ui/icons";
+import { Keyboard, ScreenShare, Assignment } from "@material-ui/icons";
 import { formatMessage, MainMenuContribution } from "@openimis/fe-core";
+
+const CLAIM_MAIN_MENU_CONTRIBUTION_KEY = "claim.MainMenu";
 
 class ClaimMainMenu extends Component {
   render() {
@@ -21,11 +23,7 @@ class ClaimMainMenu extends Component {
             icon: <Assignment />,
             route: "/claim/reviews"
           },
-          {
-            text: formatMessage(this.props.intl, "claim", "menu.batch"),
-            icon: <Subscriptions />,
-            route: "/claim/batches"
-          }
+          ...this.props.modulesManager.getContribs(CLAIM_MAIN_MENU_CONTRIBUTION_KEY)
         ]}
       />
     );

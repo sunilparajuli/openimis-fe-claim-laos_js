@@ -15,10 +15,6 @@ function reducer(
         errorClaims: null,
         claims: null,
         claimsPageInfo: { totalCount: 0 },
-        fetchingBatchRuns: false,
-        fetchedBatchRuns: false,
-        errorBatchRuns: null,
-        batchRuns: [],
         fetchingClaim: false,
         fetchedClaim: false,
         errorClaim: null,
@@ -73,16 +69,16 @@ function reducer(
                 fetchingClaimOfficers: false,
                 errorClaimOfficers: formatServerError(action.payload)
             };
-        case 'CLAIM_CLAIMS_REQ':
+        case 'CLAIM_CLAIM_SEARCHER_REQ':
             return {
                 ...state,
                 fetchingClaims: true,
                 fetchedClaims: false,
                 claims: null,
-                claimsTotalCount: 0,
+                claimsPageInfo: { totalCount: 0 },
                 errorClaims: null,
             };
-        case 'CLAIM_CLAIMS_RESP':
+        case 'CLAIM_CLAIM_SEARCHER_RESP':
             return {
                 ...state,
                 fetchingClaims: false,
@@ -91,7 +87,7 @@ function reducer(
                 claimsPageInfo: pageInfo(action.payload.data.claims),
                 errorClaims: formatGraphQLError(action.payload)
             };
-        case 'CLAIM_CLAIMS_ERR':
+        case 'CLAIM_CLAIM_SEARCHER_ERR':
             return {
                 ...state,
                 fetchingClaims: false,
@@ -119,28 +115,6 @@ function reducer(
                 ...state,
                 fetchingClaim: false,
                 errorClaim: formatServerError(action.payload)
-            };
-        case 'CLAIM_BATCH_RUNS_REQ':
-            return {
-                ...state,
-                fetchingBatchRuns: true,
-                fetchedBatchRuns: false,
-                batchRuns: [],
-                errorBatchRuns: null,
-            };
-        case 'CLAIM_BATCH_RUNS_RESP':
-            return {
-                ...state,
-                fetchingBatchRuns: false,
-                fetchedBatchRuns: true,
-                batchRuns: parseData(action.payload.data.batchRuns),
-                errorBatchRuns: formatGraphQLError(action.payload)
-            };
-        case 'CLAIM_BATCH_RUNS_ERR':
-            return {
-                ...state,
-                fetchingBatchRuns: false,
-                errorBatchRuns: formatServerError(action.payload)
             };
         case 'CLAIM_CREATE_CLAIM_REQ':
             return {

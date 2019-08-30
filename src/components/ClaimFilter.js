@@ -79,7 +79,7 @@ class Head extends Component {
                         scope={!!filters['district'] && filters['district']['value']}
                         onChange={(v, s) => onChangeFilter(
                             'batchRun', v,
-                            chip(intl, "claim", "BatchRun", s),
+                            chip(intl, "account", "BatchRun", s),
                             `batchRun_Id: "${!!v && v.id}"`
                         )}
                     />

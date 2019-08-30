@@ -1,13 +1,11 @@
-import ClaimMainMenu from "./components/ClaimMainMenu";
+import ClaimMainMenu from "./menus/ClaimMainMenu";
 import HealthFacilitiesPage from "./pages/HealthFacilitiesPage";
 import EditPage from "./pages/EditPage";
 import ReviewsPage from "./pages/ReviewsPage";
 import ReviewPage from "./pages/ReviewPage";
 import FeedbackPage from "./pages/FeedbackPage";
-import BatchesPage from "./pages/BatchesPage";
 import ClaimAdminPicker from "./pickers/ClaimAdminPicker";
 import ClaimOfficerPicker from "./pickers/ClaimOfficerPicker";
-import BatchRunPicker from "./pickers/BatchRunPicker";
 import ClaimStatusPicker from "./pickers/ClaimStatusPicker";
 import ReviewStatusPicker from "./pickers/ReviewStatusPicker";
 import ApprovalStatusPicker from "./pickers/ApprovalStatusPicker";
@@ -21,7 +19,6 @@ const ROUTE_CLAIM_EDIT = "claim/claim";
 const ROUTE_REVIEWS = "claim/reviews";
 const ROUTE_CLAIM_REVIEW = "claim/review";
 const ROUTE_CLAIM_FEEDBACK = "claim/feedback";
-const ROUTE_BATCHES = "claim/batches";
 
 const DEFAULT_CONFIG = {
   "translations": [{ key: 'en', messages: messages_en }],
@@ -32,7 +29,6 @@ const DEFAULT_CONFIG = {
     { key: "claim.route.reviews", ref: ROUTE_REVIEWS },
     { key: "claim.route.feedback", ref: ROUTE_CLAIM_FEEDBACK },
     { key: "claim.route.review", ref: ROUTE_CLAIM_REVIEW },
-    { key: "claim.route.batches", ref: ROUTE_BATCHES },
     { key: "claim.ClaimAdminPicker", ref: ClaimAdminPicker },
     { key: "claim.ClaimAdminPicker.projection", ref: ["id", "code", "lastName", "otherNames"] },
     { key: "claim.ClaimOfficerPicker", ref: ClaimOfficerPicker },
@@ -47,8 +43,6 @@ const DEFAULT_CONFIG = {
     { key: "claim.FeedbackStatusPicker.projection", ref: null },
     { key: "claim.RejectionReasonPicker", ref: RejectionReasonPicker },
     { key: "claim.RejectionReasonPicker.projection", ref: null },
-    { key: "claim.BatchRunPicker", ref: BatchRunPicker },
-    { key: "claim.BatchRunPicker.projection", ref: ["id", "runDate"] },
     { key: "claim.CreateClaim.status", ref: 1 },
 
   ],
@@ -58,7 +52,6 @@ const DEFAULT_CONFIG = {
     { path: ROUTE_REVIEWS, component: ReviewsPage },
     { path: ROUTE_CLAIM_REVIEW+"/:claim_id", component: ReviewPage },
     { path: ROUTE_CLAIM_FEEDBACK+"/:claim_id", component: FeedbackPage },
-    { path: ROUTE_BATCHES, component: BatchesPage }
   ],
   "core.MainMenu": [ClaimMainMenu],
 }

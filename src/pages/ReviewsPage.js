@@ -10,7 +10,7 @@ import {
     formatMessage, chip, TextInput, AmountInput,
     withHistory, historyPush, withModulesManager, PublishedComponent
 } from "@openimis/fe-core";
-import ClaimsSearcher from "../components/ClaimsSearcher";
+import ClaimSearcher from "../components/ClaimSearcher";
 import { selectForFeedback, selectForReview, submit } from "../actions";
 import { withTheme, withStyles } from "@material-ui/core/styles";
 
@@ -250,7 +250,7 @@ class ReviewsPage extends Component {
 
     render() {
         return (
-            <ClaimsSearcher
+            <ClaimSearcher
                 defaultFilters={this.defaultFilters}
                 forcedFilters={this.state.forcedFilters}
                 fixFilter={<FixFilter filtersChange={this.filtersChange} />}

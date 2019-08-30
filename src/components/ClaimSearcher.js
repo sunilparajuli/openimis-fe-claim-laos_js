@@ -129,7 +129,7 @@ class SelectionMenu extends Component {
 
 const StyledSelectionMenu = injectIntl(withTheme(withStyles(styles)(SelectionMenu)))
 
-class ClaimsSearcher extends Component {
+class ClaimSearcher extends Component {
 
     state = {
         open: false,
@@ -429,5 +429,5 @@ const mapDispatchToProps = dispatch => {
 
 export default withModulesManager(connect(mapStateToProps, mapDispatchToProps)(
     injectIntl(withTheme(
-        withStyles(styles)(ClaimsSearcher)
+        withStyles(styles)(ClaimSearcher)
     ))));

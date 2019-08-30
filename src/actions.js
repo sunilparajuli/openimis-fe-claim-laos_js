@@ -1,6 +1,5 @@
 import {
-  graphql, formatPageQuery, formatPageQueryWithCount, formatMutation,
-  decodeId, journalize
+  graphql, formatPageQuery, formatPageQueryWithCount, formatMutation, decodeId
 } from "@openimis/fe-core";
 
 export function fetchClaimAdmins(mm) {
@@ -25,15 +24,7 @@ export function fetchClaimSummaries(mm, filters) {
     ["id", "code", "dateClaimed", "feedbackStatus", "reviewStatus", "claimed", "approved", "status",
       "healthFacility" + mm.getProjection("location.HealthFacilityPicker.projection")]
   );
-  return graphql(payload, 'CLAIM_CLAIMS');
-}
-
-export function fetchBatchRuns(mm, scope) {
-  const payload = formatPageQuery("batchRuns",
-    [`location_Id: "${scope.id}"`],
-    mm.getRef("claim.BatchRunPicker.projection")
-  );
-  return graphql(payload, 'CLAIM_BATCH_RUNS');
+  return graphql(payload, 'CLAIM_CLAIM_SEARCHER');
 }
 
 export function createClaim(mm, claim, label, detail) {
@@ -63,7 +54,8 @@ export function createClaim(mm, claim, label, detail) {
 }
 
 export function fetchClaim(mm, claimId, forFeedback) {
-  let projections = ["id", "code", "dateFrom", "dateTo", "dateClaimed", "claimed", "approved", "status",
+  let projections = [
+    "id", "code", "dateFrom", "dateTo", "dateClaimed", "claimed", "approved", "status",
     "feedbackStatus", "reviewStatus", "guaranteeId", "explanation", "adjustment",
     "healthFacility" + mm.getProjection("location.HealthFacilityPicker.projection"),
     "insuree" + mm.getProjection("insuree.InsureePicker.projection"),
@@ -78,8 +70,14 @@ export function fetchClaim(mm, claimId, forFeedback) {
     projections.push("feedback{id, careRendered, paymentAsked, drugPrescribed, drugReceived, asessment, feedbackDate, chfOfficerCode}")
   } else {
     projections.push(
-      "services{id, qtyProvided, priceAsked, qtyApproved, priceApproved, priceValuated, explanation, justification, rejectionReason, status, service" + mm.getProjection("medical.ServicePicker.projection") + "}",
-      "items{id, qtyProvided, priceAsked, qtyApproved, priceApproved, priceValuated, explanation, justification, rejectionReason, status, item" + mm.getProjection("medical.ItemPicker.projection") + "}",  
+      "services{"+
+      "id, qtyProvided, priceAsked, qtyApproved, priceApproved, priceValuated, explanation, justification, rejectionReason, status, service" +
+      mm.getProjection("medical.ServicePicker.projection") +
+      "}",
+      "items{"+
+      "id, qtyProvided, priceAsked, qtyApproved, priceApproved, priceValuated, explanation, justification, rejectionReason, status, item" +
+      mm.getProjection("medical.ItemPicker.projection") +
+      "}",
     )
   }
   const payload = formatPageQuery("claims",

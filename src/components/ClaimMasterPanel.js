@@ -19,7 +19,7 @@ class ClaimMasterPanel extends Component {
     render() {
         const { intl, classes, edited, updateAttribute, forReview, forFeedback } = this.props;
         if (!edited) return null;
-        let readOnly = !!forReview || forFeedback
+        let readOnly = !!forReview || !!forFeedback
         return (
             <Grid container>
                 <Grid item xs={3} className={classes.item}>
@@ -70,7 +70,6 @@ class ClaimMasterPanel extends Component {
                         id="medical.VisitTypePicker"
                         name="visitType"
                         withNull={false}
-                        label={formatMessage(intl, "claim", "visitType")}
                         value={edited.visitType}
                         onChange={(v, s) => updateAttribute("visitType", v)}
                         readOnly={readOnly}
@@ -159,6 +158,7 @@ class ClaimMasterPanel extends Component {
                         label="adjustment"
                         value={edited.adjustment}
                         onChange={v => updateAttribute("adjustment", v)}
+                        readOnly={!!forFeedback}
                     />
                 </Grid>
             </Grid>
