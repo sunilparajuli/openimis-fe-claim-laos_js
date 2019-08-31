@@ -89,7 +89,7 @@
     "claim.edit.items.status": "Status",
     "claim.edit.items.rejectionReason": "R",
     "claim.edit.items.delete": " ",
-    "claim.CreateClaim.mutationLabel": "Enter Claim",
+    "claim.CreateClaim.mutationLabel": "Create Claim - {insuree}",
     "claim.approvalStatus": "Approval Status",
     "claim.approvalStatus.null": " ",
     "claim.approvalStatus.1": "Passed",

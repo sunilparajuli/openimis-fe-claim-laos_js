@@ -34,7 +34,7 @@ class ClaimMasterPanel extends Component {
                     <PublishedComponent
                         id="insuree.InsureePicker"
                         value={edited.insuree}
-                        onChange={(v, s) => updateAttribute("insuree", v)}
+                        onChange={(v, s) => updateAttribute("insuree", v, s)}
                         readOnly={readOnly}
                     />
                 </Grid>

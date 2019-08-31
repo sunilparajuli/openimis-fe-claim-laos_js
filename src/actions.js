@@ -1,6 +1,7 @@
 import {
   graphql, formatPageQuery, formatPageQueryWithCount, formatMutation, decodeId
 } from "@openimis/fe-core";
+import _ from "lodash";
 
 export function fetchClaimAdmins(mm) {
   const payload = formatPageQuery("claimAdmins",
@@ -27,10 +28,27 @@ export function fetchClaimSummaries(mm, filters) {
   return graphql(payload, 'CLAIM_CLAIM_SEARCHER');
 }
 
-export function createClaim(mm, claim, label, detail) {
-  //TODO: 
-  // provide a default for the review/feedback status (rather not)?
-  const claimGQL = `
+export function formatDetail(type, detail) {
+  return `{
+    ${type}Id: ${decodeId(detail[type].id)}
+    priceAsked: "${_.round(detail.priceAsked, 2).toFixed(2)}"
+    qtyProvided: "${_.round(detail.qtyProvided, 2).toFixed(2)}"
+    status: 1
+    explanation: "${detail.explanation}"
+    justification: "${detail.justification}"
+  }`
+}
+
+export function formatDetails(type, details) {
+  if (!details || details.length <= 1) return "";
+  details.pop()
+  return `${type}s: [
+      ${details.map(d => formatDetail(type, d)).join('\n')}
+    ]`
+}
+
+export function createClaim(mm, claim, clientMutationLabel) {
+  let claimGQL = `
     code: "${claim.code}"
     insureeId: ${decodeId(claim.insuree.id)}
     dateFrom: "${claim.dateFrom}"
@@ -40,16 +58,23 @@ export function createClaim(mm, claim, label, detail) {
     ${!!claim.icd2 ? `icdId2: ${decodeId(claim.icd2.id)}` : ""}
     ${!!claim.icd3 ? `icdId3: ${decodeId(claim.icd3.id)}` : ""}
     ${!!claim.icd4 ? `icdId4: ${decodeId(claim.icd4.id)}` : ""}
-    healthFacilityId: ${decodeId(claim.healthFacility.id)}
     status: ${mm.getRef("claim.CreateClaim.status")}
     dateClaimed: "${claim.dateClaimed}"
+    healthFacilityId: ${decodeId(claim.healthFacility.id)}
     visitType: "${claim.visitType}"
+    ${formatDetails("service", claim.services)}
+    ${formatDetails("item", claim.items)}
   `
-  const mutation = formatMutation("createClaim", claimGQL);
+  const mutation = formatMutation("createClaim", claimGQL, clientMutationLabel);
+  var requestedDateTime = new Date();
   return graphql(
     mutation.payload,
     'CLAIM_CREATE_CLAIM',
-    { clientMutationId: mutation.clientMutationId, label, detail }
+    {
+      clientMutationId: mutation.clientMutationId,
+      clientMutationLabel,
+      requestedDateTime
+    }
   )
 }
 
@@ -70,11 +95,11 @@ export function fetchClaim(mm, claimId, forFeedback) {
     projections.push("feedback{id, careRendered, paymentAsked, drugPrescribed, drugReceived, asessment, feedbackDate, chfOfficerCode}")
   } else {
     projections.push(
-      "services{"+
+      "services{" +
       "id, qtyProvided, priceAsked, qtyApproved, priceApproved, priceValuated, explanation, justification, rejectionReason, status, service" +
       mm.getProjection("medical.ServicePicker.projection") +
       "}",
-      "items{"+
+      "items{" +
       "id, qtyProvided, priceAsked, qtyApproved, priceApproved, priceValuated, explanation, justification, rejectionReason, status, item" +
       mm.getProjection("medical.ItemPicker.projection") +
       "}",

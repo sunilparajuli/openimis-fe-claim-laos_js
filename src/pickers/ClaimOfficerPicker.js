@@ -17,7 +17,14 @@ class ClaimOfficerPicker extends Component {
 
     componentDidMount() {
         if (!this.props.fetchedClaimOfficers) {
-            this.props.fetchClaimOfficers(this.props.modulesManager);
+            // prevent loading multiple times the cache when component is
+            // several times on tha page
+            setTimeout(
+                () => {
+                    !this.props.fetchingClaimOfficers && this.props.fetchClaimOfficers(this.props.modulesManager)
+                },
+                Math.floor(Math.random() * 300)
+            );              
         }
     }
 

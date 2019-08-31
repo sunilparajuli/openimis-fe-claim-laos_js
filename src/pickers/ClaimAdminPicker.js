@@ -17,7 +17,14 @@ class ClaimAdminPicker extends Component {
 
     componentDidMount() {
         if (!this.props.fetchedClaimAdmins) {
-            this.props.fetchClaimAdmins(this.props.modulesManager);
+            // prevent loading multiple times the cache when component is
+            // several times on tha page
+            setTimeout(
+                () => {
+                    !this.props.fetchingClaimAdmins && this.props.fetchClaimAdmins(this.props.modulesManager)
+                },
+                Math.floor(Math.random() * 300)
+            );
         }
     }
 

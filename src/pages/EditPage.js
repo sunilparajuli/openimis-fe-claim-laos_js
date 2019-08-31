@@ -1,35 +1,35 @@
 import React, { Component, Fragment } from "react";
-import { withTheme, withStyles } from "@material-ui/core/styles";
 import { injectIntl } from 'react-intl';
 import { connect } from "react-redux";
 import { bindActionCreators } from "redux";
 import {
-    formatMessage, withModulesManager, withHistory, historyPush,
+    formatMessageWithValues, withModulesManager, withHistory, historyPush,
 } from "@openimis/fe-core";
 import ClaimForm from "../components/ClaimForm";
 import { createClaim } from "../actions";
-import _ from "lodash";
-import _uuid from "lodash-uuid";
+import _ from "lodash-uuid";
 
 class EditPage extends Component {
 
     add = () => {
-        historyPush(this.props.history, "claim.route.editClaim");
-        this.setState({ claim: {} })
+        this.setState(
+            { claim: {} },
+            historyPush(this.props.modulesManager, this.props.history, "claim.route.claimEdit")
+        )
     }
 
     save = (claim) => {
-        claim.code = _uuid().substring(0, 8);  //code should be defined by backend!!
+        claim.code = _.uuid().substring(0, 8);  //code should be defined by backend!!
         if (!this.props.claim_id) {
             this.props.createClaim(
                 this.props.modulesManager,
                 claim,
-                formatMessage(
+                formatMessageWithValues(
                     this.props.intl,
                     "claim",
-                    "CreateClaim.mutationLabel"
-                ),
-                claim.code
+                    "CreateClaim.mutationLabel",
+                    { insuree: claim.insuree_str }
+                )
             );
         }
     }

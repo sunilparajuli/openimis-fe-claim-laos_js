@@ -124,7 +124,7 @@ function reducer(
             }
         case 'CLAIM_CREATE_CLAIM_RESP':
             var claimMutation = state.claimMutation;
-            claimMutation.internalId = action.payload.data.createClaim.internalId;
+            claimMutation.id = action.payload.data.createClaim.internalId;
             return {
                 ...state,
                 submittingMutation: false,
