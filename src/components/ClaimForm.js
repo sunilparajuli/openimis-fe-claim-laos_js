@@ -58,7 +58,7 @@ class ClaimForm extends Component {
                 claim: this.props.claim,
             })
         } else if (prevProps.submittingMutation && !this.props.submittingMutation) {
-            this.props.journalize(this.props.claimMutation);
+            this.props.journalize(this.props.mutation);
             this.setState({ reset: this.state.reset + 1 });
         }
     }
@@ -105,7 +105,7 @@ const mapStateToProps = (state, props) => ({
     fetchedClaim: state.claim.fetchedClaim,
     errorClaim: state.claim.errorClaim,
     submittingMutation: state.claim.submittingMutation,
-    claimMutation: state.claim.claimMutation,
+    mutation: state.claim.mutation,
 });
 
 const mapDispatchToProps = dispatch => {

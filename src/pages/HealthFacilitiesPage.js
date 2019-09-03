@@ -4,8 +4,13 @@ import { connect } from "react-redux";
 import { injectIntl } from 'react-intl';
 import { Fab } from "@material-ui/core";
 import { withTheme, withStyles } from "@material-ui/core/styles";
+import _ from "lodash";
 import AddIcon from "@material-ui/icons/Add";
-import { withHistory, historyPush, withModulesManager, formatMessage, chip } from "@openimis/fe-core";
+import {
+    withHistory, historyPush, withModulesManager,
+    formatMessage, formatMessageWithValues, chip,
+    journalize
+} from "@openimis/fe-core";
 import ClaimSearcher from "../components/ClaimSearcher";
 
 import { selectForFeedback, selectForReview, submit } from "../actions";
@@ -18,7 +23,7 @@ class HealthFacilitiesPage extends Component {
 
     constructor(props) {
         super(props);
-        this.defaultFilters = props.modulesManager.getConf(
+        let defaultFilters = props.modulesManager.getConf(
             "fe-claim",
             "healthFacilities.defaultFilters",
             {
@@ -31,14 +36,68 @@ class HealthFacilitiesPage extends Component {
                     "filter": "status: 2"
                 }
             }
-        );
+        )
+
+        this.state = { defaultFilters }
+    }
+
+    componentDidUpdate(prevProps, prevState, snapshot) {
+        if (prevProps.submittingMutation && !this.props.submittingMutation) {
+            this.props.journalize(this.props.mutation);
+        }
+        if (!_.isEqual(prevProps.userHealthFacilityFullPath, this.props.userHealthFacilityFullPath)) {
+            let defaultFilters = { ...this.state.defaultFilters }
+            defaultFilters.healthFacility = {
+                "value": this.props.userHealthFacilityFullPath,
+                "chip": chip(
+                    this.props.intl, "claim", "ClaimFilter.healthFacility",
+                    this.props.userHealthFacilityStr),
+                "filter": `healthFacility_Id: "${this.props.userHealthFacilityFullPath.id}"`
+            }
+            let district = this.props.userHealthFacilityFullPath.location;
+            defaultFilters.district = {
+                "value": district,
+                "chip": chip(
+                    this.props.intl, "claim", "ClaimFilter.district",
+                    this.props.userDistrictStr),
+                "filter": `healthFacility_Location_Id: "${district.id}"`
+            }
+            let region = district.parent;
+            defaultFilters.region = {
+                "value": region,
+                "chip": chip(
+                    this.props.intl, "claim", "ClaimFilter.region",
+                    this.props.userDistrictStr),
+                "filter": `healthFacility_Location_Parent_Id: "${region.id}"`
+            }
+            this.setState({ defaultFilters })
+        }
     }
 
     canSubmitSelected = (selection) => !!selection && selection.length && selection.filter(s => s.status === 2).length === selection.length
 
     submitSelected = (selection) => {
-        alert('SUBMIT #' + selection.length);
-        //this.props.submit(this.state.selection);
+        if (selection.length === 1) {
+            this.props.submit(
+                selection,
+                formatMessageWithValues(
+                    this.props.intl,
+                    "claim",
+                    "SubmitClaim.mutationLabel",
+                    { code: selection[0].code }
+                )
+            );
+        } else {
+            this.props.submit(
+                selection,
+                formatMessageWithValues(
+                    this.props.intl,
+                    "claim",
+                    "SubmitClaims.mutationLabel",
+                    { count: selection.length }
+                )
+            );
+        }
     }
 
 
@@ -53,7 +112,7 @@ class HealthFacilitiesPage extends Component {
         return (
             <Fragment>
                 <ClaimSearcher
-                    defaultFilters={this.defaultFilters}
+                    defaultFilters={this.state.defaultFilters}
                     onDoubleClick={this.onDoubleClick}
                     actions={[
                         { label: "claimSummaries.submitSelected", enabled: this.canSubmitSelected, action: this.submitSelected },
@@ -67,6 +126,12 @@ class HealthFacilitiesPage extends Component {
 }
 
 const mapStateToProps = state => ({
+    userHealthFacilityFullPath: state.loc.userHealthFacilityFullPath,
+    userHealthFacilityStr: state.loc.userHealthFacilityStr,
+    userRegionStr: state.loc.userRegionStr,
+    userDistrictStr: state.loc.userDistrictStr,
+    submittingMutation: state.claim.submittingMutation,
+    mutation: state.claim.mutation,
 });
 
 
@@ -76,6 +141,7 @@ const mapDispatchToProps = dispatch => {
             selectForFeedback,
             selectForReview,
             submit,
+            journalize,
         },
         dispatch);
 };

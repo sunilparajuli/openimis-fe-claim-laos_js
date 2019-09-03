@@ -79,7 +79,7 @@ class SelectionMenu extends Component {
         <Fragment>
             {entries.map((i, idx) => (
                 <Grid key={`selectionsButtons-${idx}`} item className={this.props.classes.paperHeaderAction}>
-                    <Button onClick={i.action}>{i.text}</Button>
+                    <Button onClick={e => this.action(i.action)}>{i.text}</Button>
                 </Grid>
             ))}
         </Fragment>
@@ -155,19 +155,23 @@ class ClaimSearcher extends Component {
         );
     }
 
-    componentDidMount() {
+    _resetFilters = () => {
         this.setState({
             filters: this.props.defaultFilters,
             pageSize: this.defaultPageSize,
         },
-            e => this.props.fetchClaimSummaries(
-                this.props.modulesManager,
-                this.filtersToQueryParams()
-            )
+            e => this.applyFilters()
         );
     }
 
+    componentDidMount() {
+        this._resetFilters()
+    }
+
     componentDidUpdate(prevProps, prevState, snapshot) {
+        if (!_.isEqual(prevProps.defaultFilters, this.props.defaultFilters)) {
+            this._resetFilters();
+        }
         if (!_.isEqual(prevProps.forcedFilters, this.props.forcedFilters)) {
             this.applyFilters();
         }

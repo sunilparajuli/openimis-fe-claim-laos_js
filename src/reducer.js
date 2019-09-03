@@ -1,4 +1,7 @@
-import { parseData, pageInfo, formatServerError, formatGraphQLError } from '@openimis/fe-core';
+import {
+    parseData, dispatchMutationReq, dispatchMutationResp, dispatchMutationErr,
+    pageInfo, formatServerError, formatGraphQLError
+} from '@openimis/fe-core';
 
 function reducer(
     state = {
@@ -20,7 +23,7 @@ function reducer(
         errorClaim: null,
         claim: {},
         submittingMutation: false,
-        claimMutation: {},
+        mutation: {},
     },
     action,
 ) {
@@ -116,24 +119,28 @@ function reducer(
                 fetchingClaim: false,
                 errorClaim: formatServerError(action.payload)
             };
-        case 'CLAIM_CREATE_CLAIM_REQ':
-            return {
-                ...state,
-                submittingMutation: true,
-                claimMutation: action.meta,
-            }
+        case 'CLAIM_MUTATION_REQ':
+            return dispatchMutationReq(state, action)
+        case 'CLAIM_MUTATION_ERR':
+            return dispatchMutationErr(state, action);
         case 'CLAIM_CREATE_CLAIM_RESP':
-            var claimMutation = state.claimMutation;
-            claimMutation.id = action.payload.data.createClaim.internalId;
-            return {
-                ...state,
-                submittingMutation: false,
-                claimMutation,
-            }
-        case 'CLAIM_CREATE_CLAIM_ERR':
-            return {
-                ...state,
-            }
+            return dispatchMutationResp(state, "createClaim", action);
+        case 'CLAIM_SUBMIT_CLAIMS_RESP':
+            return dispatchMutationResp(state, "submitClaims", action);
+        case 'CLAIM_SELECT_CLAIMS_FOR_FEEDBACK_RESP':
+            return dispatchMutationResp(state, "selectClaimsForFeedback", action);
+        case 'CLAIM_BYPASS_CLAIMS_FEEDBACK_RESP':
+            return dispatchMutationResp(state, "bypassClaimsFeedback", action);
+        case 'CLAIM_SKIP_CLAIMS_FEEDBACK_RESP':
+            return dispatchMutationResp(state, "skipClaimsFeedback", action);
+        case 'CLAIM_SELECT_CLAIMS_FOR_REVIEW_RESP':
+            return dispatchMutationResp(state, "selectClaimsForReview", action);
+        case 'CLAIM_BYPASS_CLAIMS_REVIEW_RESP':
+            return dispatchMutationResp(state, "bypassClaimsReview", action);
+        case 'CLAIM_SKIP_CLAIMS_REVIEW_RESP':
+            return dispatchMutationResp(state, "skipClaimsReview", action);
+        case 'CLAIM_PROCESS_CLAIMS_RESP':
+            return dispatchMutationResp(state, "processClaims", action);
         default:
             return state;
     }

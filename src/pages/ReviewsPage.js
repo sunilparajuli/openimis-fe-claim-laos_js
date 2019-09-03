@@ -2,16 +2,21 @@ import React, { Component, Fragment } from "react";
 import { bindActionCreators } from "redux";
 import { connect } from "react-redux";
 import { injectIntl } from 'react-intl';
-import { Grid, InputAdornment, IconButton, Tooltip } from "@material-ui/core";
+import { Grid, InputAdornment, IconButton } from "@material-ui/core";
 import FilterIcon from "@material-ui/icons/FilterList";
 import FeedbackIcon from "@material-ui/icons/SpeakerNotesOutlined";
 import ReviewIcon from "@material-ui/icons/PersonAdd";
 import {
-    formatMessage, chip, TextInput, AmountInput,
-    withHistory, historyPush, withModulesManager, PublishedComponent
+    formatMessage, formatMessageWithValues, chip, TextInput, AmountInput,
+    withHistory, historyPush, withModulesManager, PublishedComponent,
+    journalize
 } from "@openimis/fe-core";
 import ClaimSearcher from "../components/ClaimSearcher";
-import { selectForFeedback, selectForReview, submit } from "../actions";
+import {
+    selectForFeedback, bypassFeedback, skipFeedback,
+    selectForReview, bypassReview, skipReview,
+    process
+} from "../actions";
 import { withTheme, withStyles } from "@material-ui/core/styles";
 
 const styles = theme => ({
@@ -172,46 +177,175 @@ class ReviewsPage extends Component {
 
     constructor(props) {
         super(props);
-        this.defaultFilters = props.modulesManager.getConf(
-            "fe-claim",
-            "reviews.defaultFilters",
-            {
-                "claimStatus": {
-                    "value": 4,
-                    "chip": chip(
-                        this.props.intl, "claim", "claimStatus",
-                        formatMessage(this.props.intl, "claim", "claimStatus.4")
-                    ),
-                    "filter": "status: 4"
+        this.state = {
+            defaultFilters: props.modulesManager.getConf(
+                "fe-claim",
+                "reviews.defaultFilters",
+                {
+                    "claimStatus": {
+                        "value": 4,
+                        "chip": chip(
+                            this.props.intl, "claim", "claimStatus",
+                            formatMessage(this.props.intl, "claim", "claimStatus.2")
+                        ),
+                        "filter": "status: 2"
+                    }
                 }
+            )
+        }
+    }
+
+    componentDidUpdate(prevProps, prevState, snapshot) {
+        if (prevProps.submittingMutation && !this.props.submittingMutation) {
+            this.props.journalize(this.props.mutation);
+        }
+        if (!_.isEqual(prevProps.userHealthFacilityFullPath, this.props.userHealthFacilityFullPath)) {
+            let defaultFilters = { ...this.state.defaultFilters }
+            defaultFilters.healthFacility = {
+                "value": this.props.userHealthFacilityFullPath,
+                "chip": chip(
+                    this.props.intl, "claim", "ClaimFilter.healthFacility",
+                    this.props.userHealthFacilityStr),
+                "filter": `healthFacility_Id: "${this.props.userHealthFacilityFullPath.id}"`
             }
-        );
+            let district = this.props.userHealthFacilityFullPath.location;
+            defaultFilters.district = {
+                "value": district,
+                "chip": chip(
+                    this.props.intl, "claim", "ClaimFilter.district",
+                    this.props.userDistrictStr),
+                "filter": `healthFacility_Location_Id: "${district.id}"`
+            }
+            let region = district.parent;
+            defaultFilters.region = {
+                "value": region,
+                "chip": chip(
+                    this.props.intl, "claim", "ClaimFilter.region",
+                    this.props.userDistrictStr),
+                "filter": `healthFacility_Location_Parent_Id: "${region.id}"`
+            }
+            this.setState({ defaultFilters })
+        }
     }
 
-    filtersChange = (filters) => this.setState({ forcedFilters: filters })
+    filtersChange = forcedFilters => this.setState({ forcedFilters })
 
-    canMarkSelectedForFeedback = (selection) => !!selection && selection.length && selection.filter(s => s.feedbackStatus <= 2).length === selection.length
-
-    markSelectedForFeedback = (selection) => {
-        alert('SELECT FOR FEEDBACK #' + selection.length);
-        //this.props.selectForFeedback(this.state.selection);
+    _labelMutation = (selection, labelOne, labelMultiple, action) => {
+        if (selection.length === 1) {
+            action(selection,
+                formatMessageWithValues(
+                    this.props.intl,
+                    "claim",
+                    labelOne,
+                    { code: selection[0].code }
+                ));
+        } else {
+            action(selection,
+                formatMessageWithValues(
+                    this.props.intl,
+                    "claim",
+                    labelMultiple,
+                    { count: selectionlength }
+                ));
+        }
     }
 
-    canMarkSelectedForReview = (selection) => !!selection && selection.length && selection.filter(s => s.reviewStatus <= 2).length === selection.length
+    canMarkSelectedForFeedback = selection => !!selection && selection.length && selection.filter(s => s.feedbackStatus <= 2).length === selection.length
 
-    markSelectedForReview = (selection) => {
-        alert('SELECT FOR REVIEW #' + selection.length);
-        //this.props.selectForReview(this.state.selection);
+    markSelectedForFeedback = selection => {
+        this._labelMutation(selection,
+            "SelectClaimForFeedback.mutationLabel",
+            "SelectClaimsForFeedback.mutationLabel",
+            this.props.selectForFeedback);
     }
 
-    canProcessSelected = (selection) => !!selection && selection.length && selection.filter(s => s.status === 4).length === selection.length
+    canMarkBypassedFeedback = selection => !!selection && selection.length && selection.filter(s => s.feedbackStatus === 4).length === selection.length
 
-    processSelected = (selection) => {
-        alert('PROCESS #' + selection.length);
-        //this.props.submit(this.state.selection);
+    markBypassedFeedback = selection => {
+        this._labelMutation(selection,
+            "BypassClaimFeedback.mutationLabel",
+            "BypassClaimsFeedback.mutationLabel",
+            this.props.bypassFeedback);
     }
 
-    onChangeFeedbackStatus = v => console.log("Change Feedback status:" + v)
+    canMarkSkippedFeedback = selection => !!selection && selection.length
+
+    markSkippedFeedback = selection => {
+        this._labelMutation(selection,
+            "SkipClaimFeedback.mutationLabel",
+            "SkipClaimsFeedback.mutationLabel",
+            this.props.skipFeedback);
+    }
+
+    canMarkSelectedForReview = selection => !!selection && selection.length && selection.filter(s => s.reviewStatus <= 2).length === selection.length
+
+    markSelectedForReview = selection => {
+        this._labelMutation(selection,
+            "SelectClaimForReview.mutationLabel",
+            "SelectClaimsForReview.mutationLabel",
+            this.props.selectForReview);
+    }
+
+    canMarkBypassedReview = selection => !!selection && selection.length && selection.filter(s => s.reviewStatus === 4).length === selection.length
+
+    markBypassedReview = selection => {
+        this._labelMutation(selection,
+            "BypassClaimReview.mutationLabel",
+            "BypassClaimsReview.mutationLabel",
+            this.props.bypassReview);
+    }
+
+    canMarkSkippedReview = selection => !!selection && selection.length
+
+    markSkippedReview = selection => {
+        this._labelMutation(selection,
+            "SkipClaimReview.mutationLabel",
+            "SkipClaimsReview.mutationLabel",
+            this.props.skipReview);
+    }
+
+    canProcessSelected = selection => !!selection && selection.length && selection.filter(s => s.status === 4).length === selection.length
+
+    processSelected = selection => {
+        this._labelMutation(selection,
+            "ProcessClaim.mutationLabel",
+            "ProcessClaims.mutationLabel",
+            this.props.process);
+    }
+
+    onChangeFeedbackStatus = (c, v) => {
+        c.feedbackStatus = v;
+        switch (v) {
+            case 2:
+                this.props.skipFeedback([c],
+                    formatMessageWithValues(
+                        this.props.intl,
+                        "claim",
+                        "SkipClaimFeedback.mutationLabel",
+                        { code: c.code }
+                    ));
+                break;
+            case 4:
+                this.props.selectForFeedback([c],
+                    formatMessageWithValues(
+                        this.props.intl,
+                        "claim",
+                        "SelectClaimForFeedback.mutationLabel",
+                        { code: c.code }
+                    ));
+                break;
+            case 16:
+                this.props.bypassFeedback([c],
+                    formatMessageWithValues(
+                        this.props.intl,
+                        "claim",
+                        "BypassClaimFeedback.mutationLabel",
+                        { code: c.code }
+                    ));
+                break;
+            default: console.log('Illegal new Feedback Status ' + v); // TODO: handle error
+        }
+    }
     provideFeedback = c => historyPush(this.props.modulesManager, this.props.history, "claim.route.feedback", [c.id])
 
     feedbackColFormatter = c => (
@@ -220,8 +354,10 @@ class ReviewsPage extends Component {
                 <PublishedComponent
                     id="claim.FeedbackStatusPicker"
                     name="feedbackStatus"
+                    withNull={false}
+                    filtered={[1, 8]}
                     value={c.feedbackStatus}
-                    onChange={(v, s) => this.onChangeFeedbackStatus(v)}
+                    onChange={(v, s) => this.onChangeFeedbackStatus(c, v)}
                 />
             </Grid>
             <Grid item xs={6}>
@@ -230,7 +366,39 @@ class ReviewsPage extends Component {
         </Grid>
     )
 
-    onChangeReviewStatus = v => console.log("Change Review status:" + v)
+    onChangeReviewStatus = (c, v) => {
+        c.reviewStatus = v;
+        switch (v) {
+            case 2:
+                this.props.skipReview([c],
+                    formatMessageWithValues(
+                        this.props.intl,
+                        "claim",
+                        "SkipClaimReview.mutationLabel",
+                        { code: c.code }
+                    ));
+                break;
+            case 4:
+                this.props.selectForReview([c],
+                    formatMessageWithValues(
+                        this.props.intl,
+                        "claim",
+                        "SelectClaimForReview.mutationLabel",
+                        { code: c.code }
+                    ));
+                break;
+            case 16:
+                this.props.bypassReview([c],
+                    formatMessageWithValues(
+                        this.props.intl,
+                        "claim",
+                        "BypassClaimReview.mutationLabel",
+                        { code: c.code }
+                    ));
+                break;
+            default: console.log('Illegal new Feedback Status ' + v); // TODO: handle error
+        }
+    }
     review = c => historyPush(this.props.modulesManager, this.props.history, "claim.route.review", [c.id])
     reviewColFormatter = c => (
         <Grid container>
@@ -239,7 +407,9 @@ class ReviewsPage extends Component {
                     id="claim.ReviewStatusPicker"
                     name="reviewStatus"
                     value={c.reviewStatus}
-                    onChange={(v, s) => this.onChangeReviewStatus(v)}
+                    withNull={false}
+                    filtered={[1, 8]}
+                    onChange={(v, s) => this.onChangeReviewStatus(c, v)}
                 />
             </Grid>
             <Grid item xs={6}>
@@ -251,12 +421,16 @@ class ReviewsPage extends Component {
     render() {
         return (
             <ClaimSearcher
-                defaultFilters={this.defaultFilters}
+                defaultFilters={this.state.defaultFilters}
                 forcedFilters={this.state.forcedFilters}
                 fixFilter={<FixFilter filtersChange={this.filtersChange} />}
                 actions={[
                     { label: "claimSummaries.markSelectedForFeedback", enabled: this.canMarkSelectedForFeedback, action: this.markSelectedForFeedback },
+                    { label: "claimSummaries.markBypassedFeedback", enabled: this.canMarkBypassedFeedback, action: this.markBypassedFeedback },
+                    { label: "claimSummaries.markSkippedFeedback", enabled: this.canMarkSkippedFeedback, action: this.markSkippedFeedback },
                     { label: "claimSummaries.markSelectedForReview", enabled: this.canMarkSelectedForReview, action: this.markSelectedForReview },
+                    { label: "claimSummaries.markBypassedReview", enabled: this.canMarkBypassedReview, action: this.markBypassedReview },
+                    { label: "claimSummaries.markSkippedReview", enabled: this.canMarkSkippedReview, action: this.markSkippedReview },
                     { label: "claimSummaries.processSelected", enabled: this.canProcessSelected, action: this.processSelected },
                 ]}
                 feedbackColFormatter={this.feedbackColFormatter}
@@ -267,6 +441,12 @@ class ReviewsPage extends Component {
 }
 
 const mapStateToProps = state => ({
+    userHealthFacilityFullPath: state.loc.userHealthFacilityFullPath,
+    userHealthFacilityStr: state.loc.userHealthFacilityStr,
+    userRegionStr: state.loc.userRegionStr,
+    userDistrictStr: state.loc.userDistrictStr,
+    submittingMutation: state.claim.submittingMutation,
+    mutation: state.claim.mutation,
 });
 
 
@@ -274,8 +454,13 @@ const mapDispatchToProps = dispatch => {
     return bindActionCreators(
         {
             selectForFeedback,
+            bypassFeedback,
+            skipFeedback,
             selectForReview,
-            submit,
+            bypassReview,
+            skipReview,
+            process,
+            journalize,
         },
         dispatch);
 };

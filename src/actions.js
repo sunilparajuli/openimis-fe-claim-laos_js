@@ -112,14 +112,122 @@ export function fetchClaim(mm, claimId, forFeedback) {
   return graphql(payload, 'CLAIM_CLAIM');
 }
 
-export function selectForFeedback(claims) {
-  //TODO
+export function submit(claims, clientMutationLabel) {
+  let claimIds = `ids: [${claims.map(c => decodeId(c.id)).join(",")}]`
+  const mutation = formatMutation("submitClaims", claimIds, clientMutationLabel);
+  var requestedDateTime = new Date();
+  return graphql(
+    mutation.payload,
+    ['CLAIM_MUTATION_REQ', 'CLAIM_SUBMIT_CLAIMS_RESP', 'CLAIM_MUTATION_ERR'],
+    {
+      clientMutationId: mutation.clientMutationId,
+      clientMutationLabel,
+      requestedDateTime
+    }
+  )
 }
 
-export function selectForReview(claims) {
-  //TODO
+export function selectForFeedback(claims, clientMutationLabel) {
+  let claimIds = `ids: [${claims.map(c => decodeId(c.id)).join(",")}]`
+  const mutation = formatMutation("selectClaimsForFeedback", claimIds, clientMutationLabel);
+  var requestedDateTime = new Date();
+  return graphql(
+    mutation.payload,
+    ['CLAIM_MUTATION_REQ', 'CLAIM_SELECT_CLAIMS_FOR_FEEDBACK_RESP', 'CLAIM_MUTATION_ERR'],
+    {
+      clientMutationId: mutation.clientMutationId,
+      clientMutationLabel,
+      requestedDateTime
+    }
+  )
 }
 
-export function submit(claims) {
-  //TODO
+export function bypassFeedback(claims, clientMutationLabel) {
+  let claimIds = `ids: [${claims.map(c => decodeId(c.id)).join(",")}]`
+  const mutation = formatMutation("bypassClaimsFeedback", claimIds, clientMutationLabel);
+  var requestedDateTime = new Date();
+  return graphql(
+    mutation.payload,
+    ['CLAIM_MUTATION_REQ', 'CLAIM_BYPASS_CLAIMS_FEEDBACK_RESP', 'CLAIM_MUTATION_ERR'],
+    {
+      clientMutationId: mutation.clientMutationId,
+      clientMutationLabel,
+      requestedDateTime
+    }
+  )
+}
+
+export function skipFeedback(claims, clientMutationLabel) {
+  let claimIds = `ids: [${claims.map(c => decodeId(c.id)).join(",")}]`
+  const mutation = formatMutation("skipClaimsFeedback", claimIds, clientMutationLabel);
+  var requestedDateTime = new Date();
+  return graphql(
+    mutation.payload,
+    ['CLAIM_MUTATION_REQ', 'CLAIM_SKIP_CLAIMS_FEEDBACK_RESP', 'CLAIM_MUTATION_ERR'],
+    {
+      clientMutationId: mutation.clientMutationId,
+      clientMutationLabel,
+      requestedDateTime
+    }
+  )
+}
+
+export function selectForReview(claims, clientMutationLabel) {
+  let claimIds = `ids: [${claims.map(c => decodeId(c.id)).join(",")}]`
+  const mutation = formatMutation("selectClaimsForReview", claimIds, clientMutationLabel);
+  var requestedDateTime = new Date();
+  return graphql(
+    mutation.payload,
+    ['CLAIM_MUTATION_REQ', 'CLAIM_SELECT_CLAIMS_FOR_REVIEW_RESP', 'CLAIM_MUTATION_ERR'],
+    {
+      clientMutationId: mutation.clientMutationId,
+      clientMutationLabel,
+      requestedDateTime
+    }
+  )
+}
+
+export function bypassReview(claims, clientMutationLabel) {
+  let claimIds = `ids: [${claims.map(c => decodeId(c.id)).join(",")}]`
+  const mutation = formatMutation("bypassClaimsReview", claimIds, clientMutationLabel);
+  var requestedDateTime = new Date();
+  return graphql(
+    mutation.payload,
+    ['CLAIM_MUTATION_REQ', 'CLAIM_BYPASS_CLAIMS_REVIEW_RESP', 'CLAIM_MUTATION_ERR'],
+    {
+      clientMutationId: mutation.clientMutationId,
+      clientMutationLabel,
+      requestedDateTime
+    }
+  )
+}
+
+export function skipReview(claims, clientMutationLabel) {
+  let claimIds = `ids: [${claims.map(c => decodeId(c.id)).join(",")}]`
+  const mutation = formatMutation("skipClaimsReview", claimIds, clientMutationLabel);
+  var requestedDateTime = new Date();
+  return graphql(
+    mutation.payload,
+    ['CLAIM_MUTATION_REQ', 'CLAIM_SKIP_CLAIMS_REVIEW_RESP', 'CLAIM_MUTATION_ERR'],
+    {
+      clientMutationId: mutation.clientMutationId,
+      clientMutationLabel,
+      requestedDateTime
+    }
+  )
+}
+
+export function process(claims, clientMutationLabel) {
+  let claimIds = `ids: [${claims.map(c => decodeId(c.id)).join(",")}]`
+  const mutation = formatMutation("processClaims", claimIds, clientMutationLabel);
+  var requestedDateTime = new Date();
+  return graphql(
+    mutation.payload,
+    ['CLAIM_MUTATION_REQ', 'CLAIM_PROCESS_CLAIMS_RESP', 'CLAIM_MUTATION_ERR'],
+    {
+      clientMutationId: mutation.clientMutationId,
+      clientMutationLabel,
+      requestedDateTime
+    }
+  )
 }

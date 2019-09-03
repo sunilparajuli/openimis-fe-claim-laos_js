@@ -1,4 +1,5 @@
 import React, { Component, Fragment } from "react";
+import { connect } from "react-redux";
 import _debounce from "lodash/debounce";
 import { withTheme, withStyles } from "@material-ui/core/styles";
 import { injectIntl } from 'react-intl';
@@ -25,13 +26,14 @@ const styles = theme => ({
 class Head extends Component {
 
     render() {
-        const { intl, classes, filters, onChangeFilter } = this.props;
+        const { intl, classes, filters, onChangeFilter, user } = this.props;
         return (
             <Grid container className={classes.form}>
                 <Grid item xs={2} className={classes.item}>
                     <PublishedComponent
                         id="location.RegionPicker"
                         value={(filters['region'] && filters['region']['value'])}
+                        readOnly={!!user.health_facility_id}
                         onChange={(v, s) => onChangeFilter(
                             'region', v,
                             chip(intl, "claim", "ClaimFilter.region", s),
@@ -43,6 +45,7 @@ class Head extends Component {
                     <PublishedComponent
                         id="location.DistrictPicker"
                         value={(filters['district'] && filters['district']['value'])}
+                        readOnly={!!user.health_facility_id}
                         onChange={(v, s) => onChangeFilter(
                             'district', v,
                             chip(intl, "claim", "ClaimFilter.district", s),
@@ -54,6 +57,7 @@ class Head extends Component {
                     <PublishedComponent
                         id="location.HealthFacilityPicker"
                         value={(filters['healthFacility'] && filters['healthFacility']['value'])}
+                        readOnly={!!user.health_facility_id}
                         onChange={(v, s) => onChangeFilter(
                             'healthFacility', v,
                             chip(intl, "claim", "ClaimFilter.healthFacility", s),
@@ -88,6 +92,14 @@ class Head extends Component {
         )
     }
 }
+
+const mapStateToProps = state => ({
+    user : state.core.user.i_user,
+    submittingMutation: state.claim.submittingMutation,
+    mutation: state.claim.mutation,
+});
+
+const BoundHead = connect(mapStateToProps)(Head)
 
 class Details extends Component {
 
@@ -288,7 +300,7 @@ class ClaimFilter extends Component {
         const { classes } = this.props;
         return (
             <form className={classes.container} noValidate autoComplete="off">
-                <Head {...this.props} />
+                <BoundHead {...this.props} />
                 <Details {...this.props} />
             </form>
         )

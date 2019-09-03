@@ -85,7 +85,16 @@ class ClaimMasterPanel extends Component {
                         readOnly={readOnly}
                     />
                 </Grid>
-                <Grid item xs={3} className={classes.item}>
+                <Grid item xs={2} className={classes.item}>
+                    <TextInput
+                        module="claim"
+                        label="code"
+                        value={edited.code}
+                        onChange={v => updateAttribute("code", v)}
+                        readOnly={readOnly}
+                    />
+                </Grid>
+                <Grid item xs={2} className={classes.item}>
                     <TextInput
                         module="claim"
                         label="guaranteeId"
@@ -94,7 +103,7 @@ class ClaimMasterPanel extends Component {
                         readOnly={readOnly}
                     />
                 </Grid>
-                <Grid item xs={3} className={classes.item}>
+                <Grid item xs={2} className={classes.item}>
                     <AmountInput
                         value={edited.claimed}
                         module="claim"

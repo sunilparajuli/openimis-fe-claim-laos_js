@@ -19,7 +19,6 @@ class EditPage extends Component {
     }
 
     save = (claim) => {
-        claim.code = _.uuid().substring(0, 8);  //code should be defined by backend!!
         if (!this.props.claim_id) {
             this.props.createClaim(
                 this.props.modulesManager,
