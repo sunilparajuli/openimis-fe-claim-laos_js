@@ -19,6 +19,16 @@ class ClaimMasterPanel extends Component {
     render() {
         const { intl, classes, edited, updateAttribute, forReview, forFeedback } = this.props;
         if (!edited) return null;
+        let totalClaimed = 0;
+        if (edited.items) {
+            totalClaimed += edited.items.reduce(
+                (sum, r) => sum + (!!r.qtyProvided && !!r.priceAsked ? r.qtyProvided * r.priceAsked : 0), 0);
+        }
+        if (edited.services) {
+            totalClaimed += edited.services.reduce(
+                (sum, r) => sum + (!!r.qtyProvided && !!r.priceAsked ? r.qtyProvided * r.priceAsked : 0), 0);
+        }
+        edited.claimed = _.round(totalClaimed, 2);
         let readOnly = !!forReview || !!forFeedback
         return (
             <Grid container>

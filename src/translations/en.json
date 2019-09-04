@@ -95,6 +95,7 @@
     "claim.edit.items.rejectionReason": "R",
     "claim.edit.items.delete": " ",
     "claim.CreateClaim.mutationLabel": "Create Claim - {insuree}",
+    "claim.UpdateClaim.mutationLabel": "Create Claim - {code}",
     "claim.SubmitClaims.mutationLabel": "Submitted {count} claims",
     "claim.SelectClaimsForFeedback.mutationLabel": "Selected {count} claims for feedback",
     "claim.SelectClaimsForReview.mutationLabel": "Selected {count} claims for review",

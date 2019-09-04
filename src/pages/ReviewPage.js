@@ -1,19 +1,35 @@
 import React, { Component, Fragment } from "react";
-import { withTheme, withStyles } from "@material-ui/core/styles";
 import { injectIntl } from 'react-intl';
 import { connect } from "react-redux";
 import { bindActionCreators } from "redux";
 import {
-    formatMessage, withModulesManager, withHistory, historyPush,
+    withModulesManager, withHistory, formatMessageWithValues, historyPush, journalize
 } from "@openimis/fe-core";
 import ClaimForm from "../components/ClaimForm";
-import { createClaim } from "../actions";
+import { deliverReview } from "../actions";
 import _ from "lodash";
-import { uuid } from "lodash-uuid";
 
 class ReviewPage extends Component {
-    save = (review) => {
-        console.log("SAVE REVIEW..." + JSON.stringify(review))
+
+    componentDidUpdate(prevProps, prevState, snapshot) {
+        if (prevProps.submittingMutation && !this.props.submittingMutation) {
+            this.props.journalize(this.props.mutation);
+            historyPush(this.props.modulesManager, this.props.history, "claim.route.reviews")
+        }
+    }
+
+    save = (claim) => {
+        if (!!claim && (!!claim.items || !!claim.services)) {
+            this.props.deliverReview(
+                claim,
+                formatMessageWithValues(
+                    this.props.intl,
+                    "claim",
+                    "DeliverClaimReview.mutationLabel",
+                    { code: claim.code }
+                )
+            )
+        }
     }
 
     render() {
@@ -25,11 +41,13 @@ class ReviewPage extends Component {
 }
 
 const mapStateToProps = (state, props) => ({
-    claim_id: props.match.params.claim_id
+    claim_id: props.match.params.claim_id,
+    submittingMutation: state.claim.submittingMutation,
+    mutation: state.claim.mutation,
 });
 
 const mapDispatchToProps = dispatch => {
-    return bindActionCreators({ createClaim }, dispatch);
+    return bindActionCreators({ deliverReview, journalize }, dispatch);
 };
 
 export default withHistory(withModulesManager(connect(mapStateToProps, mapDispatchToProps)(

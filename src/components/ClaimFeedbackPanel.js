@@ -6,7 +6,7 @@ import {
     Grid, Typography, Divider,
     Slider, Switch
 } from "@material-ui/core";
-import { FormattedMessage, DatePicker, PublishedComponent, formatMessage, TextInput } from "@openimis/fe-core";
+import { FormattedMessage, DatePicker, PublishedComponent, formatMessage, decodeId } from "@openimis/fe-core";
 import { FEEDBACK_ASSESSMENTS } from "../constants";
 
 const styles = theme => ({
@@ -90,14 +90,14 @@ class ClaimFeedbackPanel extends Component {
                                 module="claim"
                                 label="Feedback.date"
                                 value={edited.feedback.feedbackDate || null}
-                                onChange={d => this._onChange("feedbackDate", d)}
+                                onChange={d => this._onChange("feedbackDate", `${d}T00:00:00`)}
                             />
                         </Grid>
                         <Grid item xs={3} className={classes.item}>
                             <PublishedComponent
                                 id="claim.ClaimOfficerPicker"
                                 value={edited.feedback.chfOfficerCode}
-                                onChange={(v, s) => this._onChange("chfOfficerCode", v)}
+                                onChange={(v, s) => this._onChange("chfOfficerCode", !!v ? decodeId(v.id) : null)}
                             />
                         </Grid>
                         <Grid item xs={3} />
@@ -125,24 +125,25 @@ class ClaimFeedbackPanel extends Component {
                             <Typography gutterBottom>
                                 <FormattedMessage module="claim" id="Feedback.overallAssesment" />
                             </Typography>
-                            {edited.feedback.assessment === undefined && (
+                            {edited.feedback.asessment === undefined && (
                                 <Slider
                                     max={!!this.marks ? this.marks.length - 1 : 0}
                                     step={1}
                                     valueLabelDisplay="auto"
                                     marks={this.marks}
                                     disabled
-                                    onClick={e => this._toggleField('assessment', 0)}
+                                    onClick={e => this._toggleField('asessment', 0)}
                                 />
                             )}
-                            {edited.feedback.assessment !== undefined && (
+                            {edited.feedback.asessment !== undefined && (
                                 <Slider
                                     max={!!this.marks ? this.marks.length - 1 : 0}
                                     step={1}
+                                    value={edited.feedback.asessment}
+                                    defaultValue={0}
                                     valueLabelDisplay="auto"
-                                    marks={this.marks}
-                                    defaultValue={edited.feedback.assessment || 0}
-                                    onChange={(e, v) => this._onChange('assessment', v)}
+                                    marks={this.marks}                                    
+                                    onChange={(e, v) => this._onChange('asessment', v)}
                                 />
                             )}
 

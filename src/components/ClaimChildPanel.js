@@ -42,14 +42,24 @@ class ClaimChildPanel extends Component {
         }
     }
 
-
-    _onChange = (idx, attr, v) => {
+    _change = (idx, attr, v) => {
         const data = this.state.data;
         data[idx][attr] = v;
         this.props.updateAttribute(`${this.props.type}s`, data);
         if (data.length === (idx + 1) && !this.props.forReview) {
             data.push({});
         }
+        return data;
+    }
+
+    _onChange = (idx, attr, v) => {
+        let data = this._change(idx, attr, v);
+        this.setState({ data });
+    }
+
+    _onChangeWithPrice = (idx, attr, v) => {
+        let data = this._change(idx, attr, v);
+        data[idx].priceAsked = !!v ? v.price : null;
         this.setState({ data });
     }
 
@@ -65,9 +75,10 @@ class ClaimChildPanel extends Component {
         if (!edited) return null;
         const totalAmount = formatAmount(
             intl,
-            this.state.data.reduce(
-                (sum, r) => sum + (!!r.qtyProvided && !!r.priceAsked ? r.qtyProvided * r.priceAsked : 0), 0)
-        );
+            _.round(this.state.data.reduce(
+                (sum, r) => sum + (!!r.qtyProvided && !!r.priceAsked ? r.qtyProvided * r.priceAsked : 0), 0),
+                2
+            ));
         let headers = [
             `edit.${type}s.${type}`,
             `edit.${type}s.quantity`,
@@ -79,7 +90,7 @@ class ClaimChildPanel extends Component {
             (i, idx) => <PublishedComponent
                 readOnly={!!forReview}
                 id={picker} withLabel={false} value={i[type]}
-                onChange={v => this._onChange(idx, type, v)}
+                onChange={v => this._onChangeWithPrice(idx, type, v)}
             />,
             (i, idx) => <NumberInput
                 readOnly={!!forReview}
@@ -104,7 +115,7 @@ class ClaimChildPanel extends Component {
             );
             itemFormatters.push(
                 (i, idx) => <NumberInput
-                    value={i.qtyProvided}
+                    value={i.qtyApproved}
                     onChange={v => this._onChange(idx, "qtyApproved", v)}
                 />,
                 (i, idx) => <AmountInput
@@ -125,19 +136,20 @@ class ClaimChildPanel extends Component {
             );
             itemFormatters.push(
                 (i, idx) => <PublishedComponent
-                    readOnly={true}
+                    readOnly={false}
                     id="claim.ApprovalStatusPicker"
+                    withNull={false}
                     withLabel={false}
                     value={i.status}
-                    withLabel={false}
+                    onChange={v => this._onChange(idx, 'status', v)}
                 />,
                 (i, idx) => <PublishedComponent
-                    readOnly={true}
+                    readOnly={false}
                     id="claim.RejectionReasonPicker"
                     withLabel={false}
                     value={i.rejectionReason}
                     compact={true}
-                    withLabel={false}
+                    onChange={v => this._onChange(idx, 'rejectionReason', v)}
                 />,
             );
         }

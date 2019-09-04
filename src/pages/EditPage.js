@@ -6,7 +6,7 @@ import {
     formatMessageWithValues, withModulesManager, withHistory, historyPush,
 } from "@openimis/fe-core";
 import ClaimForm from "../components/ClaimForm";
-import { createClaim } from "../actions";
+import { createClaim, updateClaim } from "../actions";
 import _ from "lodash-uuid";
 
 class EditPage extends Component {
@@ -30,6 +30,18 @@ class EditPage extends Component {
                     { insuree: claim.insuree_str }
                 )
             );
+        } else {
+            this.props.updateClaim(
+                this.props.modulesManager,
+                claim,
+                formatMessageWithValues(
+                    this.props.intl,
+                    "claim",
+                    "UpdateClaim.mutationLabel",
+                    { code: claim.code }
+                )
+            );
+
         }
     }
 
@@ -46,7 +58,7 @@ const mapStateToProps = (state, props) => ({
 });
 
 const mapDispatchToProps = dispatch => {
-    return bindActionCreators({ createClaim }, dispatch);
+    return bindActionCreators({ createClaim, updateClaim }, dispatch);
 };
 
 export default withHistory(withModulesManager(connect(mapStateToProps, mapDispatchToProps)(

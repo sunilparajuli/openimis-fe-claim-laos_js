@@ -125,6 +125,8 @@ function reducer(
             return dispatchMutationErr(state, action);
         case 'CLAIM_CREATE_CLAIM_RESP':
             return dispatchMutationResp(state, "createClaim", action);
+        case 'CLAIM_UPDATE_CLAIM_RESP':
+                return dispatchMutationResp(state, "updateClaim", action);        
         case 'CLAIM_SUBMIT_CLAIMS_RESP':
             return dispatchMutationResp(state, "submitClaims", action);
         case 'CLAIM_SELECT_CLAIMS_FOR_FEEDBACK_RESP':
@@ -133,12 +135,16 @@ function reducer(
             return dispatchMutationResp(state, "bypassClaimsFeedback", action);
         case 'CLAIM_SKIP_CLAIMS_FEEDBACK_RESP':
             return dispatchMutationResp(state, "skipClaimsFeedback", action);
+        case 'CLAIM_DELIVER_CLAIM_FEEDBACK_RESP':
+            return dispatchMutationResp(state, "deliverClaimFeedback", action);
         case 'CLAIM_SELECT_CLAIMS_FOR_REVIEW_RESP':
             return dispatchMutationResp(state, "selectClaimsForReview", action);
         case 'CLAIM_BYPASS_CLAIMS_REVIEW_RESP':
             return dispatchMutationResp(state, "bypassClaimsReview", action);
         case 'CLAIM_SKIP_CLAIMS_REVIEW_RESP':
             return dispatchMutationResp(state, "skipClaimsReview", action);
+        case 'CLAIM_DELIVER_CLAIM_REVIEW_RESP':
+            return dispatchMutationResp(state, "deliverClaimReview", action);
         case 'CLAIM_PROCESS_CLAIMS_RESP':
             return dispatchMutationResp(state, "processClaims", action);
         default:

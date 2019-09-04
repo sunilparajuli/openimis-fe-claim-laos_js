@@ -6,7 +6,7 @@ import { bindActionCreators } from "redux";
 import {
     ProgressOrError, Form, withModulesManager, withHistory, journalize
 } from "@openimis/fe-core";
-import { fetchClaim, createClaim } from "../actions";
+import { fetchClaim } from "../actions";
 import _ from "lodash";
 
 import ClaimMasterPanel from "./ClaimMasterPanel";
@@ -109,7 +109,7 @@ const mapStateToProps = (state, props) => ({
 });
 
 const mapDispatchToProps = dispatch => {
-    return bindActionCreators({ fetchClaim, createClaim, journalize }, dispatch);
+    return bindActionCreators({ fetchClaim, journalize }, dispatch);
 };
 
 export default withHistory(withModulesManager(connect(mapStateToProps, mapDispatchToProps)(
