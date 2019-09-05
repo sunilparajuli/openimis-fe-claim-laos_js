@@ -186,9 +186,9 @@ class ReviewsPage extends Component {
                         "value": 4,
                         "chip": chip(
                             this.props.intl, "claim", "claimStatus",
-                            formatMessage(this.props.intl, "claim", "claimStatus.2")
+                            formatMessage(this.props.intl, "claim", "claimStatus.4")
                         ),
-                        "filter": "status: 2"
+                        "filter": "status: 4"
                     }
                 }
             )
@@ -255,7 +255,7 @@ class ReviewsPage extends Component {
                     this.props.intl,
                     "claim",
                     labelMultiple,
-                    { count: selectionlength }
+                    { count: selection.length }
                 ));
         }
     }

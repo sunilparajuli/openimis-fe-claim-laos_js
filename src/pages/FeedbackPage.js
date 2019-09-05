@@ -33,9 +33,13 @@ class FeedbackPage extends Component {
     }
 
     render() {
-        const { claim_id } = this.props;
+        const { history, modulesManager, claim_id } = this.props;
         return (
-            <ClaimForm claim_id={claim_id} save={this.save} forFeedback={true} />
+            <ClaimForm
+                claim_id={claim_id}
+                back={e => historyPush(modulesManager, history, "claim.route.reviews")}
+                save={this.save}
+                forFeedback={true} />
         )
     }
 }

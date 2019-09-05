@@ -37,21 +37,45 @@ class ClaimForm extends Component {
 
     state = {
         reset: 0,
+        update: 0,
         claim: {},
+    }
+
+    _setHealthFacility(claim) {
+        if (this.props.userHealthFacilityFullPath) {
+            let hf = { ...this.props.userHealthFacilityFullPath };
+            delete (hf.location);
+            claim.healthFacility = hf;
+        };
+        return claim;
+    }
+
+    _newClaim() {
+        let claim = this._setHealthFacility({});
+        claim.status = 2;
+        return claim;
     }
 
     componentDidMount() {
         if (this.props.claim_id) {
             this.props.fetchClaim(this.props.modulesManager, this.props.claim_id, this.props.forFeedback);
         } else {
-            this.setState({ dirty: true });
+            this.setState({
+                claim: this._newClaim(),
+                dirty: false,
+            });
         }
     }
 
     componentDidUpdate(prevProps, prevState, snapshot) {
+        if (!prevProps.userHealthFacilityFullPath && !!this.props.userHealthFacilityFullPath) {
+            this.setState({
+                claim: this._setHealthFacility(this.state.claim)
+            })
+        }
         if (prevProps.claim_id && !this.props.claim_id) {
             this.setState({
-                claim: {},
+                claim: { ...this._setHealthFacility(this.state.claim) },
             });
         } else if (prevProps.fetchedClaim !== this.props.fetchedClaim && !!this.props.fetchedClaim) {
             this.setState({
@@ -59,8 +83,25 @@ class ClaimForm extends Component {
             })
         } else if (prevProps.submittingMutation && !this.props.submittingMutation) {
             this.props.journalize(this.props.mutation);
-            this.setState({ reset: this.state.reset + 1 });
+            this.setState({
+                update: this.state.update + 1,
+                dirty: false
+            });
         }
+    }
+
+    _add = () => {
+        this.setState(
+            {
+                claim: this._newClaim(),
+                dirty: false,
+                reset: this.state.reset + 1,
+            },
+            e => {
+                this.props.add();
+                this.forceUpdate();
+            }
+        )
     }
 
     canSaveDetail = (d, type) => {
@@ -70,8 +111,8 @@ class ClaimForm extends Component {
         return true;
     }
 
-    canSave = () => {
-        let claim = this.state.claim;
+    canSave = (claim) => {
+        if (!claim) return false;
         if (!claim.code) return false;
         if (!claim.healthFacility) return false;
         if (!claim.insuree) return false;
@@ -79,16 +120,19 @@ class ClaimForm extends Component {
         if (!claim.dateFrom) return false;
         if (!claim.status) return false;
         if (!claim.icd) return false;
-        let items = [...claim.items];
-        if (!this.props.forReview) items.pop();
-        if (items.length && items.filter(i => !this.canSaveDetail(i, 'item')).length) {
-            return false;
+        if (claim.items) {
+            let items = [...claim.items];
+            if (!this.props.forReview) items.pop();
+            if (items.length && items.filter(i => !this.canSaveDetail(i, 'item')).length) {
+                return false;
+            }
         }
-
-        let services = [...claim.services];
-        if (!this.props.forReview) services.pop();
-        if (services.length && services.filter(s => !this.canSaveDetail(s, 'service')).length) {
-            return false;
+        if (claim.services) {
+            let services = [...claim.services];
+            if (!this.props.forReview) services.pop();
+            if (services.length && services.filter(s => !this.canSaveDetail(s, 'service')).length) {
+                return false;
+            }
         }
         return true;
     }
@@ -98,7 +142,7 @@ class ClaimForm extends Component {
     }
 
     render() {
-        const { claim_id, fetchingClaim, fetchedClaim, errorClaim, add, save, forReview = false, forFeedback = false } = this.props;
+        const { claim_id, fetchingClaim, fetchedClaim, errorClaim, save, back, forReview = false, forFeedback = false } = this.props;
         return (
             <Fragment>
                 <ProgressOrError progress={fetchingClaim} error={errorClaim} />
@@ -107,10 +151,12 @@ class ClaimForm extends Component {
                         module="claim"
                         edited_id={claim_id}
                         edited={this.state.claim}
+                        update={this.state.update}
                         reset={this.state.reset}
                         title="edit.title"
                         titleParams={{ code: this.state.claim.code }}
-                        add={add}
+                        back={back}
+                        add={this._add}
                         save={save}
                         canSave={this.canSave}
                         reload={claim_id && this.reload}
@@ -131,6 +177,7 @@ class ClaimForm extends Component {
 }
 
 const mapStateToProps = (state, props) => ({
+    userHealthFacilityFullPath: state.loc.userHealthFacilityFullPath,
     claim: state.claim.claim,
     fetchingClaim: state.claim.fetchingClaim,
     fetchedClaim: state.claim.fetchedClaim,

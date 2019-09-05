@@ -54,7 +54,7 @@ export function formatClaimGQL(mm, claim) {
     code: "${claim.code}"
     insureeId: ${decodeId(claim.insuree.id)}
     dateFrom: "${claim.dateFrom}"
-    dateTo: "${claim.dateTo}"
+    ${claim.dateTo ? `dateTo: "${claim.dateTo}"`: ''}
     icdId: ${decodeId(claim.icd.id)}
     ${!!claim.icd1 ? `icdId1: ${decodeId(claim.icd1.id)}` : ""}
     ${!!claim.icd2 ? `icdId2: ${decodeId(claim.icd2.id)}` : ""}

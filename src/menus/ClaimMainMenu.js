@@ -19,7 +19,7 @@ class ClaimMainMenu extends Component {
             route: "/claim/healthFacilities"
           },
           {
-            text: formatMessage(this.props.intl, "claim", "menu.review"),
+            text: formatMessage(this.props.intl, "claim", "menu.reviews"),
             icon: <Assignment />,
             route: "/claim/reviews"
           },

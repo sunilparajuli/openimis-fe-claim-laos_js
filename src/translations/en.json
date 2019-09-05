@@ -1,7 +1,7 @@
 {
     "claim.mainMenu": "Claims",
     "claim.menu.healthFacilityClaims": "Health Facility Claims",
-    "claim.menu.review": "Review",
+    "claim.menu.reviews": "Reviews",
     "claim.ClaimAdminPicker.label": "Claim Administrator",
     "claim.ClaimOfficerPicker.label": "Claim Officer",
     "claim.ClaimFilter.claimAdmin": "Claim Administrator",

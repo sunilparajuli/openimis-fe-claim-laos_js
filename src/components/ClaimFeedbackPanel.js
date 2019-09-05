@@ -70,7 +70,7 @@ class ClaimFeedbackPanel extends Component {
         </Grid>
 
     render() {
-        const { intl, classes, edited } = this.props;
+        const { classes, edited } = this.props;
         if (!edited.feedback) {
             edited.feedback = {};
         }

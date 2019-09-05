@@ -19,7 +19,7 @@ const styles = theme => ({
 class ClaimMasterPanel extends Component {
 
     render() {
-        const { intl, classes, edited, updateAttribute, forReview, forFeedback, reset, } = this.props;
+        const { intl, classes, edited, updateAttribute, forReview, forFeedback } = this.props;
         if (!edited) return null;
         let totalClaimed = 0;
         if (edited.items) {
@@ -37,7 +37,7 @@ class ClaimMasterPanel extends Component {
                 <Grid item xs={3} className={classes.item}>
                     <PublishedComponent
                         id="location.HealthFacilityPicker"
-                        value={edited.healthFacility || this.props.userHealthFacilityFullPath}
+                        value={edited.healthFacility}
                         onChange={(v, s) => updateAttribute("healthFacility", v)}
                         readOnly={readOnly || !!this.props.userHealthFacilityFullPath}
                     />

@@ -119,7 +119,7 @@ class ClaimChildPanel extends Component {
                     onChange={v => this._onChange(idx, "qtyApproved", v)}
                 />,
                 (i, idx) => <AmountInput
-                    value={i.priceAsked}
+                    value={i.priceApproved}
                     onChange={v => this._onChange(idx, "priceApproved", v)}
                 />,
             );

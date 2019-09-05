@@ -12,10 +12,7 @@ import _ from "lodash-uuid";
 class EditPage extends Component {
 
     add = () => {
-        this.setState(
-            { claim: {} },
-            historyPush(this.props.modulesManager, this.props.history, "claim.route.claimEdit")
-        )
+        historyPush(this.props.modulesManager, this.props.history, "claim.route.claimEdit")
     }
 
     save = (claim) => {
@@ -46,9 +43,14 @@ class EditPage extends Component {
     }
 
     render() {
-        const { claim_id } = this.props;
+        const { modulesManager, history, claim_id } = this.props;
         return (
-            <ClaimForm claim_id={claim_id} add={this.add} save={this.save} />
+            <ClaimForm
+                claim_id={claim_id}
+                back={e => historyPush(modulesManager, history, "claim.route.healthFacilities")}
+                add={this.add}
+                save={this.save}
+            />
         )
     }
 }
