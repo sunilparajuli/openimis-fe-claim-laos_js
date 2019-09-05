@@ -32,8 +32,8 @@ export function formatDetail(type, detail) {
   return `{
     ${detail.id !== undefined && detail.id !== null ? `id: ${detail.id}` : ''}
     ${type}Id: ${decodeId(detail[type].id)}
-    priceAsked: "${_.round(detail.priceAsked, 2).toFixed(2)}"
-    qtyProvided: "${_.round(detail.qtyProvided, 2).toFixed(2)}"
+    ${detail.priceAsked !== null ? `priceAsked: "${_.round(detail.priceAsked, 2).toFixed(2)}"` : ''}
+    ${detail.qtyProvided !== null ? `qtyProvided: "${_.round(detail.qtyProvided, 2).toFixed(2)}"` : ''}
     status: 1
     ${detail.explanation !== undefined && detail.explanation !== null ? `explanation: "${detail.explanation}"` : ''}
     ${detail.justification !== undefined && detail.justification !== null ? `justification: "${detail.justification}"` : ''}

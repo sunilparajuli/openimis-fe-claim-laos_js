@@ -327,6 +327,7 @@ class ClaimSearcher extends Component {
                 <Searcher
                     module="claim"
                     open={e => this.setState({ open: true })}
+                    refresh={this.applyFilters}
                     apply={this.applyFilters}
                     del={this.deleteFilter}
                     filters={this.state.filters}

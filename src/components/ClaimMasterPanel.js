@@ -1,5 +1,6 @@
 import React, { Component } from "react";
 import { withTheme, withStyles } from "@material-ui/core/styles";
+import { connect } from "react-redux";
 import { injectIntl } from 'react-intl';
 import {
     formatMessage,
@@ -16,8 +17,9 @@ const styles = theme => ({
 });
 
 class ClaimMasterPanel extends Component {
+
     render() {
-        const { intl, classes, edited, updateAttribute, forReview, forFeedback } = this.props;
+        const { intl, classes, edited, updateAttribute, forReview, forFeedback, reset, } = this.props;
         if (!edited) return null;
         let totalClaimed = 0;
         if (edited.items) {
@@ -29,15 +31,15 @@ class ClaimMasterPanel extends Component {
                 (sum, r) => sum + (!!r.qtyProvided && !!r.priceAsked ? r.qtyProvided * r.priceAsked : 0), 0);
         }
         edited.claimed = _.round(totalClaimed, 2);
-        let readOnly = !!forReview || !!forFeedback
+        let readOnly = !!forReview || !!forFeedback;
         return (
             <Grid container>
                 <Grid item xs={3} className={classes.item}>
                     <PublishedComponent
                         id="location.HealthFacilityPicker"
-                        value={edited.healthFacility}
+                        value={edited.healthFacility || this.props.userHealthFacilityFullPath}
                         onChange={(v, s) => updateAttribute("healthFacility", v)}
-                        readOnly={readOnly}
+                        readOnly={readOnly || !!this.props.userHealthFacilityFullPath}
                     />
                 </Grid>
                 <Grid item xs={3} className={classes.item}>
@@ -184,4 +186,9 @@ class ClaimMasterPanel extends Component {
         )
     }
 }
-export default injectIntl(withTheme(withStyles(styles)(ClaimMasterPanel)))
+
+const mapStateToProps = (state, props) => ({
+    userHealthFacilityFullPath: state.loc.userHealthFacilityFullPath,
+})
+
+export default injectIntl(connect(mapStateToProps)(withTheme(withStyles(styles)(ClaimMasterPanel))))

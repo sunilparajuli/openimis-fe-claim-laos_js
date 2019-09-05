@@ -63,6 +63,36 @@ class ClaimForm extends Component {
         }
     }
 
+    canSaveDetail = (d, type) => {
+        if (!d[type]) return false;
+        if (d.qtyProvided === null || d.qtyProvided === undefined || d.qtyProvided === "") return false;
+        if (d.priceAsked === null || d.priceAsked === undefined || d.priceAsked === "") return false;
+        return true;
+    }
+
+    canSave = () => {
+        let claim = this.state.claim;
+        if (!claim.code) return false;
+        if (!claim.healthFacility) return false;
+        if (!claim.insuree) return false;
+        if (!claim.dateClaimed) return false;
+        if (!claim.dateFrom) return false;
+        if (!claim.status) return false;
+        if (!claim.icd) return false;
+        let items = [...claim.items];
+        if (!this.props.forReview) items.pop();
+        if (items.length && items.filter(i => !this.canSaveDetail(i, 'item')).length) {
+            return false;
+        }
+
+        let services = [...claim.services];
+        if (!this.props.forReview) services.pop();
+        if (services.length && services.filter(s => !this.canSaveDetail(s, 'service')).length) {
+            return false;
+        }
+        return true;
+    }
+
     reload = () => {
         this.props.fetchClaim(this.props.modulesManager, this.props.claim_id, this.props.forFeedback);
     }
@@ -82,6 +112,7 @@ class ClaimForm extends Component {
                         titleParams={{ code: this.state.claim.code }}
                         add={add}
                         save={save}
+                        canSave={this.canSave}
                         reload={claim_id && this.reload}
                         forReview={forReview}
                         forFeedback={forFeedback}

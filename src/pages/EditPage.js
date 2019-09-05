@@ -54,7 +54,7 @@ class EditPage extends Component {
 }
 
 const mapStateToProps = (state, props) => ({
-    claim_id: props.match.params.claim_id
+    claim_id: props.match.params.claim_id,
 });
 
 const mapDispatchToProps = dispatch => {

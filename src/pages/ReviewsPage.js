@@ -195,36 +195,46 @@ class ReviewsPage extends Component {
         }
     }
 
+    _filterOnUserHealthFacilityFullPath() {
+        let defaultFilters = { ...this.state.defaultFilters }
+        defaultFilters.healthFacility = {
+            "value": this.props.userHealthFacilityFullPath,
+            "chip": chip(
+                this.props.intl, "claim", "ClaimFilter.healthFacility",
+                this.props.userHealthFacilityStr),
+            "filter": `healthFacility_Id: "${this.props.userHealthFacilityFullPath.id}"`
+        }
+        let district = this.props.userHealthFacilityFullPath.location;
+        defaultFilters.district = {
+            "value": district,
+            "chip": chip(
+                this.props.intl, "claim", "ClaimFilter.district",
+                this.props.userDistrictStr),
+            "filter": `healthFacility_Location_Id: "${district.id}"`
+        }
+        let region = district.parent;
+        defaultFilters.region = {
+            "value": region,
+            "chip": chip(
+                this.props.intl, "claim", "ClaimFilter.region",
+                this.props.userDistrictStr),
+            "filter": `healthFacility_Location_Parent_Id: "${region.id}"`
+        }
+        this.setState({ defaultFilters })
+    }
+
+    componentDidMount() {
+        if (!!this.props.userHealthFacilityFullPath) {
+            this._filterOnUserHealthFacilityFullPath();
+        }
+    }
+
     componentDidUpdate(prevProps, prevState, snapshot) {
         if (prevProps.submittingMutation && !this.props.submittingMutation) {
             this.props.journalize(this.props.mutation);
         }
         if (!_.isEqual(prevProps.userHealthFacilityFullPath, this.props.userHealthFacilityFullPath)) {
-            let defaultFilters = { ...this.state.defaultFilters }
-            defaultFilters.healthFacility = {
-                "value": this.props.userHealthFacilityFullPath,
-                "chip": chip(
-                    this.props.intl, "claim", "ClaimFilter.healthFacility",
-                    this.props.userHealthFacilityStr),
-                "filter": `healthFacility_Id: "${this.props.userHealthFacilityFullPath.id}"`
-            }
-            let district = this.props.userHealthFacilityFullPath.location;
-            defaultFilters.district = {
-                "value": district,
-                "chip": chip(
-                    this.props.intl, "claim", "ClaimFilter.district",
-                    this.props.userDistrictStr),
-                "filter": `healthFacility_Location_Id: "${district.id}"`
-            }
-            let region = district.parent;
-            defaultFilters.region = {
-                "value": region,
-                "chip": chip(
-                    this.props.intl, "claim", "ClaimFilter.region",
-                    this.props.userDistrictStr),
-                "filter": `healthFacility_Location_Parent_Id: "${region.id}"`
-            }
-            this.setState({ defaultFilters })
+            this._filterOnUserHealthFacilityFullPath();
         }
     }
 
