@@ -39,17 +39,15 @@ const styles = theme => ({
 
 class SelectionPane extends Component {
     render() {
-        const { intl, selection } = this.props;
+        const { selection } = this.props;
         if (!selection || !selection.length) return null;
         return (
             <Typography>
                 <FormattedMessage
                     module="claim"
-                    id="claimSummaries.selection"
+                    id="claimSummaries.selection.count"
                     values={{
-                        count: selection.length,
-                        claimed: formatAmount(intl, selection.reduce((t, v) => t + v.claimed, 0)),
-                        approved: formatAmount(intl, selection.reduce((t, v) => t + v.approved, 0)),
+                        count: <b>{selection.length}</b>,
                     }}
                 />
             </Typography>
@@ -70,7 +68,7 @@ class SelectionMenu extends Component {
     action = (a) => {
         this.setState(
             { anchorEl: null },
-            e => a(this.props.selection)
+            e => this.props.triggerAction(a)
         )
     }
     canSelectAll = () => this.props.claims.map(s => s.id).filter(s => !this.props.selection.map(s => s.id).includes(s)).length
@@ -88,7 +86,11 @@ class SelectionMenu extends Component {
     renderMenu = (entries) => {
         return (
             <Grid item className={this.props.classes.paperHeaderAction}>
-                <IconButton onClick={this.openMenu}><MoreHoriz /></IconButton>
+                <Grid container alignItems="center">
+                    <Grid item className={this.props.classes.paperHeader}>
+                        <IconButton onClick={this.openMenu}><MoreHoriz /></IconButton>
+                    </Grid>
+                </Grid>
                 {!!this.state.anchorEl && (
                     <Menu
                         open={!!this.state.anchorEl}
@@ -212,6 +214,7 @@ class ClaimSearcher extends Component {
             page: 0,
             afterCursor: null,
             beforeCursor: null,
+            clearAll: this.state.clearAll + 1,
         },
             e => this.props.fetchClaimSummaries(
                 this.props.modulesManager,
@@ -244,8 +247,8 @@ class ClaimSearcher extends Component {
         this.setState({ selectAll: this.state.selectAll + 1 })
     }
 
-    onChangeSelection = (s) => {
-        this.setState({ selection: s });
+    onChangeSelection = selection => {
+        this.setState({ selection });
     }
 
     onChangeRowsPerPage = (cnt) => {
@@ -310,9 +313,39 @@ class ClaimSearcher extends Component {
             this.props.reviewColFormatter(c) :
             formatMessage(this.props.intl, "claim", `reviewStatus.${c.reviewStatus}`)
 
+    triggerAction = a => {
+        let s = [...this.state.selection]
+        this.setState(
+            {
+                selection: [],
+                clearAll: this.state.clearAll + 1
+            },
+            e => a(s));
+    }
+    preHeaders = () => this.state.selection.length ?
+        [
+            '', '', '', '', '',
+            <FormattedMessage
+                module="claim"
+                id="claimSummaries.selection.claimed"
+                values={{
+                    claimed: <b>{formatAmount(this.props.intl, this.state.selection.reduce((t, v) => t + v.claimed, 0))}</b>,
+                }}
+            />,
+            <FormattedMessage
+                module="claim"
+                id="claimSummaries.selection.approved"
+                values={{
+                    approved: <b>{formatAmount(this.props.intl, this.state.selection.reduce((t, v) => t + v.approved, 0))}</b>,
+                }}
+            />,
+            , ''
+        ]
+        : ['\u200b', '', '', '', '','', '', '',] //fixing pre headers row height!
+
     render() {
         const { intl, classes, claims, claimsPageInfo, fetchingClaims, fetchedClaims, errorClaims,
-            actions, onDoubleClick, fixFilter } = this.props;
+            onDoubleClick, actions, fixFilter } = this.props;
         return (
             <Fragment>
                 {!!this.withDialog && (
@@ -345,10 +378,10 @@ class ClaimSearcher extends Component {
                         <Grid container>
                             <Grid item xs={8}>
                                 <Grid container alignItems="center" className={classes.paperHeader}>
-                                    <Grid item xs={4} className={classes.paperHeaderTitle}>
+                                    <Grid item xs={8} className={classes.paperHeaderTitle}>
                                         <FormattedMessage module="claim" id="claimSummaries" values={{ count: claimsPageInfo.totalCount }} />
                                     </Grid>
-                                    <Grid item xs={8} className={classes.paperHeaderMessage}>
+                                    <Grid item xs={4} className={classes.paperHeaderMessage}>
                                         <SelectionPane intl={intl} selection={this.state.selection} />
                                     </Grid>
                                 </Grid>
@@ -360,6 +393,7 @@ class ClaimSearcher extends Component {
                                         claims={claims}
                                         clearSelected={this.clearSelected}
                                         selectAll={this.selectAll}
+                                        triggerAction={this.triggerAction}
                                         actions={actions}
                                     />
                                 </Grid>
@@ -371,6 +405,7 @@ class ClaimSearcher extends Component {
                             <Grid item xs={12}>
                                 <Table
                                     module="claim"
+                                    preHeaders={this.preHeaders()}
                                     headers={[
                                         "claimSummaries.code",
                                         "claimSummaries.healthFacility",

@@ -363,6 +363,7 @@ class ReviewsPage extends Component {
             <Grid item xs={6}>
                 <PublishedComponent
                     id="claim.FeedbackStatusPicker"
+                    withLabel={false}
                     name="feedbackStatus"
                     withNull={false}
                     filtered={[1, 8]}
@@ -415,6 +416,7 @@ class ReviewsPage extends Component {
             <Grid item xs={6}>
                 <PublishedComponent
                     id="claim.ReviewStatusPicker"
+                    withLabel={false}
                     name="reviewStatus"
                     value={c.reviewStatus}
                     withNull={false}

@@ -126,18 +126,6 @@ class Details extends Component {
                 </Grid>
                 <Grid item xs={1} className={classes.item}>
                     <PublishedComponent
-                        id="claim.ReviewStatusPicker"
-                        name="reviewStatus"
-                        value={(filters['reviewStatus'] && filters['reviewStatus']['value'])}
-                        onChange={(v, s) => onChangeFilter(
-                            'reviewStatus', v,
-                            chip(intl, "claim", "reviewStatus", s),
-                            `reviewStatus: ${v}`
-                        )}
-                    />
-                </Grid>
-                <Grid item xs={1} className={classes.item}>
-                    <PublishedComponent
                         id="claim.FeedbackStatusPicker"
                         name="feedbackStatus"
                         value={(filters['feedbackStatus'] && filters['feedbackStatus']['value'])}
@@ -148,6 +136,18 @@ class Details extends Component {
                         )}
                     />
                 </Grid>
+                <Grid item xs={1} className={classes.item}>
+                    <PublishedComponent
+                        id="claim.ReviewStatusPicker"
+                        name="reviewStatus"
+                        value={(filters['reviewStatus'] && filters['reviewStatus']['value'])}
+                        onChange={(v, s) => onChangeFilter(
+                            'reviewStatus', v,
+                            chip(intl, "claim", "reviewStatus", s),
+                            `reviewStatus: ${v}`
+                        )}
+                    />
+                </Grid>                
                 <Grid item xs={2} className={classes.item}>
                     <TextInput
                         module="claim" label="ClaimFilter.claimNo"

@@ -14,17 +14,30 @@ const styles = theme => ({
     paperHeader: theme.paper.header,
     paperHeaderAction: theme.paper.action,
     item: theme.paper.item,
+    tristate: {
+        width: "200px",
+    },
+    assessment: {
+        width: "480px",
+    }    
 });
 
 
 
 class ClaimFeedbackPanel extends Component {
 
-    componentDidMount() {
+    constructor(props) {
+        super(props);
+        this.tristateMarks = [-1, 0, 1].map(value => {
+            return {
+                value,
+                label: formatMessage(props.intl, "claim", `Feedback.Tristate.${value}`)
+            }
+        })
         this.marks = FEEDBACK_ASSESSMENTS.map(value => {
             return {
                 value,
-                label: formatMessage(this.props.intl, "claim", `Feedback.OverallAssesment.${value}`)
+                label: formatMessage(props.intl, "claim", `Feedback.OverallAssesment.${value}`)
             }
         })
     }
@@ -41,33 +54,64 @@ class ClaimFeedbackPanel extends Component {
         this.props.updateAttribute("feedback", this.props.edited.feedback);
     }
 
-    _controlledSwitch = f => this.props.edited.feedback[f] === undefined ?
-        <Grid container alignItems="center" justify="center" onClick={e => this._toggleField(f, false)}>
+    _onTristateChange = (f, value) => {
+        switch (value) {
+            case -1:
+                this._onChange(f, null);
+                break;
+            case 0:
+                this._onChange(f, false);
+                break;
+            case 1:
+                this._onChange(f, true);
+                break;
+        }
+
+    }
+
+    _mapTristateValue = v => {
+        switch (v) {
+            case null:
+                return -1;
+            case undefined:
+                return -1;
+            case false:
+                return 0;
+            case true:
+                return 1;
+        }
+    }
+
+    _mapAssessmentValue = v => {
+        switch (v) {
+            case null:
+                return -1;
+            case undefined:
+                return -1;
+            default:
+                return v;
+        }
+    }
+
+    _tristate = f => (
+        <Grid container alignItems="center" justify="center" direction="column">
             <Grid item>
                 <FormattedMessage module="claim" id={`Feedback.${f}`} />
             </Grid>
-            <Grid item>
-                <Switch
-                    color="primary"
-                    checked={false}
-                    disabled
+            <Grid>
+                <Slider className={this.props.classes.tristate}
+                    min={-1}
+                    max={1}
+                    step={1}
+                    value={this._mapTristateValue(this.props.edited.feedback[f])}
+                    defaultValue={0}
+                    valueLabelDisplay="off"
+                    marks={this.tristateMarks}
+                    onChange={(e, v) => this._onTristateChange(f, v)}
                 />
             </Grid>
         </Grid>
-        :
-        <Grid container alignItems="center" justify="center">
-            <Grid item>
-                <FormattedMessage module="claim" id={`Feedback.${f}`} />
-            </Grid>
-            <Grid item>
-                <Switch
-                    color="primary"
-                    checked={this.props.edited.feedback[f]}
-                    onChange={e => this._onChange(f, e.target.checked)}
-                    disabled={this.props.edited.feedback[f] === undefined}
-                />
-            </Grid>
-        </Grid>
+    )
 
     render() {
         const { classes, edited } = this.props;
@@ -103,52 +147,46 @@ class ClaimFeedbackPanel extends Component {
                         <Grid item xs={3} />
                         <Grid item xs={3} />
                         <Grid item xs={3} className={classes.item}>
-                            {this._controlledSwitch('careRendered')}
+                            {this._tristate('careRendered')}
                         </Grid>
                         <Grid item xs={3} className={classes.item}>
-                            {this._controlledSwitch('drugPrescribed')}
+                            {this._tristate('drugPrescribed')}
                         </Grid>
                         <Grid item xs={3} />
                         <Grid item xs={3} />
                         <Grid item xs={3} className={classes.item}>
-                            {this._controlledSwitch('paymentAsked')}
+                            {this._tristate('paymentAsked')}
                         </Grid>
                         <Grid item xs={3} className={classes.item}>
-                            {this._controlledSwitch('drugReceived')}
+                            {this._tristate('drugReceived')}
                         </Grid>
                         <Grid item xs={3} />
                         <Grid item xs={12} className={classes.item}>
                             <Divider />
                         </Grid>
-                        <Grid item xs={3} />
-                        <Grid item xs={6} className={classes.item}>
-                            <Typography gutterBottom>
-                                <FormattedMessage module="claim" id="Feedback.overallAssesment" />
-                            </Typography>
-                            {edited.feedback.asessment === undefined && (
-                                <Slider
-                                    max={!!this.marks ? this.marks.length - 1 : 0}
-                                    step={1}
-                                    valueLabelDisplay="auto"
-                                    marks={this.marks}
-                                    disabled
-                                    onClick={e => this._toggleField('asessment', 0)}
-                                />
-                            )}
-                            {edited.feedback.asessment !== undefined && (
-                                <Slider
-                                    max={!!this.marks ? this.marks.length - 1 : 0}
-                                    step={1}
-                                    value={edited.feedback.asessment}
-                                    defaultValue={0}
-                                    valueLabelDisplay="auto"
-                                    marks={this.marks}                                    
-                                    onChange={(e, v) => this._onChange('asessment', v)}
-                                />
-                            )}
-
+                        <Grid item xs={2} />
+                        <Grid item xs={8} className={classes.item}>
+                            <Grid container alignItems="center" justify="center" direction="column">
+                                <Grid item className={classes.assessmentContainer}>
+                                    <Typography gutterBottom>
+                                        <FormattedMessage module="claim" id="Feedback.overallAssesment" />
+                                    </Typography>
+                                </Grid>
+                                <Grid item>
+                                    <Slider className={classes.assessment}
+                                        min={-1}
+                                        max={!!this.marks ? this.marks.length - 2 : -1}
+                                        step={1}
+                                        value={this._mapAssessmentValue(edited.feedback.asessment)}
+                                        defaultValue={-1}
+                                        valueLabelDisplay="off"
+                                        marks={this.marks}
+                                        onChange={(e, v) => this._onChange('asessment', v)}
+                                    />
+                                </Grid>
+                            </Grid>
                         </Grid>
-                        <Grid item xs={3} />
+                        <Grid item xs={2} />
                     </Grid>
                 </Grid>
             </Grid>

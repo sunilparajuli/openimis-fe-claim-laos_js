@@ -36,10 +36,11 @@ class ReviewPage extends Component {
         const { history, modulesManager, claim_id } = this.props;
         return (
             <ClaimForm
-            claim_id={claim_id}
-            back={e => historyPush(modulesManager, history, "claim.route.reviews")}
-            save={this.save}
-            forReview={true} />
+                claim_id={claim_id}
+                back={e => historyPush(modulesManager, history, "claim.route.reviews")}
+                save={this.save}
+                forReview={true}
+            />
         )
     }
 }

@@ -1,13 +1,13 @@
 import React, { Component, Fragment } from "react";
 import { injectIntl } from 'react-intl';
 import {
-    formatAmount, NumberInput, Table,
+    formatAmount, formatMessageWithValues, NumberInput, Table,
     PublishedComponent, AmountInput, TextInput,
 } from "@openimis/fe-core";
 import { IconButton } from "@material-ui/core";
 import DeleteIcon from "@material-ui/icons/Delete";
 import _ from "lodash";
-
+import { claimedAmount, approvedAmount } from "../helpers/amounts";
 
 class ClaimChildPanel extends Component {
     state = {
@@ -19,7 +19,7 @@ class ClaimChildPanel extends Component {
         if (!!this.props.edited[`${this.props.type}s`]) {
             data = this.props.edited[`${this.props.type}s`] || []
         }
-        if (!this.props.forReview) {
+        if (!this.props.forReview && data.length === 0) {
             data.push({});
         }
         return data;
@@ -42,25 +42,37 @@ class ClaimChildPanel extends Component {
         }
     }
 
-    _change = (idx, attr, v) => {
+    _updateData = (idx, attr, v) => {
         const data = this.state.data;
         data[idx][attr] = v;
         this.props.updateAttribute(`${this.props.type}s`, data);
-        if (data.length === (idx + 1) && !this.props.forReview) {
+        if (!this.props.forReview && data.length === (idx + 1)) {
             data.push({});
         }
         return data;
     }
 
+    _onDataChanged = data => {
+        this.setState(
+            { data },
+            e => {
+                if (!this.props.onDataChanged) return;
+                let edited = { ...this.props.edited }
+                edited[`${this.props.type}s`] = data;
+                this.props.onDataChanged(edited)
+            }
+        );
+    }
+
     _onChange = (idx, attr, v) => {
-        let data = this._change(idx, attr, v);
-        this.setState({ data });
+        let data = this._updateData(idx, attr, v);
+        this._onDataChanged(data);
     }
 
     _onChangeWithPrice = (idx, attr, v) => {
-        let data = this._change(idx, attr, v);
+        let data = this._updateData(idx, attr, v);
         data[idx].priceAsked = !!v ? v.price : null;
-        this.setState({ data });
+        this._onDataChanged(data);
     }
 
     _onDelete = idx => {
@@ -70,15 +82,24 @@ class ClaimChildPanel extends Component {
         this.setState({ data });
     }
 
+
     render() {
         const { intl, edited, type, picker, forReview } = this.props;
         if (!edited) return null;
-        const totalAmount = formatAmount(
-            intl,
-            _.round(this.state.data.reduce(
-                (sum, r) => sum + (!!r.qtyProvided && !!r.priceAsked ? r.qtyProvided * r.priceAsked : 0), 0),
-                2
-            ));
+        const totalClaimed = _.round(this.state.data.reduce(
+            (sum, r) => sum + claimedAmount(r), 0),
+            2
+        );
+        const totalApproved = _.round(this.state.data.reduce(
+            (sum, r) => sum + approvedAmount(r), 0),
+            2
+        );
+        let preHeaders = [
+            '\u200b', '',
+            totalClaimed > 0 ? formatMessageWithValues(
+                intl, "claim", `edit.${type}s.totalClaimed`,
+                { totalClaimed: formatAmount(intl, totalClaimed) }) : '',
+            ''];
         let headers = [
             `edit.${type}s.${type}`,
             `edit.${type}s.quantity`,
@@ -109,6 +130,11 @@ class ClaimChildPanel extends Component {
             />,
         ];
         if (!!forReview) {
+            preHeaders.push('',
+                totalClaimed > 0 ? formatMessageWithValues(
+                    intl, "claim", `edit.${type}s.totalApproved`,
+                    { totalApproved: formatAmount(intl, totalApproved) }) : '',
+            );
             headers.push(
                 `edit.${type}s.appQuantity`,
                 `edit.${type}s.appPrice`,
@@ -125,11 +151,13 @@ class ClaimChildPanel extends Component {
             );
         }
 
+        preHeaders.push('');
         headers.push(`edit.${type}s.justification`);
         itemFormatters.push(
             (i, idx) => <TextInput value={i.justification} onChange={v => this._onChange(idx, "justification", v)} />
         );
         if (!!forReview) {
+            preHeaders.push('', '');
             headers.push(
                 `edit.${type}s.status`,
                 `edit.${type}s.rejectionReason`,
@@ -154,6 +182,7 @@ class ClaimChildPanel extends Component {
             );
         }
         if (!forReview) {
+            preHeaders.push('');
             headers.push(`edit.${type}s.delete`);
             itemFormatters.push(
                 (i, idx) => idx === this.state.data.length - 1 ?
@@ -165,7 +194,7 @@ class ClaimChildPanel extends Component {
             <Table
                 module="claim"
                 header={`edit.${this.props.type}s.title`}
-                headerValues={{ totalAmount }}
+                preHeaders={preHeaders}
                 headers={headers}
                 itemFormatters={itemFormatters}
                 items={this.state.data}

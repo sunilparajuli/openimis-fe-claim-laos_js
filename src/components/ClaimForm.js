@@ -141,6 +141,10 @@ class ClaimForm extends Component {
         this.props.fetchClaim(this.props.modulesManager, this.props.claim_id, this.props.forFeedback);
     }
 
+    onDataChanged = claim => {
+        this.setState({claim})
+    }
+
     render() {
         const { claim_id, fetchingClaim, fetchedClaim, errorClaim, save, back, forReview = false, forFeedback = false } = this.props;
         return (
@@ -169,6 +173,7 @@ class ClaimForm extends Component {
                                 ClaimServicesPanel,
                                 ClaimItemsPanel
                             ]}
+                        onDataChanged={this.onDataChanged}
                     />
                 )}
             </Fragment>

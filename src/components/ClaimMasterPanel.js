@@ -8,6 +8,7 @@ import {
 } from "@openimis/fe-core";
 import { Grid } from "@material-ui/core";
 import _ from "lodash";
+import { claimedAmount, approvedAmount } from "../helpers/amounts";
 
 const styles = theme => ({
     paper: theme.paper.paper,
@@ -22,15 +23,21 @@ class ClaimMasterPanel extends Component {
         const { intl, classes, edited, updateAttribute, forReview, forFeedback } = this.props;
         if (!edited) return null;
         let totalClaimed = 0;
+        let totalApproved = 0;
         if (edited.items) {
             totalClaimed += edited.items.reduce(
-                (sum, r) => sum + (!!r.qtyProvided && !!r.priceAsked ? r.qtyProvided * r.priceAsked : 0), 0);
+                (sum, r) => sum + claimedAmount(r), 0);
+            totalApproved += edited.items.reduce(
+                (sum, r) => sum + approvedAmount(r), 0);
         }
         if (edited.services) {
             totalClaimed += edited.services.reduce(
-                (sum, r) => sum + (!!r.qtyProvided && !!r.priceAsked ? r.qtyProvided * r.priceAsked : 0), 0);
+                (sum, r) => sum + claimedAmount(r), 0);
+            totalApproved += edited.services.reduce(
+                (sum, r) => sum + approvedAmount(r), 0);
         }
         edited.claimed = _.round(totalClaimed, 2);
+        edited.approved = _.round(totalApproved, 2);
         let readOnly = !!forReview || !!forFeedback;
         return (
             <Grid container>
@@ -115,15 +122,24 @@ class ClaimMasterPanel extends Component {
                         readOnly={readOnly}
                     />
                 </Grid>
-                <Grid item xs={2} className={classes.item}>
+                <Grid item xs={forReview ? 1 : 2} className={classes.item}>
                     <AmountInput
                         value={edited.claimed}
                         module="claim"
                         label="claimed"
-                        onChange={d => updateAttribute("claimed", d)}
                         readOnly={true}
                     />
                 </Grid>
+                {forReview &&
+                    <Grid item xs={1} className={classes.item}>
+                        <AmountInput
+                            value={edited.approved}
+                            module="claim"
+                            label="approved"
+                            readOnly={true}
+                        />
+                    </Grid>
+                }
                 <Grid item xs={3} className={classes.item}>
                     <PublishedComponent
                         id="medical.DiagnosisPicker"

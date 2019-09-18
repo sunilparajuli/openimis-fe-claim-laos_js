@@ -183,13 +183,13 @@ export function deliverFeedback(claim, clientMutationLabel) {
   let feedbackGQL = `
     claimId: ${decodeId(claim.id)}
     feedback: {
-      ${feedback.careRendered !== undefined ? `careRendered: ${feedback.careRendered}` : ''}
       ${!!feedback.feedbackDate ? `feedbackDate: "${feedback.feedbackDate}"` : ''}
-      ${feedback.chfOfficerCode !== undefined ? `chfOfficerCode: ${feedback.chfOfficerCode}` : ''}
-      ${feedback.paymentAsked !== undefined ? `paymentAsked: ${feedback.paymentAsked}` : ''}
-      ${feedback.drugPrescribed !== undefined ? `drugPrescribed: ${feedback.drugPrescribed}` : ''}
-      ${feedback.drugReceived !== undefined ? `drugReceived: ${feedback.drugReceived}` : ''}
-      ${feedback.asessment !== undefined ? `asessment: ${feedback.asessment}` : ''}
+      ${!!feedback.chfOfficerCode ? `chfOfficerCode: ${feedback.chfOfficerCode}` : ''}
+      ${feedback.careRendered !== undefined && feedback.careRendered !== null ? `careRendered: ${feedback.careRendered}` : ''}
+      ${feedback.paymentAsked !== undefined && feedback.paymentAsked !== null? `paymentAsked: ${feedback.paymentAsked}` : ''}
+      ${feedback.drugPrescribed !== undefined && feedback.drugPrescribed !== null ? `drugPrescribed: ${feedback.drugPrescribed}` : ''}
+      ${feedback.drugReceived !== undefined && feedback.drugReceived !== null ? `drugReceived: ${feedback.drugReceived}` : ''}
+      ${feedback.asessment !== undefined && feedback.asessment !== null ? `asessment: ${feedback.asessment}` : ''}
     }
   `
   let mutation = formatMutation("deliverClaimFeedback", feedbackGQL, clientMutationLabel)
