@@ -6,7 +6,7 @@ import {
     Grid, Typography, Divider,
     Slider, Switch
 } from "@material-ui/core";
-import { FormattedMessage, DatePicker, PublishedComponent, formatMessage, decodeId } from "@openimis/fe-core";
+import { FormattedMessage, PublishedComponent, formatMessage, decodeId } from "@openimis/fe-core";
 import { FEEDBACK_ASSESSMENTS } from "../constants";
 
 const styles = theme => ({
@@ -130,7 +130,7 @@ class ClaimFeedbackPanel extends Component {
                     <Grid container alignItems="center" justify="center">
                         <Grid item xs={3} />
                         <Grid item xs={3} className={classes.item}>
-                            <DatePicker
+                            <PublishedComponent id="core.DatePicker"
                                 module="claim"
                                 label="Feedback.date"
                                 value={edited.feedback.feedbackDate || null}

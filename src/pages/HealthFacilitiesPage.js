@@ -136,10 +136,10 @@ class HealthFacilitiesPage extends Component {
 }
 
 const mapStateToProps = state => ({
-    userHealthFacilityFullPath: state.loc.userHealthFacilityFullPath,
-    userHealthFacilityStr: state.loc.userHealthFacilityStr,
-    userRegionStr: state.loc.userRegionStr,
-    userDistrictStr: state.loc.userDistrictStr,
+    userHealthFacilityFullPath: !!state.loc ? state.loc.userHealthFacilityFullPath : null,
+    userHealthFacilityStr: state.loc ? state.loc.userHealthFacilityStr : null,
+    userRegionStr: !!state.loc ? state.loc.userRegionStr : null,
+    userDistrictStr: !!state.loc ? state.loc.userDistrictStr : null,
     submittingMutation: state.claim.submittingMutation,
     mutation: state.claim.mutation,
 });

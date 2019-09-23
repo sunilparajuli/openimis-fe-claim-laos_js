@@ -182,7 +182,7 @@ class ClaimForm extends Component {
 }
 
 const mapStateToProps = (state, props) => ({
-    userHealthFacilityFullPath: state.loc.userHealthFacilityFullPath,
+    userHealthFacilityFullPath: !!state.loc ? state.loc.userHealthFacilityFullPath : null,
     claim: state.claim.claim,
     fetchingClaim: state.claim.fetchingClaim,
     fetchedClaim: state.claim.fetchedClaim,

@@ -5,7 +5,7 @@ import { injectIntl } from 'react-intl';
 import { Grid, InputAdornment, IconButton } from "@material-ui/core";
 import FilterIcon from "@material-ui/icons/FilterList";
 import FeedbackIcon from "@material-ui/icons/SpeakerNotesOutlined";
-import ReviewIcon from "@material-ui/icons/PersonAdd";
+import ReviewIcon from "@material-ui/icons/SupervisorAccount";
 import {
     formatMessage, formatMessageWithValues, chip, TextInput, AmountInput,
     withHistory, historyPush, withModulesManager, PublishedComponent,
@@ -453,10 +453,10 @@ class ReviewsPage extends Component {
 }
 
 const mapStateToProps = state => ({
-    userHealthFacilityFullPath: state.loc.userHealthFacilityFullPath,
-    userHealthFacilityStr: state.loc.userHealthFacilityStr,
-    userRegionStr: state.loc.userRegionStr,
-    userDistrictStr: state.loc.userDistrictStr,
+    userHealthFacilityFullPath: !!state.loc ? state.loc.userHealthFacilityFullPath : null,
+    userHealthFacilityStr: !!state.loc ? state.loc.userHealthFacilityStr : null,
+    userRegionStr: !!state.loc ? state.loc.userRegionStr : null,
+    userDistrictStr: !!state.loc ? state.loc.userDistrictStr : null,
     submittingMutation: state.claim.submittingMutation,
     mutation: state.claim.mutation,
 });

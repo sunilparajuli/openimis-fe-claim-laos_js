@@ -20,7 +20,7 @@ import ClaimFilterDialog from "./ClaimFilterDialog";
 import ClaimFilter from "./ClaimFilter";
 import {
     withModulesManager,
-    formatMessage, formatDateFromIso, formatAmount,
+    formatMessage, formatDateFromISO, formatAmount,
     FormattedMessage, ProgressOrError, Table
 } from "@openimis/fe-core";
 import { fetchClaimSummaries } from "../actions";
@@ -344,7 +344,7 @@ class ClaimSearcher extends Component {
         : ['\u200b', '', '', '', '','', '', '',] //fixing pre headers row height!
 
     render() {
-        const { intl, classes, claims, claimsPageInfo, fetchingClaims, fetchedClaims, errorClaims,
+        const { modulesManager, intl, classes, claims, claimsPageInfo, fetchingClaims, fetchedClaims, errorClaims,
             onDoubleClick, actions, fixFilter } = this.props;
         return (
             <Fragment>
@@ -420,7 +420,7 @@ class ClaimSearcher extends Component {
                                     itemFormatters={[
                                         c => c.code,
                                         c => `${c.healthFacility.code} ${c.healthFacility.name}`,
-                                        c => formatDateFromIso(intl, c.dateClaimed),
+                                        c => formatDateFromISO(modulesManager, intl, c.dateClaimed),
                                         c => this.feedbackColFormatter(c),
                                         c => this.reviewColFormatter(c),
                                         c => formatAmount(intl, c.claimed),

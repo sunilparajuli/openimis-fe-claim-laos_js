@@ -4,7 +4,7 @@ import { connect } from "react-redux";
 import { injectIntl } from 'react-intl';
 import {
     formatMessage,
-    PublishedComponent, DatePicker, fromISODate, AmountInput, TextInput,
+    PublishedComponent, AmountInput, TextInput,
 } from "@openimis/fe-core";
 import { Grid } from "@material-ui/core";
 import _ from "lodash";
@@ -58,8 +58,8 @@ class ClaimMasterPanel extends Component {
                     />
                 </Grid>
                 <Grid item xs={2} className={classes.item}>
-                    <DatePicker
-                        value={fromISODate(edited.dateClaimed)}
+                    <PublishedComponent id="core.DatePicker"
+                        value={edited.dateClaimed}
                         module="claim"
                         label="claimedDate"
                         onChange={d => updateAttribute("dateClaimed", d)}
@@ -67,8 +67,8 @@ class ClaimMasterPanel extends Component {
                     />
                 </Grid>
                 <Grid item xs={2} className={classes.item}>
-                    <DatePicker
-                        value={fromISODate(edited.dateFrom)}
+                    <PublishedComponent id="core.DatePicker"
+                        value={edited.dateFrom}
                         module="claim"
                         label="visitDateFrom"
                         onChange={d => updateAttribute("dateFrom", d)}
@@ -76,8 +76,8 @@ class ClaimMasterPanel extends Component {
                     />
                 </Grid>
                 <Grid item xs={2} className={classes.item}>
-                    <DatePicker
-                        value={fromISODate(edited.dateTo)}
+                    <PublishedComponent id="core.DatePicker"
+                        value={edited.dateTo}
                         module="claim"
                         label="visitDateTo"
                         onChange={d => updateAttribute("dateTo", d)}
@@ -204,7 +204,7 @@ class ClaimMasterPanel extends Component {
 }
 
 const mapStateToProps = (state, props) => ({
-    userHealthFacilityFullPath: state.loc.userHealthFacilityFullPath,
+    userHealthFacilityFullPath: !!state.loc ? state.loc.userHealthFacilityFullPath : null,
 })
 
 export default injectIntl(connect(mapStateToProps)(withTheme(withStyles(styles)(ClaimMasterPanel))))

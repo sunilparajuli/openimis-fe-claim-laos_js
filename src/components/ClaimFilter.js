@@ -7,7 +7,7 @@ import _ from "lodash";
 import { Grid, Divider } from "@material-ui/core";
 import {
     formatMessage, chip, withModulesManager,
-    PublishedComponent, DatePicker, TextInput
+    PublishedComponent, TextInput
 } from "@openimis/fe-core";
 
 const styles = theme => ({
@@ -201,7 +201,7 @@ class Details extends Component {
                 <Grid item xs={3}>
                     <Grid container>
                         <Grid item xs={6} className={classes.item}>
-                            <DatePicker
+                            <PublishedComponent id="core.DatePicker"
                                 value={(filters['visitDateFrom'] && filters['visitDateFrom']['value']) || null}
                                 module="claim"
                                 label="visitDateFrom"
@@ -213,7 +213,7 @@ class Details extends Component {
                             />
                         </Grid>
                         <Grid item xs={6} className={classes.item}>
-                            <DatePicker
+                            <PublishedComponent id="core.DatePicker"
                                 value={(filters['visitDateTo'] && filters['visitDateTo']['value']) || null}
                                 module="claim"
                                 label="visitDateTo"
@@ -229,7 +229,7 @@ class Details extends Component {
                 <Grid item xs={3}>
                     <Grid container>
                         <Grid item xs={6} className={classes.item}>
-                            <DatePicker
+                            <PublishedComponent id="core.DatePicker"
                                 value={(filters['claimDateFrom'] && filters['claimDateFrom']['value']) || null}
                                 module="claim"
                                 label="ClaimFilter.claimedDateFrom"
@@ -241,7 +241,7 @@ class Details extends Component {
                             />
                         </Grid>
                         <Grid item xs={6} className={classes.item}>
-                            <DatePicker
+                            <PublishedComponent id="core.DatePicker"
                                 value={(filters['claimDateTo'] && filters['claimDateTo']['value']) || null}
                                 module="claim"
                                 label="ClaimFilter.claimedDateTo"
