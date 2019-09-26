@@ -34,11 +34,11 @@ class ClaimOfficerPicker extends Component {
 
     render() {
         const {
-            intl, value, claimOfficers,
+            intl, value, reset, claimOfficers,
             fetchingClaimOfficers, fetchedClaimOfficers, errorClaimOfficers,
             withLabel = true, label
         } = this.props;
-        let v = claimOfficers ? claimOfficers.filter(o => decodeId(o.id) === ""+value) : [];
+        let v = claimOfficers ? claimOfficers.filter(o => parseInt(decodeId(o.id)) === value) : [];
         v = v.length ? v[0] : null;
         return (
             <Fragment>
@@ -52,6 +52,7 @@ class ClaimOfficerPicker extends Component {
                             getSuggestionValue={this.formatSuggestion}
                             onSuggestionSelected={this.onSuggestionSelected}
                             value={v}
+                            reset={reset}
                         />
                     </FormControl>
                 )}

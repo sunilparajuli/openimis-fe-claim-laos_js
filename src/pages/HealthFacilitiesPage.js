@@ -8,7 +8,7 @@ import _ from "lodash";
 import AddIcon from "@material-ui/icons/Add";
 import {
     withHistory, historyPush, withModulesManager,
-    formatMessage, formatMessageWithValues, chip,
+    formatMessageWithValues,
     journalize
 } from "@openimis/fe-core";
 import ClaimSearcher from "../components/ClaimSearcher";
@@ -29,10 +29,6 @@ class HealthFacilitiesPage extends Component {
             {
                 "claimStatus": {
                     "value": 2,
-                    "chip": chip(
-                        this.props.intl, "claim", "claimStatus",
-                        formatMessage(this.props.intl, "claim", "claimStatus.2")
-                    ),
                     "filter": "status: 2"
                 }
             }
@@ -45,25 +41,16 @@ class HealthFacilitiesPage extends Component {
         let defaultFilters = { ...this.state.defaultFilters }
         defaultFilters.healthFacility = {
             "value": this.props.userHealthFacilityFullPath,
-            "chip": chip(
-                this.props.intl, "claim", "ClaimFilter.healthFacility",
-                this.props.userHealthFacilityStr),
             "filter": `healthFacility_Id: "${this.props.userHealthFacilityFullPath.id}"`
         }
         let district = this.props.userHealthFacilityFullPath.location;
         defaultFilters.district = {
             "value": district,
-            "chip": chip(
-                this.props.intl, "claim", "ClaimFilter.district",
-                this.props.userDistrictStr),
             "filter": `healthFacility_Location_Id: "${district.id}"`
         }
         let region = district.parent;
         defaultFilters.region = {
             "value": region,
-            "chip": chip(
-                this.props.intl, "claim", "ClaimFilter.region",
-                this.props.userDistrictStr),
             "filter": `healthFacility_Location_Parent_Id: "${region.id}"`
         }
         this.setState({ defaultFilters })

@@ -42,16 +42,10 @@ class ClaimFeedbackPanel extends Component {
         })
     }
 
-    _toggleField = (field, v) => {
-        if (this.props.edited.feedback[field] === undefined) {
-            this.props.edited.feedback[field] = v
-            this.props.updateAttribute("feedback", this.props.edited.feedback);
-        }
-    }
-
     _onChange = (attr, v) => {
-        this.props.edited.feedback[attr] = v
-        this.props.updateAttribute("feedback", this.props.edited.feedback);
+        let edited = {...this.props.edited}
+        edited.feedback[attr] = v
+        this.props.onEditedChanged(edited);
     }
 
     _onTristateChange = (f, value) => {

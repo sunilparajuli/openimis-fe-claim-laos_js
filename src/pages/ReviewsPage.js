@@ -1,4 +1,4 @@
-import React, { Component, Fragment } from "react";
+import React, { Component } from "react";
 import { bindActionCreators } from "redux";
 import { connect } from "react-redux";
 import { injectIntl } from 'react-intl';
@@ -7,9 +7,9 @@ import FilterIcon from "@material-ui/icons/FilterList";
 import FeedbackIcon from "@material-ui/icons/SpeakerNotesOutlined";
 import ReviewIcon from "@material-ui/icons/SupervisorAccount";
 import {
-    formatMessage, formatMessageWithValues, chip, TextInput, AmountInput,
+    formatMessage, formatMessageWithValues, TextInput, AmountInput,
     withHistory, historyPush, withModulesManager, PublishedComponent,
-    journalize
+    journalize, coreAlert
 } from "@openimis/fe-core";
 import ClaimSearcher from "../components/ClaimSearcher";
 import {
@@ -68,10 +68,30 @@ class RawFixFilter extends Component {
     }
     toggleRandomFilter = (e) => {
         let filters = this.state.filters;
+        if (this.state.random > 100 || this.state.random < 1) {
+            this.props.coreAlert(
+                formatMessage(this.props.intl, "claim", "ClaimFilter.randomFilter.invalidAlert.title"),
+                formatMessageWithValues(this.props.intl, "claim", "ClaimFilter.randomFilter.invalidAlert.message", {
+                    random: this.state.random
+                })
+            )
+            return;
+        }
+        let rnd = Math.trunc(this.state.random * this.props.claimsPageInfo.totalCount / 100);
+        if (!filters.random && !rnd) {
+            this.props.coreAlert(
+                formatMessage(this.props.intl, "claim", "ClaimFilter.randomFilter.zeroAlert.title"),
+                formatMessageWithValues(this.props.intl, "claim", "ClaimFilter.randomFilter.zeroAlert.message", {
+                    random: this.state.random,
+                    totalCount: this.props.claimsPageInfo.totalCount
+                })
+            )
+            return;
+        }
         if (!!filters.random) {
             delete (filters.random);
         } else {
-            filters.random = [`random: ${this.state.random}`]
+            filters.random = [`random: ${rnd}`]
         }
         this.setState(
             { filters },
@@ -167,7 +187,21 @@ class RawFixFilter extends Component {
     }
 }
 
-const FixFilter = withModulesManager(withTheme(withStyles(styles)(RawFixFilter)))
+const mapStateToFixFilterProps = state => ({
+    claimsPageInfo: state.claim.claimsPageInfo,
+});
+
+const mapDispatchToFixFilterProps = dispatch => {
+    return bindActionCreators(
+        {
+            coreAlert,
+        },
+        dispatch);
+};
+
+const FixFilter = withModulesManager(injectIntl(withTheme(withStyles(styles)
+    (connect(mapStateToFixFilterProps, mapDispatchToFixFilterProps)(RawFixFilter))
+)));
 
 class ReviewsPage extends Component {
 
@@ -184,10 +218,6 @@ class ReviewsPage extends Component {
                 {
                     "claimStatus": {
                         "value": 4,
-                        "chip": chip(
-                            this.props.intl, "claim", "claimStatus",
-                            formatMessage(this.props.intl, "claim", "claimStatus.4")
-                        ),
                         "filter": "status: 4"
                     }
                 }
@@ -199,25 +229,16 @@ class ReviewsPage extends Component {
         let defaultFilters = { ...this.state.defaultFilters }
         defaultFilters.healthFacility = {
             "value": this.props.userHealthFacilityFullPath,
-            "chip": chip(
-                this.props.intl, "claim", "ClaimFilter.healthFacility",
-                this.props.userHealthFacilityStr),
             "filter": `healthFacility_Id: "${this.props.userHealthFacilityFullPath.id}"`
         }
         let district = this.props.userHealthFacilityFullPath.location;
         defaultFilters.district = {
             "value": district,
-            "chip": chip(
-                this.props.intl, "claim", "ClaimFilter.district",
-                this.props.userDistrictStr),
             "filter": `healthFacility_Location_Id: "${district.id}"`
         }
         let region = district.parent;
         defaultFilters.region = {
             "value": region,
-            "chip": chip(
-                this.props.intl, "claim", "ClaimFilter.region",
-                this.props.userDistrictStr),
             "filter": `healthFacility_Location_Parent_Id: "${region.id}"`
         }
         this.setState({ defaultFilters })
@@ -457,10 +478,10 @@ const mapStateToProps = state => ({
     userHealthFacilityStr: !!state.loc ? state.loc.userHealthFacilityStr : null,
     userRegionStr: !!state.loc ? state.loc.userRegionStr : null,
     userDistrictStr: !!state.loc ? state.loc.userDistrictStr : null,
+    claimsPageInfo: state.claim.claimsPageInfo,
     submittingMutation: state.claim.submittingMutation,
     mutation: state.claim.mutation,
 });
-
 
 const mapDispatchToProps = dispatch => {
     return bindActionCreators(

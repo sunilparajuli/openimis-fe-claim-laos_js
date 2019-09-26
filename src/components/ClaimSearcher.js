@@ -16,7 +16,6 @@ import {
 } from "@material-ui/core";
 import MoreHoriz from "@material-ui/icons/MoreHoriz";
 import { Searcher } from "@openimis/fe-core";
-import ClaimFilterDialog from "./ClaimFilterDialog";
 import ClaimFilter from "./ClaimFilter";
 import {
     withModulesManager,
@@ -150,11 +149,6 @@ class ClaimSearcher extends Component {
         super(props);
         this.rowsPerPageOptions = props.modulesManager.getConf("fe-claim", "claimFilter.rowsPerPageOptions", [10, 20, 50, 100]);
         this.defaultPageSize = props.modulesManager.getConf("fe-claim", "claimFilter.defaultPageSize", 10);
-        this.withDialog = this.props.modulesManager.getConf(
-            "fe-claim",
-            "claimFilter.withDialog",
-            false
-        );
     }
 
     _resetFilters = () => {
@@ -179,32 +173,56 @@ class ClaimSearcher extends Component {
         }
     }
 
+    forcedFilters() {
+        return !this.props.forcedFilters ? [] : [...this.props.forcedFilters.filter(f => !f.startsWith('random'))];
+    }
+
+    randomCount() {
+        let random = !!this.props.forcedFilters && this.props.forcedFilters.filter(f => f.startsWith('random'));
+        if (!random || random.length === 0) {
+            return null;
+        }
+        return parseInt(random[0].split(":")[1]);
+    }
+
     filtersToQueryParams = () => {
-        let prms = Object.keys(this.state.filters).map(f => this.state.filters[f]['filter']);
-        prms = prms.concat(`first: ${this.state.pageSize}`);
-        if (!!this.state.afterCursor) {
-            prms.push(`after: "${this.state.afterCursor}"`)
+        let prms = Object.keys(this.state.filters)
+            .filter(f => !!this.state.filters[f]['filter'])
+            .map(f => this.state.filters[f]['filter']);
+        let forced = this.forcedFilters();
+        let random = this.randomCount();
+        if (forced.length > 0) {
+            prms.push(forced);
         }
-        if (!!this.state.beforeCursor) {
-            prms.push(`before: "${this.state.beforeCursor}"`)
+        if (!!random) {
+            prms.push(`first: ${random}`);
+            prms.push(`orderBy: ["dateClaimed", "?"]`);
         }
-        if (!!this.props.forcedFilters) {
-            prms.push(...this.props.forcedFilters);
+        if (!forced.length && !random) {
+            prms.push(`first: ${this.state.pageSize}`);
+            if (!!this.state.afterCursor) {
+                prms.push(`after: "${this.state.afterCursor}"`)
+            }
+            if (!!this.state.beforeCursor) {
+                prms.push(`before: "${this.state.beforeCursor}"`)
+            }
         }
         return prms;
     }
 
-    onChangeFilter = (id, value, chip, filter) => {
+    onChangeFilters = (filters) => {
         let fltrs = this.state.filters;
-        if (value === null) {
-            delete (fltrs[id]);
-        } else {
-            fltrs[id] = { value, chip, filter };
-        }
+        filters.forEach(filter => {
+            if (filter.value === null) {
+                delete (fltrs[filter.id]);
+            } else {
+                fltrs[filter.id] = { value: filter.value, filter: filter.filter };
+            }
+        });
         this.setState({
             filters: fltrs
         },
-            e => !this.withDialog && this.applyFilters()
+            e => this.applyFilters()
         )
     }
 
@@ -341,22 +359,19 @@ class ClaimSearcher extends Component {
             />,
             , ''
         ]
-        : ['\u200b', '', '', '', '','', '', '',] //fixing pre headers row height!
+        : ['\u200b', '', '', '', '', '', '', '',] //fixing pre headers row height!
 
     render() {
         const { modulesManager, intl, classes, claims, claimsPageInfo, fetchingClaims, fetchedClaims, errorClaims,
             onDoubleClick, actions, fixFilter } = this.props;
+
+        let count = this.randomCount();
+        if (!count || !!this.forcedFilters().length > 0) {
+            count = claimsPageInfo.totalCount;
+        }
+
         return (
             <Fragment>
-                {!!this.withDialog && (
-                    <ClaimFilterDialog
-                        open={this.state.open}
-                        onClose={e => this.setState({ open: false })}
-                        filters={this.state.filters}
-                        apply={this.applyFilters}
-                        onChangeFilter={this.onChangeFilter}
-                    />
-                )}
                 <Searcher
                     module="claim"
                     open={e => this.setState({ open: true })}
@@ -365,11 +380,11 @@ class ClaimSearcher extends Component {
                     del={this.deleteFilter}
                     filters={this.state.filters}
                     filterPane={
-                        !this.withDialog && <ClaimFilter
+                        <ClaimFilter
                             fixFilter={fixFilter}
                             filters={this.state.filters}
                             apply={this.applyFilters}
-                            onChangeFilter={this.onChangeFilter}
+                            onChangeFilters={this.onChangeFilters}
                         />}
                 />
                 <ProgressOrError progress={fetchingClaims} error={errorClaims} />
@@ -379,7 +394,7 @@ class ClaimSearcher extends Component {
                             <Grid item xs={8}>
                                 <Grid container alignItems="center" className={classes.paperHeader}>
                                     <Grid item xs={8} className={classes.paperHeaderTitle}>
-                                        <FormattedMessage module="claim" id="claimSummaries" values={{ count: claimsPageInfo.totalCount }} />
+                                        <FormattedMessage module="claim" id="claimSummaries" values={{ count }} />
                                     </Grid>
                                     <Grid item xs={4} className={classes.paperHeaderMessage}>
                                         <SelectionPane intl={intl} selection={this.state.selection} />
@@ -428,7 +443,7 @@ class ClaimSearcher extends Component {
                                         c => formatMessage(intl, "claim", `claimStatus.${c.status}`)
                                     ]}
                                     items={claims}
-                                    withPagination={true}
+                                    withPagination={!this.props.forcedFilters}
                                     withSelection={true}
                                     itemIdentifier={this.rowIdentifier}
                                     selection={this.state.selection}

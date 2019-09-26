@@ -41,10 +41,10 @@ export function formatDetail(type, detail) {
 }
 
 export function formatDetails(type, details) {
-  if (!details || details.length <= 1) return "";
-  details.pop()
+  if (!details) return "";
+  let dets = details.filter(d => !!d[type]);
   return `${type}s: [
-      ${details.map(d => formatDetail(type, d)).join('\n')}
+      ${dets.map(d => formatDetail(type, d)).join('\n')}
     ]`
 }
 
@@ -317,4 +317,10 @@ export function process(claims, clientMutationLabel) {
       requestedDateTime
     }
   )
+}
+
+export function claimHealthFacilitySet(healthFacility) {
+  return dispatch => {
+      dispatch({ type: 'CLAIM_EDIT_HEALTH_FACILITY_SET', payload: healthFacility })
+  }
 }

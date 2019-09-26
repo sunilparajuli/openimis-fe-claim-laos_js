@@ -34,7 +34,7 @@ class ClaimAdminPicker extends Component {
 
     render() {
         const {
-            intl, value, claimAdmins,
+            intl, value, reset, claimAdmins,
             fetchingClaimAdmins, fetchedClaimAdmins, errorClaimAdmins,
             withLabel = true, label
         } = this.props;
@@ -50,6 +50,7 @@ class ClaimAdminPicker extends Component {
                             getSuggestionValue={this.formatSuggestion}
                             onSuggestionSelected={this.onSuggestionSelected}
                             value={value}
+                            reset={reset}
                         />
                     </FormControl>
                 )}

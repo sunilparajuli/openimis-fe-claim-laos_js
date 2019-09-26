@@ -10,6 +10,7 @@ import _ from "lodash";
 import { claimedAmount, approvedAmount } from "../helpers/amounts";
 
 class ClaimChildPanel extends Component {
+
     state = {
         data: []
     }
@@ -19,7 +20,7 @@ class ClaimChildPanel extends Component {
         if (!!this.props.edited[`${this.props.type}s`]) {
             data = this.props.edited[`${this.props.type}s`] || []
         }
-        if (!this.props.forReview && data.length === 0) {
+        if (!this.props.forReview && !_.isEqual(data[data.length -1], {})) {
             data.push({});
         }
         return data;
@@ -36,56 +37,59 @@ class ClaimChildPanel extends Component {
                 data.push({});
             }
             this.setState({ data });
-        } else if (!!this.props.edited[`${this.props.type}s`]
-            && !_.isEqual(prevProps.edited[`${this.props.type}s`], this.props.edited[`${this.props.type}s`])) {
-            this.setState({ data: this.initData() })
+        } else if (prevProps.reset !== this.props.reset ||
+            (!!this.props.edited[`${this.props.type}s`] &&
+                !_.isEqual(prevProps.edited[`${this.props.type}s`], this.props.edited[`${this.props.type}s`])
+            )) {
+            this.setState({
+                data: this.initData()
+            })
         }
     }
 
     _updateData = (idx, attr, v) => {
-        const data = this.state.data;
+        const data = [...this.state.data];
         data[idx][attr] = v;
-        this.props.updateAttribute(`${this.props.type}s`, data);
         if (!this.props.forReview && data.length === (idx + 1)) {
             data.push({});
         }
         return data;
     }
 
-    _onDataChanged = data => {
-        this.setState(
-            { data },
-            e => {
-                if (!this.props.onDataChanged) return;
-                let edited = { ...this.props.edited }
-                edited[`${this.props.type}s`] = data;
-                this.props.onDataChanged(edited)
-            }
-        );
+    _onEditedChanged = data => {
+        let edited = { ...this.props.edited }
+        edited[`${this.props.type}s`] = data;
+        this.props.onEditedChanged(edited);
     }
 
     _onChange = (idx, attr, v) => {
         let data = this._updateData(idx, attr, v);
-        this._onDataChanged(data);
+        this._onEditedChanged(data);
     }
 
-    _onChangeWithPrice = (idx, attr, v) => {
+    _onChangeItem = (idx, attr, v) => {
         let data = this._updateData(idx, attr, v);
-        data[idx].priceAsked = !!v ? v.price : null;
-        this._onDataChanged(data);
+        if (!v) {
+            data[idx].priceAsked = null;
+            data[idx].qtyProvided = null
+        } else {
+            data[idx].priceAsked = v.price;
+            if (!data[idx].qtyProvided) {
+                data[idx].qtyProvided = 1;
+            }
+        }
+        this._onEditedChanged(data);
     }
 
     _onDelete = idx => {
-        const data = this.state.data;
+        const data = [...this.state.data];
         data.splice(idx, 1);
-        this.props.updateAttribute(`${this.props.type}s`, data);
-        this.setState({ data });
+        this._onEditedChanged(data);
     }
-
 
     render() {
         const { intl, edited, type, picker, forReview } = this.props;
-        if (!edited) return null;
+        if (!edited || !edited.healthFacility) return null;
         const totalClaimed = _.round(this.state.data.reduce(
             (sum, r) => sum + claimedAmount(r), 0),
             2
@@ -111,7 +115,7 @@ class ClaimChildPanel extends Component {
             (i, idx) => <PublishedComponent
                 readOnly={!!forReview}
                 id={picker} withLabel={false} value={i[type]}
-                onChange={v => this._onChangeWithPrice(idx, type, v)}
+                onChange={v => this._onChangeItem(idx, type, v)}
             />,
             (i, idx) => <NumberInput
                 readOnly={!!forReview}

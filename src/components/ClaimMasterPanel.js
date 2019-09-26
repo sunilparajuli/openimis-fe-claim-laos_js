@@ -2,6 +2,7 @@ import React, { Component } from "react";
 import { withTheme, withStyles } from "@material-ui/core/styles";
 import { connect } from "react-redux";
 import { injectIntl } from 'react-intl';
+import { bindActionCreators } from "redux";
 import {
     formatMessage,
     PublishedComponent, AmountInput, TextInput,
@@ -9,6 +10,7 @@ import {
 import { Grid } from "@material-ui/core";
 import _ from "lodash";
 import { claimedAmount, approvedAmount } from "../helpers/amounts";
+import { claimHealthFacilitySet } from "../actions";
 
 const styles = theme => ({
     paper: theme.paper.paper,
@@ -19,8 +21,47 @@ const styles = theme => ({
 
 class ClaimMasterPanel extends Component {
 
+    state = {
+        data: {}
+    }
+
+    componentDidMount() {
+        this.setState({ data: this.props.edited });
+    }
+
+    componentDidUpdate(prevProps, prevState, snapshot) {
+        if ((prevProps.edited_id && !this.props.edited_id) ||
+            prevProps.reset !== this.props.reset
+        ) {
+            this.setState({ data: this.props.edited });
+        } else if (!_.isEqual(prevProps.edited, this.props.edited)) {
+            this.setState({ data: this.props.edited })
+        }
+    }
+
+    updateAttribute = (attr, v) => {
+        let data = { ...this.state.data };
+        data[attr] = v;
+        this.props.onEditedChanged(data);
+    }
+
+    updateHealthFacility = v => {
+        let data = { ...this.state.data };
+        data["healthFacility"] = v;
+        if (!!data["services"]) {
+            data["services"].forEach(s => s['priceAsked']=null)
+        }
+        if (!!data["items"]) {
+            data["items"].forEach(s => s['priceAsked']=null)
+        }
+        if (!!v) {
+            this.props.claimHealthFacilitySet(v)
+        }
+        this.props.onEditedChanged(data);
+    }
+
     render() {
-        const { intl, classes, edited, updateAttribute, forReview, forFeedback } = this.props;
+        const { intl, classes, edited, reset, forReview, forFeedback } = this.props;
         if (!edited) return null;
         let totalClaimed = 0;
         let totalApproved = 0;
@@ -45,15 +86,17 @@ class ClaimMasterPanel extends Component {
                     <PublishedComponent
                         id="location.HealthFacilityPicker"
                         value={edited.healthFacility}
-                        onChange={(v, s) => updateAttribute("healthFacility", v)}
-                        readOnly={readOnly || !!this.props.userHealthFacilityFullPath}
+                        reset={reset}
+                        onChange={(v, s) => this.updateHealthFacility(v)}
+                        readOnly={readOnly}
                     />
                 </Grid>
                 <Grid item xs={3} className={classes.item}>
                     <PublishedComponent
                         id="insuree.InsureePicker"
                         value={edited.insuree}
-                        onChange={(v, s) => updateAttribute("insuree", v, s)}
+                        reset={reset}
+                        onChange={(v, s) => this.updateAttribute("insuree", v, s)}
                         readOnly={readOnly}
                     />
                 </Grid>
@@ -62,7 +105,8 @@ class ClaimMasterPanel extends Component {
                         value={edited.dateClaimed}
                         module="claim"
                         label="claimedDate"
-                        onChange={d => updateAttribute("dateClaimed", d)}
+                        reset={reset}
+                        onChange={d => this.updateAttribute("dateClaimed", d)}
                         readOnly={readOnly}
                     />
                 </Grid>
@@ -71,7 +115,8 @@ class ClaimMasterPanel extends Component {
                         value={edited.dateFrom}
                         module="claim"
                         label="visitDateFrom"
-                        onChange={d => updateAttribute("dateFrom", d)}
+                        reset={reset}
+                        onChange={d => this.updateAttribute("dateFrom", d)}
                         readOnly={readOnly}
                     />
                 </Grid>
@@ -80,7 +125,8 @@ class ClaimMasterPanel extends Component {
                         value={edited.dateTo}
                         module="claim"
                         label="visitDateTo"
-                        onChange={d => updateAttribute("dateTo", d)}
+                        reset={reset}
+                        onChange={d => this.updateAttribute("dateTo", d)}
                         readOnly={readOnly}
                     />
                 </Grid>
@@ -90,7 +136,8 @@ class ClaimMasterPanel extends Component {
                         name="visitType"
                         withNull={false}
                         value={edited.visitType}
-                        onChange={(v, s) => updateAttribute("visitType", v)}
+                        reset={reset}
+                        onChange={(v, s) => this.updateAttribute("visitType", v)}
                         readOnly={readOnly}
                     />
                 </Grid>
@@ -100,7 +147,8 @@ class ClaimMasterPanel extends Component {
                         name="mainDiagnosis"
                         label={formatMessage(intl, "claim", "mainDiagnosis")}
                         value={edited.icd}
-                        onChange={(v, s) => updateAttribute("icd", v)}
+                        reset={reset}
+                        onChange={(v, s) => this.updateAttribute("icd", v)}
                         readOnly={readOnly}
                     />
                 </Grid>
@@ -109,7 +157,8 @@ class ClaimMasterPanel extends Component {
                         module="claim"
                         label="code"
                         value={edited.code}
-                        onChange={v => updateAttribute("code", v)}
+                        reset={reset}
+                        onChange={v => this.updateAttribute("code", v)}
                         readOnly={readOnly}
                     />
                 </Grid>
@@ -118,7 +167,8 @@ class ClaimMasterPanel extends Component {
                         module="claim"
                         label="guaranteeId"
                         value={edited.guaranteeId}
-                        onChange={v => updateAttribute("guaranteeId", v)}
+                        reset={reset}
+                        onChange={v => this.updateAttribute("guaranteeId", v)}
                         readOnly={readOnly}
                     />
                 </Grid>
@@ -146,7 +196,8 @@ class ClaimMasterPanel extends Component {
                         name="secDiagnosis1"
                         label={formatMessage(intl, "claim", "secDiagnosis1")}
                         value={edited.icd1}
-                        onChange={(v, s) => updateAttribute("icd1", v)}
+                        reset={reset}
+                        onChange={(v, s) => this.updateAttribute("icd1", v)}
                         readOnly={readOnly}
                     />
                 </Grid>
@@ -156,7 +207,8 @@ class ClaimMasterPanel extends Component {
                         name="secDiagnosis2"
                         label={formatMessage(intl, "claim", "secDiagnosis2")}
                         value={edited.icd2}
-                        onChange={(v, s) => updateAttribute("icd2", v)}
+                        reset={reset}
+                        onChange={(v, s) => this.updateAttribute("icd2", v)}
                         readOnly={readOnly}
                     />
                 </Grid>
@@ -166,7 +218,8 @@ class ClaimMasterPanel extends Component {
                         name="secDiagnosis3"
                         label={formatMessage(intl, "claim", "secDiagnosis3")}
                         value={edited.icd3}
-                        onChange={(v, s) => updateAttribute("icd3", v)}
+                        reset={reset}
+                        onChange={(v, s) => this.updateAttribute("icd3", v)}
                         readOnly={readOnly}
                     />
                 </Grid>
@@ -176,7 +229,8 @@ class ClaimMasterPanel extends Component {
                         name="secDiagnosis4"
                         label={formatMessage(intl, "claim", "secDiagnosis4")}
                         value={edited.icd4}
-                        onChange={(v, s) => updateAttribute("icd4", v)}
+                        reset={reset}
+                        onChange={(v, s) => this.updateAttribute("icd4", v)}
                         readOnly={readOnly}
                     />
                 </Grid>
@@ -185,7 +239,8 @@ class ClaimMasterPanel extends Component {
                         module="claim"
                         label="explanation"
                         value={edited.explanation}
-                        onChange={v => updateAttribute("explanation", v)}
+                        reset={reset}
+                        onChange={v => this.updateAttribute("explanation", v)}
                         readOnly={readOnly}
                     />
                 </Grid>
@@ -194,7 +249,8 @@ class ClaimMasterPanel extends Component {
                         module="claim"
                         label="adjustment"
                         value={edited.adjustment}
-                        onChange={v => updateAttribute("adjustment", v)}
+                        reset={reset}
+                        onChange={v => this.updateAttribute("adjustment", v)}
                         readOnly={!!forFeedback}
                     />
                 </Grid>
@@ -207,4 +263,8 @@ const mapStateToProps = (state, props) => ({
     userHealthFacilityFullPath: !!state.loc ? state.loc.userHealthFacilityFullPath : null,
 })
 
-export default injectIntl(connect(mapStateToProps)(withTheme(withStyles(styles)(ClaimMasterPanel))))
+const mapDispatchToProps = dispatch => {
+    return bindActionCreators({ claimHealthFacilitySet }, dispatch);
+};
+
+export default injectIntl(connect(mapStateToProps, mapDispatchToProps)(withTheme(withStyles(styles)(ClaimMasterPanel))))
