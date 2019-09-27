@@ -1,8 +1,9 @@
 import React, { Component, Fragment } from "react";
+import { connect } from "react-redux";
 import { injectIntl } from 'react-intl';
 import {
-    formatAmount, formatMessageWithValues, NumberInput, Table,
-    PublishedComponent, AmountInput, TextInput,
+    formatAmount, formatMessage, formatMessageWithValues, NumberInput, Table,
+    PublishedComponent, AmountInput, TextInput, decodeId
 } from "@openimis/fe-core";
 import { IconButton } from "@material-ui/core";
 import DeleteIcon from "@material-ui/icons/Delete";
@@ -20,7 +21,7 @@ class ClaimChildPanel extends Component {
         if (!!this.props.edited[`${this.props.type}s`]) {
             data = this.props.edited[`${this.props.type}s`] || []
         }
-        if (!this.props.forReview && !_.isEqual(data[data.length -1], {})) {
+        if (!this.props.forReview && !_.isEqual(data[data.length - 1], {})) {
             data.push({});
         }
         return data;
@@ -67,13 +68,21 @@ class ClaimChildPanel extends Component {
         this._onEditedChanged(data);
     }
 
+    _price = (v) => {
+        let id = decodeId(v.id);
+        if (this.props.pricelist[`${this.props.type}s`] &&
+            this.props.pricelist[`${this.props.type}s`][id]) {
+            return this.props.pricelist[`${this.props.type}s`][id]
+        }
+        return v.price;
+    }
     _onChangeItem = (idx, attr, v) => {
         let data = this._updateData(idx, attr, v);
         if (!v) {
             data[idx].priceAsked = null;
             data[idx].qtyProvided = null
         } else {
-            data[idx].priceAsked = v.price;
+            data[idx].priceAsked = this._price(v);
             if (!data[idx].qtyProvided) {
                 data[idx].qtyProvided = 1;
             }
@@ -88,8 +97,8 @@ class ClaimChildPanel extends Component {
     }
 
     render() {
-        const { intl, edited, type, picker, forReview } = this.props;
-        if (!edited || !edited.healthFacility) return null;
+        const { intl, edited, type, picker, forReview, fetchingPricelist } = this.props;
+        if (!edited) return null;
         const totalClaimed = _.round(this.state.data.reduce(
             (sum, r) => sum + claimedAmount(r), 0),
             2
@@ -194,17 +203,27 @@ class ClaimChildPanel extends Component {
                     <IconButton onClick={e => this._onDelete(idx)}><DeleteIcon /></IconButton>
             );
         }
+        let header = formatMessage(intl, "claim", `edit.${this.props.type}s.title`)
+        if (fetchingPricelist) {
+            header += formatMessage(intl, "claim", `edit.${this.props.type}s.fetchingPricelist`)
+        }
         return (
             <Table
                 module="claim"
-                header={`edit.${this.props.type}s.title`}
+                header={header}
                 preHeaders={preHeaders}
                 headers={headers}
                 itemFormatters={itemFormatters}
-                items={this.state.data}
+                items={!fetchingPricelist ? this.state.data : []}
             />
         )
     }
 }
 
-export default injectIntl(ClaimChildPanel);
+const mapStateToProps = (state, props) => ({
+    fetchingPricelist: !!state.medical_pricelist && state.medical_pricelist.fetchingPricelist,
+    pricelist: !!state.medical_pricelist &&
+        state.medical_pricelist.pricelist ? state.medical_pricelist.pricelist : {},
+});
+
+export default injectIntl(connect(mapStateToProps)(ClaimChildPanel));
