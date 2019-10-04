@@ -45,6 +45,10 @@ class ClaimChildPanel extends Component {
             this.setState({
                 data: this.initData()
             })
+        } else if (!!prevProps.fetchingPricelist && !this.props.fetchingPricelist) {
+            let data = [...this.state.data];
+            data.forEach(d => {if (d[this.props.type]) d.priceAsked = this._price(d[this.props.type])});
+            this._onEditedChanged(data);
         }
     }
 

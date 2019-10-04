@@ -7,7 +7,6 @@ import {
 } from "@openimis/fe-core";
 import ClaimForm from "../components/ClaimForm";
 import { createClaim, updateClaim } from "../actions";
-import _ from "lodash-uuid";
 
 class EditPage extends Component {
 

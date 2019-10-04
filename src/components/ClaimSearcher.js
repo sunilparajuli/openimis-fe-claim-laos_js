@@ -210,18 +210,17 @@ class ClaimSearcher extends Component {
         return prms;
     }
 
-    onChangeFilters = (filters) => {
-        let fltrs = this.state.filters;
-        filters.forEach(filter => {
+    onChangeFilters = (fltrs) => {
+        let filters = {...this.state.filters};
+        fltrs.forEach(filter => {
             if (filter.value === null) {
-                delete (fltrs[filter.id]);
+                delete (filters[filter.id]);
             } else {
-                fltrs[filter.id] = { value: filter.value, filter: filter.filter };
+                filters[filter.id] = { value: filter.value, filter: filter.filter };
             }
         });
-        this.setState({
-            filters: fltrs
-        },
+        this.setState(
+            { filters },
             e => this.applyFilters()
         )
     }
