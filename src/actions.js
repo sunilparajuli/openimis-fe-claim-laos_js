@@ -56,10 +56,10 @@ export function formatClaimGQL(mm, claim) {
     dateFrom: "${claim.dateFrom}"
     ${claim.dateTo ? `dateTo: "${claim.dateTo}"`: ''}
     icdId: ${decodeId(claim.icd.id)}
-    ${!!claim.icd1 ? `icdId1: ${decodeId(claim.icd1.id)}` : ""}
-    ${!!claim.icd2 ? `icdId2: ${decodeId(claim.icd2.id)}` : ""}
-    ${!!claim.icd3 ? `icdId3: ${decodeId(claim.icd3.id)}` : ""}
-    ${!!claim.icd4 ? `icdId4: ${decodeId(claim.icd4.id)}` : ""}
+    ${!!claim.icd1 ? `icd1Id: ${decodeId(claim.icd1.id)}` : ""}
+    ${!!claim.icd2 ? `icd2Id: ${decodeId(claim.icd2.id)}` : ""}
+    ${!!claim.icd3 ? `icd3Id: ${decodeId(claim.icd3.id)}` : ""}
+    ${!!claim.icd4 ? `icd4Id: ${decodeId(claim.icd4.id)}` : ""}
     status: ${mm.getRef("claim.CreateClaim.status")}
     feedbackStatus: ${mm.getRef("claim.CreateClaim.feedbackStatus")}
     reviewStatus: ${mm.getRef("claim.CreateClaim.reviewStatus")}
