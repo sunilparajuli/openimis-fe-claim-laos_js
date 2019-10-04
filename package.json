@@ -1,6 +1,6 @@
 {
   "name": "@openimis/fe-claim",
-  "version": "0.0.19",
+  "version": "0.0.20",
   "license": "AGPL-3.0-only",
   "description": "openIMIS Frontend Claim reference module",
   "repository": "openimis/openimis-fe-claim_js",
