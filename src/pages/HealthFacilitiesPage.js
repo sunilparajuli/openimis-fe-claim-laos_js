@@ -2,18 +2,18 @@ import React, { Component, Fragment } from "react";
 import { bindActionCreators } from "redux";
 import { connect } from "react-redux";
 import { injectIntl } from 'react-intl';
-import { Fab } from "@material-ui/core";
+import { Fab, Tooltip } from "@material-ui/core";
 import { withTheme, withStyles } from "@material-ui/core/styles";
 import _ from "lodash";
 import AddIcon from "@material-ui/icons/Add";
 import {
     withHistory, historyPush, withModulesManager,
-    formatMessageWithValues,
+    formatMessage, formatMessageWithValues,
     journalize
 } from "@openimis/fe-core";
 import ClaimSearcher from "../components/ClaimSearcher";
 
-import { selectForFeedback, selectForReview, submit } from "../actions";
+import { selectForFeedback, selectForReview, submit, selectHealthFacility } from "../actions";
 
 const styles = theme => ({
     fab: theme.fab,
@@ -54,6 +54,7 @@ class HealthFacilitiesPage extends Component {
             "filter": `healthFacility_Location_Parent_Id: "${region.id}"`
         }
         this.setState({ defaultFilters })
+        this.props.selectHealthFacility(this.props.userHealthFacilityFullPath);
     }
 
     componentDidMount() {
@@ -98,14 +99,20 @@ class HealthFacilitiesPage extends Component {
     }
 
 
-    onDoubleClick = (c) => historyPush(this.props.modulesManager, this.props.history, "claim.route.claimEdit", [c.id])
+    onDoubleClick = (c) => historyPush(this.props.modulesManager, this.props.history, "claim.route.claimEdit", [c.uuid])
 
     onAdd = () => {
         historyPush(this.props.modulesManager, this.props.history, "claim.route.claimEdit");
     }
 
+    canAdd = () => {
+        if (!this.props.claimAdmin) return false
+        if (!this.props.claimHealthFacility) return false
+        return true;
+    }
+
     render() {
-        const { classes } = this.props;
+        const { intl, classes } = this.props;
         return (
             <Fragment>
                 <ClaimSearcher
@@ -114,9 +121,13 @@ class HealthFacilitiesPage extends Component {
                     actions={[
                         { label: "claimSummaries.submitSelected", enabled: this.canSubmitSelected, action: this.submitSelected },
                     ]} />
-                <Fab color="primary" className={classes.fab} onClick={this.onAdd}>
-                    <AddIcon />
-                </Fab>
+                <Tooltip title={!this.canAdd() ? formatMessage(intl, "claim", "newClaim.adminAndHFRequired") : ""}>
+                    <div className={classes.fab}>
+                        <Fab color="primary" disabled={!this.canAdd()}  onClick={this.onAdd}>
+                            <AddIcon />
+                        </Fab>
+                    </div>
+                </Tooltip>
             </Fragment>
         );
     }
@@ -129,6 +140,8 @@ const mapStateToProps = state => ({
     userDistrictStr: !!state.loc ? state.loc.userDistrictStr : null,
     submittingMutation: state.claim.submittingMutation,
     mutation: state.claim.mutation,
+    claimAdmin: state.claim.claimAdmin,
+    claimHealthFacility: state.claim.claimHealthFacility,
 });
 
 
@@ -139,6 +152,7 @@ const mapDispatchToProps = dispatch => {
             selectForReview,
             submit,
             journalize,
+            selectHealthFacility,
         },
         dispatch);
 };

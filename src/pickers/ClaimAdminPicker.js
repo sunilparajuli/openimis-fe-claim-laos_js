@@ -36,7 +36,7 @@ class ClaimAdminPicker extends Component {
         const {
             intl, value, reset, claimAdmins,
             fetchingClaimAdmins, fetchedClaimAdmins, errorClaimAdmins,
-            withLabel = true, label
+            withLabel = true, label, readOnly = false
         } = this.props;
         return (
             <Fragment>
@@ -51,6 +51,7 @@ class ClaimAdminPicker extends Component {
                             onSuggestionSelected={this.onSuggestionSelected}
                             value={value}
                             reset={reset}
+                            readOnly={readOnly}
                         />
                     </FormControl>
                 )}

@@ -4,7 +4,8 @@ import { injectIntl } from 'react-intl';
 import { connect } from "react-redux";
 import { bindActionCreators } from "redux";
 import {
-    ProgressOrError, Form, withModulesManager, withHistory, journalize, toISODate
+    Contributions, ProgressOrError, Form,
+    withModulesManager, withHistory, journalize, toISODate
 } from "@openimis/fe-core";
 import { fetchClaim, claimHealthFacilitySet } from "../actions";
 import moment from "moment";
@@ -13,6 +14,8 @@ import _ from "lodash";
 import ClaimMasterPanel from "./ClaimMasterPanel";
 import ClaimChildPanel from "./ClaimChildPanel";
 import ClaimFeedbackPanel from "./ClaimFeedbackPanel";
+
+const CLAIM_FORM_CONTRIBUTION_KEY = "claim.ClaimForm";
 
 const styles = theme => ({
     paper: theme.paper.paper,
@@ -41,17 +44,10 @@ class ClaimForm extends Component {
         claim: this._newClaim(),
     }
 
-    _setHealthFacility(claim) {
-        if (this.props.userHealthFacilityFullPath) {
-            let hf = { ...this.props.userHealthFacilityFullPath };
-            delete (hf.location);
-            claim.healthFacility = hf;
-        };
-        return claim;
-    }
-
     _newClaim() {
-        let claim = this._setHealthFacility({});
+        let claim = {};
+        claim.healthFacility = this.props.claimHealthFacility;
+        claim.admin = this.props.claimAdmin;
         claim.status = this.props.modulesManager.getConf("fe-claim", "newClaim.status", 2);
         claim.dateClaimed = toISODate(moment().toDate());
         claim.dateFrom = toISODate(moment().toDate());
@@ -60,8 +56,8 @@ class ClaimForm extends Component {
     }
 
     componentDidMount() {
-        if (this.props.claim_id) {
-            this.props.fetchClaim(this.props.modulesManager, this.props.claim_id, this.props.forFeedback);
+        if (this.props.claim_uuid) {
+            this.props.fetchClaim(this.props.modulesManager, this.props.claim_uuid, this.props.forFeedback);
         } else {
             this.setState({
                 claim: this._newClaim(),
@@ -76,7 +72,7 @@ class ClaimForm extends Component {
                 claim: this.props.claim,
             })
             this.props.claimHealthFacilitySet(this.props.claim.healthFacility);
-        } else if (prevProps.claim_id && !this.props.claim_id) {
+        } else if (prevProps.claim_uuid && !this.props.claim_uuid) {
             this.setState({
                 claim: this._newClaim(),
             });
@@ -115,6 +111,7 @@ class ClaimForm extends Component {
         if (!claim.code) return false;
         if (!claim.healthFacility) return false;
         if (!claim.insuree) return false;
+        if (!claim.admin) return false;
         if (!claim.dateClaimed) return false;
         if (!claim.dateFrom) return false;
         if (!claim.status) return false;
@@ -137,7 +134,7 @@ class ClaimForm extends Component {
     }
 
     reload = () => {
-        this.props.fetchClaim(this.props.modulesManager, this.props.claim_id, this.props.forFeedback);
+        this.props.fetchClaim(this.props.modulesManager, this.props.claim_uuid, this.props.forFeedback);
     }
 
     onEditedChanged = claim => {
@@ -145,34 +142,37 @@ class ClaimForm extends Component {
     }
 
     render() {
-        const { claim_id, fetchingClaim, fetchedClaim, errorClaim, save, back, forReview = false, forFeedback = false } = this.props;
+        const { claim_uuid, fetchingClaim, fetchedClaim, errorClaim, save, back, forReview = false, forFeedback = false } = this.props;
         return (
             <Fragment>
                 <ProgressOrError progress={fetchingClaim} error={errorClaim} />
-                {(!!fetchedClaim || !claim_id) && (
-                    <Form
-                        module="claim"
-                        edited_id={claim_id}
-                        edited={this.state.claim}
-                        reset={this.state.reset}
-                        title="edit.title"
-                        titleParams={{ code: this.state.claim.code }}
-                        back={back}
-                        add={!!this.props.add ? this._add : null}
-                        save={save}
-                        canSave={this.canSave}
-                        reload={claim_id && this.reload}
-                        forReview={forReview}
-                        forFeedback={forFeedback}
-                        HeadPanel={ClaimMasterPanel}
-                        Panels={!!forFeedback ?
-                            [ClaimFeedbackPanel] :
-                            [
-                                ClaimServicesPanel,
-                                ClaimItemsPanel
-                            ]}
-                        onEditedChanged={this.onEditedChanged}
-                    />
+                {(!!fetchedClaim || !claim_uuid) && (
+                    <Fragment>
+                        <Form
+                            module="claim"
+                            edited_id={claim_uuid}
+                            edited={this.state.claim}
+                            reset={this.state.reset}
+                            title="edit.title"
+                            titleParams={{ code: this.state.claim.code }}
+                            back={back}
+                            add={!!this.props.add ? this._add : null}
+                            save={save}
+                            canSave={this.canSave}
+                            reload={claim_uuid && this.reload}
+                            forReview={forReview}
+                            forFeedback={forFeedback}
+                            HeadPanel={ClaimMasterPanel}
+                            Panels={!!forFeedback ?
+                                [ClaimFeedbackPanel] :
+                                [
+                                    ClaimServicesPanel,
+                                    ClaimItemsPanel
+                                ]}
+                            onEditedChanged={this.onEditedChanged}
+                        />
+                        <Contributions contributionKey={CLAIM_FORM_CONTRIBUTION_KEY} />
+                    </Fragment>
                 )}
             </Fragment>
         )
@@ -187,6 +187,8 @@ const mapStateToProps = (state, props) => ({
     errorClaim: state.claim.errorClaim,
     submittingMutation: state.claim.submittingMutation,
     mutation: state.claim.mutation,
+    claimAdmin: state.claim.claimAdmin,
+    claimHealthFacility: state.claim.claimHealthFacility,
 });
 
 const mapDispatchToProps = dispatch => {

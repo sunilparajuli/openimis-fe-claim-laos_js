@@ -15,7 +15,7 @@ import {
     MenuItem,
 } from "@material-ui/core";
 import MoreHoriz from "@material-ui/icons/MoreHoriz";
-import { Searcher } from "@openimis/fe-core";
+import { Searcher, Contributions } from "@openimis/fe-core";
 import ClaimFilter from "./ClaimFilter";
 import {
     withModulesManager,
@@ -23,6 +23,8 @@ import {
     FormattedMessage, ProgressOrError, Table
 } from "@openimis/fe-core";
 import { fetchClaimSummaries } from "../actions";
+
+const CLAIM_SEARCHER_CONTRIBUTION_KEY = "claim.Searcher";
 
 const styles = theme => ({
     root: {
@@ -319,7 +321,7 @@ class ClaimSearcher extends Component {
         this.setState({ menuAnchor: null });
     }
 
-    rowIdentifier = (r) => r.id
+    rowIdentifier = (r) => r.uuid
 
     feedbackColFormatter = c =>
         !!this.props.feedbackColFormatter ?
@@ -386,6 +388,7 @@ class ClaimSearcher extends Component {
                             onChangeFilters={this.onChangeFilters}
                         />}
                 />
+                <Contributions contributionKey={CLAIM_SEARCHER_CONTRIBUTION_KEY} />
                 <ProgressOrError progress={fetchingClaims} error={errorClaims} />
                 {!!fetchedClaims && (
                     <Paper className={classes.paper}>

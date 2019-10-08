@@ -15,7 +15,7 @@ class EditPage extends Component {
     }
 
     save = (claim) => {
-        if (!this.props.claim_id) {
+        if (!this.props.claim_uuid) {
             this.props.createClaim(
                 this.props.modulesManager,
                 claim,
@@ -42,10 +42,10 @@ class EditPage extends Component {
     }
 
     render() {
-        const { modulesManager, history, claim_id } = this.props;
+        const { modulesManager, history, claim_uuid } = this.props;
         return (
             <ClaimForm
-                claim_id={claim_id}
+                claim_uuid={claim_uuid}
                 back={e => historyPush(modulesManager, history, "claim.route.healthFacilities")}
                 add={this.add}
                 save={this.save}
@@ -55,8 +55,8 @@ class EditPage extends Component {
 }
 
 const mapStateToProps = (state, props) => ({
-    claim_id: props.match.params.claim_id,
-});
+    claim_uuid: props.match.params.claim_uuid,
+})
 
 const mapDispatchToProps = dispatch => {
     return bindActionCreators({ createClaim, updateClaim }, dispatch);

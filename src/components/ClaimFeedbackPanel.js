@@ -1,13 +1,18 @@
-import React, { Component } from "react";
+import React, { Component, Fragment } from "react";
 import { withTheme, withStyles } from "@material-ui/core/styles";
 import { injectIntl } from 'react-intl';
 import _ from "lodash";
 import {
     Grid, Typography, Divider,
-    Slider, Switch
+    Slider
 } from "@material-ui/core";
-import { FormattedMessage, PublishedComponent, formatMessage, decodeId } from "@openimis/fe-core";
+import {
+    FormattedMessage, PublishedComponent, Contributions,
+    formatMessage, decodeId, ControlledField
+} from "@openimis/fe-core";
 import { FEEDBACK_ASSESSMENTS } from "../constants";
+
+const CLAIM_FEEDBACK_CONTRIBUTION_KEY = "claim.ClaimFeedback";
 
 const styles = theme => ({
     paper: theme.paper.paper,
@@ -19,7 +24,7 @@ const styles = theme => ({
     },
     assessment: {
         width: "480px",
-    }    
+    }
 });
 
 
@@ -43,7 +48,7 @@ class ClaimFeedbackPanel extends Component {
     }
 
     _onChange = (attr, v) => {
-        let edited = {...this.props.edited}
+        let edited = { ...this.props.edited }
         edited.feedback[attr] = v
         this.props.onEditedChanged(edited);
     }
@@ -120,44 +125,60 @@ class ClaimFeedbackPanel extends Component {
                 <Grid item xs={12}>
                     <Divider />
                 </Grid>
-                <Grid item xs={12}>
+                <Grid item xs={3} />
+                <Grid item xs={6}>
                     <Grid container alignItems="center" justify="center">
+                        <ControlledField module="claim" id="Feedback.date" field={
+                            <Grid item xs={6} className={classes.item}>
+                                <PublishedComponent id="core.DatePicker"
+                                    module="claim"
+                                    label="Feedback.date"
+                                    value={edited.feedback.feedbackDate || null}
+                                    onChange={d => this._onChange("feedbackDate", `${d}T00:00:00`)}
+                                />
+                            </Grid>
+                        } />
+                        <ControlledField module="claim" id="Feedback.claimOfficer" field={
+                            <Grid item xs={6} className={classes.item}>
+                                <PublishedComponent
+                                    id="claim.ClaimOfficerPicker"
+                                    value={edited.feedback.chfOfficerCode}
+                                    onChange={(v, s) => this._onChange("chfOfficerCode", !!v ? decodeId(v.id) : null)}
+                                />
+                            </Grid>
+                        } />
+                        <ControlledField module="claim" id="Feedback.careRendered" field={
+                            <Fragment>
+                                <Grid item xs={6} className={classes.item}>
+                                    {this._tristate('careRendered')}
+                                </Grid>
+                            </Fragment>
+                        } />
+                        <ControlledField module="claim" id="Feedback.drugPrescribed" field={
+                            <Fragment>
+                                <Grid item xs={6} className={classes.item}>
+                                    {this._tristate('drugPrescribed')}
+                                </Grid>
+                            </Fragment>
+                        } />
+                        <ControlledField module="claim" id="Feedback.paymentAsked" field={
+                            <Grid item xs={6} className={classes.item}>
+                                {this._tristate('paymentAsked')}
+                            </Grid>
+                        } />
+                        <ControlledField module="claim" id="Feedback.drugReceived" field={
+                            <Grid item xs={6} className={classes.item}>
+                                {this._tristate('drugReceived')}
+                            </Grid>
+                        } />
                         <Grid item xs={3} />
-                        <Grid item xs={3} className={classes.item}>
-                            <PublishedComponent id="core.DatePicker"
-                                module="claim"
-                                label="Feedback.date"
-                                value={edited.feedback.feedbackDate || null}
-                                onChange={d => this._onChange("feedbackDate", `${d}T00:00:00`)}
-                            />
-                        </Grid>
-                        <Grid item xs={3} className={classes.item}>
-                            <PublishedComponent
-                                id="claim.ClaimOfficerPicker"
-                                value={edited.feedback.chfOfficerCode}
-                                onChange={(v, s) => this._onChange("chfOfficerCode", !!v ? decodeId(v.id) : null)}
-                            />
-                        </Grid>
-                        <Grid item xs={3} />
-                        <Grid item xs={3} />
-                        <Grid item xs={3} className={classes.item}>
-                            {this._tristate('careRendered')}
-                        </Grid>
-                        <Grid item xs={3} className={classes.item}>
-                            {this._tristate('drugPrescribed')}
-                        </Grid>
-                        <Grid item xs={3} />
-                        <Grid item xs={3} />
-                        <Grid item xs={3} className={classes.item}>
-                            {this._tristate('paymentAsked')}
-                        </Grid>
-                        <Grid item xs={3} className={classes.item}>
-                            {this._tristate('drugReceived')}
-                        </Grid>
-                        <Grid item xs={3} />
-                        <Grid item xs={12} className={classes.item}>
-                            <Divider />
-                        </Grid>
+                    </Grid>
+                </Grid>
+                <Grid item xs={12} className={classes.item}>
+                    <Divider />
+                </Grid>
+                <ControlledField module="claim" id="Feedback.overallAssesment" field={
+                    <Fragment>
                         <Grid item xs={2} />
                         <Grid item xs={8} className={classes.item}>
                             <Grid container alignItems="center" justify="center" direction="column">
@@ -180,9 +201,9 @@ class ClaimFeedbackPanel extends Component {
                                 </Grid>
                             </Grid>
                         </Grid>
-                        <Grid item xs={2} />
-                    </Grid>
-                </Grid>
+                    </Fragment>
+                } />
+                <Contributions contributionKey={CLAIM_FEEDBACK_CONTRIBUTION_KEY} />
             </Grid>
         )
     }

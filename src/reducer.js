@@ -36,6 +36,16 @@ function reducer(
                 claimAdmins: null,
                 errorClaimAdmins: null,
             };
+        case 'CLAIM_CLAIM_ADMIN_SELECTED':
+            return {
+                ...state,
+                claimAdmin: action.payload,
+            }
+        case 'CLAIM_CLAIM_HEALTH_FACILITY_SELECTED':
+            return {
+                ...state,
+                claimHealthFacility: action.payload,
+            }
         case 'CLAIM_CLAIM_ADMINS_RESP':
             return {
                 ...state,
@@ -126,7 +136,7 @@ function reducer(
         case 'CLAIM_CREATE_CLAIM_RESP':
             return dispatchMutationResp(state, "createClaim", action);
         case 'CLAIM_UPDATE_CLAIM_RESP':
-                return dispatchMutationResp(state, "updateClaim", action);        
+            return dispatchMutationResp(state, "updateClaim", action);
         case 'CLAIM_SUBMIT_CLAIMS_RESP':
             return dispatchMutationResp(state, "submitClaims", action);
         case 'CLAIM_SELECT_CLAIMS_FOR_FEEDBACK_RESP':

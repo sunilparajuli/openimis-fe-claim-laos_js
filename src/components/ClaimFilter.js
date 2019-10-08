@@ -1,5 +1,6 @@
 import React, { Component, Fragment } from "react";
 import { connect } from "react-redux";
+import { bindActionCreators } from "redux";
 import _debounce from "lodash/debounce";
 import { withTheme, withStyles } from "@material-ui/core/styles";
 import { injectIntl } from 'react-intl';
@@ -7,8 +8,9 @@ import _ from "lodash";
 import { Grid, Divider } from "@material-ui/core";
 import {
     formatMessage, withModulesManager,
-    PublishedComponent, TextInput, encodeId, decodeId
+    ControlledField, PublishedComponent, TextInput, encodeId
 } from "@openimis/fe-core";
+import { selectClaimAdmin, selectHealthFacility } from "../actions";
 
 const styles = theme => ({
     dialogTitle: theme.dialog.title,
@@ -33,9 +35,7 @@ class Head extends Component {
         return {
             id: 'region',
             value: v,
-            filter: `healthFacility_Location_Parent_Id: "${!!v && encodeId(
-                this.props.modulesManager, "location.LocationGQLType", decodeId(v.id)
-            )}"`
+            filter: `healthFacility_Location_Parent_Uuid: "${!!v && v.uuid}"`
         }
     }
 
@@ -43,9 +43,7 @@ class Head extends Component {
         return {
             id: 'district',
             value: v,
-            filter: `healthFacility_Location_Id: "${!!v && encodeId(
-                this.props.modulesManager, "location.LocationGQLType", decodeId(v.id)
-            )}"`
+            filter: `healthFacility_Location_Uuid: "${!!v && v.uuid}"`
         }
     }
 
@@ -72,12 +70,17 @@ class Head extends Component {
             {
                 id: 'healthFacility',
                 value: null
+            },
+            {
+                id: 'batchRun',
+                value: null
             }
         ];
         if (!!v) {
             filters.push(
                 this._regionFilter({
                     id: v.regionId,
+                    uuid: v.regionUuid,
                     code: v.regionCode,
                     name: v.regionName
                 }))
@@ -92,9 +95,10 @@ class Head extends Component {
         let filters = [{
             id: 'healthFacility',
             value: v,
-            filter: `healthFacility_Id: "${!!v && encodeId(
-                this.props.modulesManager, "location.LocationGQLType", decodeId(v.id)
-            )}"`
+            filter: `healthFacility_Uuid: "${!!v && v.uuid}"`
+        }, {
+            id: 'batchRun',
+            value: null
         }];
         if (!!v) {
             filters.push(
@@ -106,65 +110,81 @@ class Head extends Component {
         this.setState({
             reset: this.state.reset + 1,
         });
+        this.props.selectHealthFacility(v);
+    }
+
+    _onChangeClaimAdmin = (v, s) => {
+        this.props.onChangeFilters([
+            {
+                id: 'claimAdmin',
+                value: v,
+                filter: `admin_Uuid: "${!!v && v.uuid}"`
+            }
+        ]);
+        this.props.selectClaimAdmin(v);
     }
 
     render() {
         const { classes, filters, onChangeFilters } = this.props;
         return (
             <Grid container className={classes.form}>
-                <Grid item xs={2} className={classes.item}>
-                    <PublishedComponent
-                        id="location.RegionPicker"
-                        value={(filters['region'] && filters['region']['value'])}
-                        onChange={this._onChangeRegion}
-                    />
-                </Grid>
-                <Grid item xs={2} className={classes.item}>
-                    <PublishedComponent
-                        id="location.DistrictPicker"
-                        value={(filters['district'] && filters['district']['value'])}
-                        region={(filters['region'] && filters['region']['value'])}
-                        reset={this.state.reset}
-                        onChange={this._onChangeDistrict}
-                    />
-                </Grid>
-                <Grid item xs={3} className={classes.item}>
-                    <PublishedComponent
-                        id="location.HealthFacilityPicker"
-                        value={(filters['healthFacility'] && filters['healthFacility']['value'])}
-                        region={(filters['region'] && filters['region']['value'])}
-                        district={(filters['district'] && filters['district']['value'])}
-                        reset={this.state.reset}
-                        onChange={this._onChangeHealthFacility}
-                    />
-                </Grid>
-                <Grid item xs={2} className={classes.item}>
-                    <PublishedComponent
-                        id="claim.ClaimAdminPicker"
-                        value={(filters['claimAdmin'] && filters['claimAdmin']['value'])}
-                        onChange={(v, s) => onChangeFilters([
-                            {
-                                id: 'claimAdmin',
-                                value: v,
-                                filter: `admin_Id: "${!!v && v.id}"`
-                            }
-                        ])}
-                    />
-                </Grid>
-                <Grid item xs={3} className={classes.item}>
-                    <PublishedComponent
-                        id="claim.BatchRunPicker"
-                        value={(filters['batchRun'] && filters['batchRun']['value'])}
-                        scope={!!filters['district'] && filters['district']['value']}
-                        onChange={(v, s) => onChangeFilters(
-                            {
-                                id: 'batchRun',
-                                value: v,
-                                filter: `batchRun_Id: "${!!v && v.id}"`
-                            }
-                        )}
-                    />
-                </Grid>
+                <ControlledField module="claim" id="ClaimFilter.region" field={
+                    <Grid item xs={2} className={classes.item}>
+                        <PublishedComponent
+                            id="location.RegionPicker"
+                            value={(filters['region'] && filters['region']['value'])}
+                            onChange={this._onChangeRegion}
+                        />
+                    </Grid>
+                } />
+                <ControlledField module="claim" id="ClaimFilter.district" field={
+                    <Grid item xs={2} className={classes.item}>
+                        <PublishedComponent
+                            id="location.DistrictPicker"
+                            value={(filters['district'] && filters['district']['value'])}
+                            region={(filters['region'] && filters['region']['value'])}
+                            reset={this.state.reset}
+                            onChange={this._onChangeDistrict}
+                        />
+                    </Grid>
+                } />
+                <ControlledField module="claim" id="ClaimFilter.healthFacility" field={
+                    <Grid item xs={3} className={classes.item}>
+                        <PublishedComponent
+                            id="location.HealthFacilityPicker"
+                            value={(filters['healthFacility'] && filters['healthFacility']['value'])}
+                            region={(filters['region'] && filters['region']['value'])}
+                            district={(filters['district'] && filters['district']['value'])}
+                            reset={this.state.reset}
+                            onChange={this._onChangeHealthFacility}
+                        />
+                    </Grid>
+                } />
+                <ControlledField module="claim" id="ClaimFilter.claimAdmin" field={
+                    <Grid item xs={2} className={classes.item}>
+                        <PublishedComponent
+                            id="claim.ClaimAdminPicker"
+                            value={(filters['claimAdmin'] && filters['claimAdmin']['value'])}
+                            onChange={this._onChangeClaimAdmin}
+                        />
+                    </Grid>
+                } />
+                <ControlledField module="claim" id="ClaimFilter.batchRun" field={
+                    <Grid item xs={3} className={classes.item}>
+                        <PublishedComponent
+                            id="claim_batch.BatchRunPicker"
+                            value={(filters['batchRun'] && filters['batchRun']['value'])}
+                            scope={!!filters['district'] && filters['district']['value']}
+                            onChange={(v, s) => onChangeFilters([
+                                {
+                                    id: 'batchRun',
+                                    value: v,
+                                    filter: `batchRun_Id: "${!!v && v.id}"`
+                                }
+                            ])}
+                        />
+                    </Grid>
+                } />
             </Grid>
         )
     }
@@ -176,7 +196,11 @@ const mapStateToProps = state => ({
     mutation: state.claim.mutation,
 });
 
-const BoundHead = connect(mapStateToProps)(Head)
+const mapDispatchToProps = dispatch => {
+    return bindActionCreators({ selectClaimAdmin, selectHealthFacility }, dispatch);
+};
+
+const BoundHead = connect(mapStateToProps, mapDispatchToProps)(Head)
 
 class Details extends Component {
 

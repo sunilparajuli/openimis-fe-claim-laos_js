@@ -229,17 +229,17 @@ class ReviewsPage extends Component {
         let defaultFilters = { ...this.state.defaultFilters }
         defaultFilters.healthFacility = {
             "value": this.props.userHealthFacilityFullPath,
-            "filter": `healthFacility_Id: "${this.props.userHealthFacilityFullPath.id}"`
+            "filter": `healthFacility_Uuid: "${this.props.userHealthFacilityFullPath.uuid}"`
         }
         let district = this.props.userHealthFacilityFullPath.location;
         defaultFilters.district = {
             "value": district,
-            "filter": `healthFacility_Location_Id: "${district.id}"`
+            "filter": `healthFacility_Location_Uuid: "${district.uuid}"`
         }
         let region = district.parent;
         defaultFilters.region = {
             "value": region,
-            "filter": `healthFacility_Location_Parent_Id: "${region.id}"`
+            "filter": `healthFacility_Location_Parent_Uuid: "${region.uuid}"`
         }
         this.setState({ defaultFilters })
     }
@@ -377,7 +377,7 @@ class ReviewsPage extends Component {
             default: console.log('Illegal new Feedback Status ' + v); // TODO: handle error
         }
     }
-    provideFeedback = c => historyPush(this.props.modulesManager, this.props.history, "claim.route.feedback", [c.id])
+    provideFeedback = c => historyPush(this.props.modulesManager, this.props.history, "claim.route.feedback", [c.uuid])
 
     feedbackColFormatter = c => (
         <Grid container>
@@ -431,7 +431,7 @@ class ReviewsPage extends Component {
             default: console.log('Illegal new Feedback Status ' + v); // TODO: handle error
         }
     }
-    review = c => historyPush(this.props.modulesManager, this.props.history, "claim.route.review", [c.id])
+    review = c => historyPush(this.props.modulesManager, this.props.history, "claim.route.review", [c.uuid])
     reviewColFormatter = c => (
         <Grid container>
             <Grid item xs={6}>

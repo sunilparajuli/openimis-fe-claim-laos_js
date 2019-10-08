@@ -33,10 +33,10 @@ class FeedbackPage extends Component {
     }
 
     render() {
-        const { history, modulesManager, claim_id } = this.props;
+        const { history, modulesManager, claim_uuid } = this.props;
         return (
             <ClaimForm
-                claim_id={claim_id}
+                claim_uuid={claim_uuid}
                 back={e => historyPush(modulesManager, history, "claim.route.reviews")}
                 save={this.save}
                 forFeedback={true} />
@@ -45,7 +45,7 @@ class FeedbackPage extends Component {
 }
 
 const mapStateToProps = (state, props) => ({
-    claim_id: props.match.params.claim_id,
+    claim_uuid: props.match.params.claim_uuid,
     submittingMutation: state.claim.submittingMutation,
     mutation: state.claim.mutation,
 });
