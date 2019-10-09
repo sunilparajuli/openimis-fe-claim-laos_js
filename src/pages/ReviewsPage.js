@@ -17,6 +17,7 @@ import {
     selectForReview, bypassReview, skipReview,
     process
 } from "../actions";
+import { RIGHT_UPDATE, RIGHT_FEEDBACK, RIGHT_CLAIMREVIEW, RIGHT_PROCESS } from "../constants";
 import { withTheme, withStyles } from "@material-ui/core/styles";
 
 const styles = theme => ({
@@ -389,12 +390,15 @@ class ReviewsPage extends Component {
                     withNull={false}
                     filtered={[1, 8]}
                     value={c.feedbackStatus}
+                    readOnly={!this.props.rights.includes(RIGHT_UPDATE)}
                     onChange={(v, s) => this.onChangeFeedbackStatus(c, v)}
                 />
             </Grid>
-            <Grid item xs={6}>
-                <IconButton onClick={e => this.provideFeedback(c)}><FeedbackIcon /></IconButton>
-            </Grid>
+            {!!this.props.rights.includes(RIGHT_FEEDBACK) &&
+                <Grid item xs={6}>
+                    <IconButton onClick={e => this.provideFeedback(c)}><FeedbackIcon /></IconButton>
+                </Grid>
+            }
         </Grid>
     )
 
@@ -442,30 +446,41 @@ class ReviewsPage extends Component {
                     value={c.reviewStatus}
                     withNull={false}
                     filtered={[1, 8]}
+                    readOnly={!this.props.rights.includes(RIGHT_UPDATE)}
                     onChange={(v, s) => this.onChangeReviewStatus(c, v)}
                 />
             </Grid>
-            <Grid item xs={6}>
-                <IconButton onClick={e => this.review(c)}><ReviewIcon /></IconButton>
-            </Grid>
+            {!!this.props.rights.includes(RIGHT_CLAIMREVIEW) &&
+                <Grid item xs={6}>
+                    <IconButton onClick={e => this.review(c)}><ReviewIcon /></IconButton>
+                </Grid>
+            }
         </Grid>
     )
 
     render() {
+        const { rights } = this.props;
+        if (!rights.filter(r => r >= RIGHT_CLAIMREVIEW && r <= RIGHT_PROCESS).length) return null;
+        let actions = [];
+        if (rights.includes(RIGHT_UPDATE)) {
+            actions.push(
+                { label: "claimSummaries.markSelectedForFeedback", enabled: this.canMarkSelectedForFeedback, action: this.markSelectedForFeedback },
+                { label: "claimSummaries.markBypassedFeedback", enabled: this.canMarkBypassedFeedback, action: this.markBypassedFeedback },
+                { label: "claimSummaries.markSkippedFeedback", enabled: this.canMarkSkippedFeedback, action: this.markSkippedFeedback },
+                { label: "claimSummaries.markSelectedForReview", enabled: this.canMarkSelectedForReview, action: this.markSelectedForReview },
+                { label: "claimSummaries.markBypassedReview", enabled: this.canMarkBypassedReview, action: this.markBypassedReview },
+                { label: "claimSummaries.markSkippedReview", enabled: this.canMarkSkippedReview, action: this.markSkippedReview },
+            )
+        }
+        if (rights.includes(RIGHT_PROCESS)) {
+            actions.push({ label: "claimSummaries.processSelected", enabled: this.canProcessSelected, action: this.processSelected });
+        }
         return (
             <ClaimSearcher
                 defaultFilters={this.state.defaultFilters}
                 forcedFilters={this.state.forcedFilters}
                 fixFilter={<FixFilter filtersChange={this.filtersChange} />}
-                actions={[
-                    { label: "claimSummaries.markSelectedForFeedback", enabled: this.canMarkSelectedForFeedback, action: this.markSelectedForFeedback },
-                    { label: "claimSummaries.markBypassedFeedback", enabled: this.canMarkBypassedFeedback, action: this.markBypassedFeedback },
-                    { label: "claimSummaries.markSkippedFeedback", enabled: this.canMarkSkippedFeedback, action: this.markSkippedFeedback },
-                    { label: "claimSummaries.markSelectedForReview", enabled: this.canMarkSelectedForReview, action: this.markSelectedForReview },
-                    { label: "claimSummaries.markBypassedReview", enabled: this.canMarkBypassedReview, action: this.markBypassedReview },
-                    { label: "claimSummaries.markSkippedReview", enabled: this.canMarkSkippedReview, action: this.markSkippedReview },
-                    { label: "claimSummaries.processSelected", enabled: this.canProcessSelected, action: this.processSelected },
-                ]}
+                actions={actions}
                 feedbackColFormatter={this.feedbackColFormatter}
                 reviewColFormatter={this.reviewColFormatter}
             />
@@ -474,6 +489,7 @@ class ReviewsPage extends Component {
 }
 
 const mapStateToProps = state => ({
+    rights: !!state.core && !!state.core.user && !!state.core.user.i_user ? state.core.user.i_user.rights : [],
     userHealthFacilityFullPath: !!state.loc ? state.loc.userHealthFacilityFullPath : null,
     userHealthFacilityStr: !!state.loc ? state.loc.userHealthFacilityStr : null,
     userRegionStr: !!state.loc ? state.loc.userRegionStr : null,

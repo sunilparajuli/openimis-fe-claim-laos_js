@@ -13,6 +13,7 @@ import {
     Button,
     Menu,
     MenuItem,
+    CircularProgress,
 } from "@material-ui/core";
 import MoreHoriz from "@material-ui/icons/MoreHoriz";
 import { Searcher, Contributions } from "@openimis/fe-core";
@@ -36,6 +37,9 @@ const styles = theme => ({
     paperHeaderMessage: theme.paper.message,
     paperHeaderAction: theme.paper.action,
     paperDivider: theme.paper.divider,
+    processing: {
+        margin: theme.spacing(1)
+    }
 });
 
 class SelectionPane extends Component {
@@ -108,7 +112,10 @@ class SelectionMenu extends Component {
     }
 
     render() {
-        const { intl, selection, clearSelected, selectAll, actions } = this.props;
+        const { intl, classes, selection, clearSelected, selectAll, actions, processing } = this.props;
+        if (processing) {
+            return <CircularProgress className={classes.processing} size={24} />
+        }
         let entries = [];
         let selectionCount = selection.length;
         if (!!selectionCount) {
@@ -213,7 +220,7 @@ class ClaimSearcher extends Component {
     }
 
     onChangeFilters = (fltrs) => {
-        let filters = {...this.state.filters};
+        let filters = { ...this.state.filters };
         fltrs.forEach(filter => {
             if (filter.value === null) {
                 delete (filters[filter.id]);
@@ -364,7 +371,7 @@ class ClaimSearcher extends Component {
 
     render() {
         const { modulesManager, intl, classes, claims, claimsPageInfo, fetchingClaims, fetchedClaims, errorClaims,
-            onDoubleClick, actions, fixFilter } = this.props;
+            onDoubleClick, actions, processing = false, fixFilter } = this.props;
 
         let count = this.randomCount();
         if (!count || !!this.forcedFilters().length > 0) {
@@ -412,6 +419,7 @@ class ClaimSearcher extends Component {
                                         selectAll={this.selectAll}
                                         triggerAction={this.triggerAction}
                                         actions={actions}
+                                        processing={processing}
                                     />
                                 </Grid>
 

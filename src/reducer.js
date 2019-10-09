@@ -139,6 +139,8 @@ function reducer(
             return dispatchMutationResp(state, "updateClaim", action);
         case 'CLAIM_SUBMIT_CLAIMS_RESP':
             return dispatchMutationResp(state, "submitClaims", action);
+        case 'CLAIM_DELETE_CLAIMS_RESP':
+            return dispatchMutationResp(state, "deleteClaims", action);
         case 'CLAIM_SELECT_CLAIMS_FOR_FEEDBACK_RESP':
             return dispatchMutationResp(state, "selectClaimsForFeedback", action);
         case 'CLAIM_BYPASS_CLAIMS_FEEDBACK_RESP':
@@ -157,6 +159,17 @@ function reducer(
             return dispatchMutationResp(state, "deliverClaimReview", action);
         case 'CLAIM_PROCESS_CLAIMS_RESP':
             return dispatchMutationResp(state, "processClaims", action);
+        case 'CLAIM_PRINT':
+            return {
+                ...state,
+                generatingPrint: true,
+                printParameters: action.payload
+            };
+        case 'CLAIM_PRINT_DONE':
+            return {
+                ...state,
+                generatingPrint: false
+            };
         default:
             return state;
     }

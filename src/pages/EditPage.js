@@ -7,6 +7,7 @@ import {
 } from "@openimis/fe-core";
 import ClaimForm from "../components/ClaimForm";
 import { createClaim, updateClaim } from "../actions";
+import { RIGHT_ADD, RIGHT_LOAD } from "../constants";
 
 class EditPage extends Component {
 
@@ -42,19 +43,22 @@ class EditPage extends Component {
     }
 
     render() {
-        const { modulesManager, history, claim_uuid } = this.props;
+        const { modulesManager, history, rights, claim_uuid } = this.props;
+        if (!rights.includes(RIGHT_LOAD)) return null;
         return (
             <ClaimForm
                 claim_uuid={claim_uuid}
                 back={e => historyPush(modulesManager, history, "claim.route.healthFacilities")}
-                add={this.add}
-                save={this.save}
+                add={rights.includes(RIGHT_ADD) ? this.add : null}
+                save={rights.includes(RIGHT_LOAD) ? this.save : null}
+                readOnly={!rights.filter(r => r === RIGHT_ADD || r === RIGHT_LOAD).length}
             />
         )
     }
 }
 
 const mapStateToProps = (state, props) => ({
+    rights: !!state.core && !!state.core.user && !!state.core.user.i_user ? state.core.user.i_user.rights : [],
     claim_uuid: props.match.params.claim_uuid,
 })
 

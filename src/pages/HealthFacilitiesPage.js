@@ -9,14 +9,15 @@ import AddIcon from "@material-ui/icons/Add";
 import {
     withHistory, historyPush, withModulesManager,
     formatMessage, formatMessageWithValues,
-    journalize
+    journalize, coreConfirm
 } from "@openimis/fe-core";
 import ClaimSearcher from "../components/ClaimSearcher";
 
-import { selectForFeedback, selectForReview, submit, selectHealthFacility } from "../actions";
+import { selectForFeedback, selectForReview, submit, del, selectHealthFacility, print, generatePrint } from "../actions";
+import { RIGHT_ADD, RIGHT_LOAD, RIGHT_PRINT, RIGHT_SUBMIT, RIGHT_DELETE } from "../constants";
 
 const styles = theme => ({
-    fab: theme.fab,
+    fab: theme.fab
 });
 
 class HealthFacilitiesPage extends Component {
@@ -34,7 +35,10 @@ class HealthFacilitiesPage extends Component {
             }
         )
 
-        this.state = { defaultFilters }
+        this.state = {
+            defaultFilters,
+            confirmedAction: null,
+        }
     }
 
     _filterOnUserHealthFacilityFullPath() {
@@ -70,6 +74,12 @@ class HealthFacilitiesPage extends Component {
         if (!_.isEqual(prevProps.userHealthFacilityFullPath, this.props.userHealthFacilityFullPath)) {
             this._filterOnUserHealthFacilityFullPath();
         }
+        if (prevProps.confirmed !== this.props.confirmed && !!this.props.confirmed && !!this.state.confirmedAction) {
+            this.state.confirmedAction();
+        }
+        if (!prevProps.generatingPrint && !!this.props.generatingPrint) {
+            this.props.generatePrint(this.props.printParameters)
+        }
     }
 
     canSubmitSelected = (selection) => !!selection && selection.length && selection.filter(s => s.status === 2).length === selection.length
@@ -98,8 +108,63 @@ class HealthFacilitiesPage extends Component {
         }
     }
 
+    canDeleteSelected = (selection) => !!selection && selection.length && selection.filter(s => s.status === 2).length === selection.length
 
-    onDoubleClick = (c) => historyPush(this.props.modulesManager, this.props.history, "claim.route.claimEdit", [c.uuid])
+    deleteSelected = (selection) => {
+        let confirm = null;
+        let confirmedAction = null;
+        if (selection.length === 1) {
+            confirmedAction = () => this.props.del(
+                selection,
+                formatMessageWithValues(
+                    this.props.intl,
+                    "claim",
+                    "DeleteClaim.mutationLabel",
+                    { code: selection[0].code }
+                )
+            );
+            confirm = e => this.props.coreConfirm(
+                formatMessage(this.props.intl, "claim", "deleteClaim.confirm.title"),
+                formatMessageWithValues(this.props.intl, "claim", "deleteClaim.confirm.message",
+                    {
+                        code: selection[0].code,
+                    }),
+            );
+        } else {
+            confirmedAction = () => this.props.del(
+                selection,
+                formatMessageWithValues(
+                    this.props.intl,
+                    "claim",
+                    "DeleteClaims.mutationLabel",
+                    { count: selection.length }
+                )
+            );
+            confirm = e => this.props.coreConfirm(
+                formatMessage(this.props.intl, "claim", "deleteClaims.confirm.title"),
+                formatMessageWithValues(this.props.intl, "claim", "deleteClaims.confirm.message",
+                    {
+                        count: selection.length,
+                    }),
+            );
+        }
+
+        this.setState(
+            { confirmedAction },
+            confirm
+        )
+    }
+
+    canPrintSelected = (selection) => !!selection && selection.length
+
+    printSelected = (selection) => {
+        this.props.print(selection);
+    }
+
+
+    onDoubleClick = (c) => {
+        historyPush(this.props.modulesManager, this.props.history, "claim.route.claimEdit", [c.uuid])
+    }
 
     onAdd = () => {
         historyPush(this.props.modulesManager, this.props.history, "claim.route.claimEdit");
@@ -112,28 +177,43 @@ class HealthFacilitiesPage extends Component {
     }
 
     render() {
-        const { intl, classes } = this.props;
+        const { intl, classes, rights, generatingPrint } = this.props;
+        if (!rights.filter(r => r >= RIGHT_ADD && r <= RIGHT_SUBMIT).length) return null;
+        let actions = [];
+        if (rights.includes(RIGHT_PRINT)) {
+            actions.push({ label: "claimSummaries.printSelected", enabled: this.canPrintSelected, action: this.printSelected });
+        }
+        if (rights.includes(RIGHT_SUBMIT)) {
+            actions.push({ label: "claimSummaries.submitSelected", enabled: this.canSubmitSelected, action: this.submitSelected });
+        }
+        if (rights.includes(RIGHT_DELETE)) {
+            actions.push({ label: "claimSummaries.deleteSelected", enabled: this.canDeleteSelected, action: this.deleteSelected });
+        }
         return (
             <Fragment>
                 <ClaimSearcher
                     defaultFilters={this.state.defaultFilters}
-                    onDoubleClick={this.onDoubleClick}
-                    actions={[
-                        { label: "claimSummaries.submitSelected", enabled: this.canSubmitSelected, action: this.submitSelected },
-                    ]} />
-                <Tooltip title={!this.canAdd() ? formatMessage(intl, "claim", "newClaim.adminAndHFRequired") : ""}>
-                    <div className={classes.fab}>
-                        <Fab color="primary" disabled={!this.canAdd()}  onClick={this.onAdd}>
-                            <AddIcon />
-                        </Fab>
-                    </div>
-                </Tooltip>
+                    onDoubleClick={rights.includes(RIGHT_LOAD) ? this.onDoubleClick : null}
+                    actions={actions}
+                    processing={generatingPrint}
+                />
+                {!generatingPrint && rights.includes(RIGHT_ADD) &&
+                    <Tooltip title={!this.canAdd() ? formatMessage(intl, "claim", "newClaim.adminAndHFRequired") : ""}>
+                        <div className={classes.fab}>
+                            <Fab color="primary" disabled={!this.canAdd()} onClick={this.onAdd}>
+                                <AddIcon />
+                            </Fab>
+                        </div>
+                    </Tooltip>
+                }
             </Fragment>
         );
     }
 }
 
 const mapStateToProps = state => ({
+    rights: !!state.core && !!state.core.user && !!state.core.user.i_user ? state.core.user.i_user.rights : [],
+    confirmed: state.core.confirmed,
     userHealthFacilityFullPath: !!state.loc ? state.loc.userHealthFacilityFullPath : null,
     userHealthFacilityStr: state.loc ? state.loc.userHealthFacilityStr : null,
     userRegionStr: !!state.loc ? state.loc.userRegionStr : null,
@@ -142,17 +222,22 @@ const mapStateToProps = state => ({
     mutation: state.claim.mutation,
     claimAdmin: state.claim.claimAdmin,
     claimHealthFacility: state.claim.claimHealthFacility,
+    generatingPrint: state.claim.generatingPrint,
+    printParameters: state.claim.printParameters,
 });
 
 
 const mapDispatchToProps = dispatch => {
     return bindActionCreators(
         {
+            coreConfirm,
             selectForFeedback,
             selectForReview,
             submit,
+            del,
             journalize,
             selectHealthFacility,
+            print, generatePrint,
         },
         dispatch);
 };

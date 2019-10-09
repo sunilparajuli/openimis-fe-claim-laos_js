@@ -51,23 +51,8 @@ class ClaimMasterPanel extends Component {
         this.props.onEditedChanged(data);
     }
 
-    updateHealthFacility = v => {
-        let data = { ...this.state.data };
-        data["healthFacility"] = v;
-        if (!!data["services"]) {
-            data["services"].forEach(s => s['priceAsked'] = null)
-        }
-        if (!!data["items"]) {
-            data["items"].forEach(s => s['priceAsked'] = null)
-        }
-        if (!!v) {
-            this.props.claimHealthFacilitySet(v)
-        }
-        this.props.onEditedChanged(data);
-    }
-
     render() {
-        const { intl, classes, edited, reset, forReview, forFeedback } = this.props;
+        const { intl, classes, edited, reset, readOnly = false, forReview, forFeedback } = this.props;
         if (!edited) return null;
         let totalClaimed = 0;
         let totalApproved = 0;
@@ -85,7 +70,7 @@ class ClaimMasterPanel extends Component {
         }
         edited.claimed = _.round(totalClaimed, 2);
         edited.approved = _.round(totalApproved, 2);
-        let readOnly = !!forReview || !!forFeedback;
+        let ro = readOnly || !!forReview || !!forFeedback;
         return (
             <Grid container>
                 <ControlledField module="claim" id="Claim.healthFacility" field={
@@ -94,7 +79,6 @@ class ClaimMasterPanel extends Component {
                             id="location.HealthFacilityPicker"
                             value={edited.healthFacility}
                             reset={reset}
-                            onChange={(v, s) => this.updateHealthFacility(v)}
                             readOnly={true}
                         />
                     </Grid>
@@ -106,7 +90,7 @@ class ClaimMasterPanel extends Component {
                             value={edited.insuree}
                             reset={reset}
                             onChange={(v, s) => this.updateAttribute("insuree", v, s)}
-                            readOnly={readOnly}
+                            readOnly={ro}
                         />
                     </Grid>
                 } />
@@ -118,7 +102,7 @@ class ClaimMasterPanel extends Component {
                             label="claimedDate"
                             reset={reset}
                             onChange={d => this.updateAttribute("dateClaimed", d)}
-                            readOnly={readOnly}
+                            readOnly={ro}
                         />
                     </Grid>
                 } />
@@ -130,7 +114,7 @@ class ClaimMasterPanel extends Component {
                             label="visitDateFrom"
                             reset={reset}
                             onChange={d => this.updateAttribute("dateFrom", d)}
-                            readOnly={readOnly}
+                            readOnly={ro}
                         />
                     </Grid>
                 } />
@@ -142,7 +126,7 @@ class ClaimMasterPanel extends Component {
                             label="visitDateTo"
                             reset={reset}
                             onChange={d => this.updateAttribute("dateTo", d)}
-                            readOnly={readOnly}
+                            readOnly={ro}
                         />
                     </Grid>
                 } />
@@ -155,7 +139,7 @@ class ClaimMasterPanel extends Component {
                             value={edited.visitType}
                             reset={reset}
                             onChange={(v, s) => this.updateAttribute("visitType", v)}
-                            readOnly={readOnly}
+                            readOnly={ro}
                         />
                     </Grid>
                 } />
@@ -169,7 +153,7 @@ class ClaimMasterPanel extends Component {
                                 value={edited.icd}
                                 reset={reset}
                                 onChange={(v, s) => this.updateAttribute("icd", v)}
-                                readOnly={readOnly}
+                                readOnly={ro}
                             />
                         </Grid>
                     } />
@@ -182,7 +166,7 @@ class ClaimMasterPanel extends Component {
                             value={edited.code}
                             reset={reset}
                             onChange={v => this.updateAttribute("code", v)}
-                            readOnly={readOnly}
+                            readOnly={ro}
                         />
                     </Grid>
                 } />
@@ -194,7 +178,7 @@ class ClaimMasterPanel extends Component {
                             value={edited.guaranteeId}
                             reset={reset}
                             onChange={v => this.updateAttribute("guaranteeId", v)}
-                            readOnly={readOnly}
+                            readOnly={ro}
                         />
                     </Grid>
                 } />
@@ -259,7 +243,7 @@ class ClaimMasterPanel extends Component {
                                     readOnly={true}
                                 />
                             </Grid>
-                        } />                        
+                        } />
                     </Fragment>
                 }
                 {!forFeedback &&
@@ -273,7 +257,7 @@ class ClaimMasterPanel extends Component {
                                     value={edited.icd1}
                                     reset={reset}
                                     onChange={(v, s) => this.updateAttribute("icd1", v)}
-                                    readOnly={readOnly}
+                                    readOnly={ro}
                                 />
                             </Grid>
                         } />
@@ -286,7 +270,7 @@ class ClaimMasterPanel extends Component {
                                     value={edited.icd2}
                                     reset={reset}
                                     onChange={(v, s) => this.updateAttribute("icd2", v)}
-                                    readOnly={readOnly}
+                                    readOnly={ro}
                                 />
                             </Grid>
                         } />
@@ -299,7 +283,7 @@ class ClaimMasterPanel extends Component {
                                     value={edited.icd3}
                                     reset={reset}
                                     onChange={(v, s) => this.updateAttribute("icd3", v)}
-                                    readOnly={readOnly}
+                                    readOnly={ro}
                                 />
                             </Grid>
                         } />
@@ -312,7 +296,7 @@ class ClaimMasterPanel extends Component {
                                     value={edited.icd4}
                                     reset={reset}
                                     onChange={(v, s) => this.updateAttribute("icd4", v)}
-                                    readOnly={readOnly}
+                                    readOnly={ro}
                                 />
                             </Grid>
                         } />
@@ -337,7 +321,7 @@ class ClaimMasterPanel extends Component {
                                     value={edited.explanation}
                                     reset={reset}
                                     onChange={v => this.updateAttribute("explanation", v)}
-                                    readOnly={readOnly}
+                                    readOnly={ro}
                                 />
                             </Grid>
                         } />
@@ -349,7 +333,7 @@ class ClaimMasterPanel extends Component {
                                     value={edited.adjustment}
                                     reset={reset}
                                     onChange={v => this.updateAttribute("adjustment", v)}
-                                    readOnly={!!forFeedback}
+                                    readOnly={!!forFeedback || ro}
                                 />
                             </Grid>
                         } />

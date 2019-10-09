@@ -101,7 +101,7 @@ class ClaimChildPanel extends Component {
     }
 
     render() {
-        const { intl, edited, type, picker, forReview, fetchingPricelist } = this.props;
+        const { intl, edited, type, picker, forReview, fetchingPricelist, readOnly=false } = this.props;
         if (!edited) return null;
         const totalClaimed = _.round(this.state.data.reduce(
             (sum, r) => sum + claimedAmount(r), 0),
@@ -126,22 +126,22 @@ class ClaimChildPanel extends Component {
 
         let itemFormatters = [
             (i, idx) => <PublishedComponent
-                readOnly={!!forReview}
+                readOnly={!!forReview || readOnly}
                 id={picker} withLabel={false} value={i[type]}
                 onChange={v => this._onChangeItem(idx, type, v)}
             />,
             (i, idx) => <NumberInput
-                readOnly={!!forReview}
+                readOnly={!!forReview || readOnly}
                 value={i.qtyProvided}
                 onChange={v => this._onChange(idx, "qtyProvided", v)}
             />,
             (i, idx) => <AmountInput
-                readOnly={!!forReview}
+                readOnly={!!forReview || readOnly}
                 value={i.priceAsked}
                 onChange={v => this._onChange(idx, "priceAsked", v)}
             />,
             (i, idx) => <TextInput
-                readOnly={!!forReview}
+                readOnly={!!forReview || readOnly}
                 value={i.explanation}
                 onChange={v => this._onChange(idx, "explanation", v)}
             />,
@@ -171,7 +171,7 @@ class ClaimChildPanel extends Component {
         preHeaders.push('');
         headers.push(`edit.${type}s.justification`);
         itemFormatters.push(
-            (i, idx) => <TextInput value={i.justification} onChange={v => this._onChange(idx, "justification", v)} />
+            (i, idx) => <TextInput readOnly={readOnly} value={i.justification} onChange={v => this._onChange(idx, "justification", v)} />
         );
         if (!!forReview) {
             preHeaders.push('', '');
@@ -181,7 +181,7 @@ class ClaimChildPanel extends Component {
             );
             itemFormatters.push(
                 (i, idx) => <PublishedComponent
-                    readOnly={false}
+                    readOnly={readOnly}
                     id="claim.ApprovalStatusPicker"
                     withNull={false}
                     withLabel={false}
@@ -189,7 +189,7 @@ class ClaimChildPanel extends Component {
                     onChange={v => this._onChange(idx, 'status', v)}
                 />,
                 (i, idx) => <PublishedComponent
-                    readOnly={false}
+                    readOnly={readOnly}
                     id="claim.RejectionReasonPicker"
                     withLabel={false}
                     value={i.rejectionReason}
@@ -202,7 +202,7 @@ class ClaimChildPanel extends Component {
             preHeaders.push('');
             headers.push(`edit.${type}s.delete`);
             itemFormatters.push(
-                (i, idx) => idx === this.state.data.length - 1 ?
+                (i, idx) => idx === this.state.data.length - 1 || readOnly ?
                     null :
                     <IconButton onClick={e => this._onDelete(idx)}><DeleteIcon /></IconButton>
             );

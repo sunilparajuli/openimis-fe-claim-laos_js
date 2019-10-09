@@ -103,6 +103,7 @@ class ClaimFeedbackPanel extends Component {
                     max={1}
                     step={1}
                     value={this._mapTristateValue(this.props.edited.feedback[f])}
+                    readOnly={!!this.props.readOnly}
                     defaultValue={0}
                     valueLabelDisplay="off"
                     marks={this.tristateMarks}
@@ -113,7 +114,7 @@ class ClaimFeedbackPanel extends Component {
     )
 
     render() {
-        const { classes, edited } = this.props;
+        const { classes, edited, readOnly=false } = this.props;
         if (!edited.feedback) {
             edited.feedback = {};
         }
@@ -133,6 +134,7 @@ class ClaimFeedbackPanel extends Component {
                                 <PublishedComponent id="core.DatePicker"
                                     module="claim"
                                     label="Feedback.date"
+                                    readOnly={readOnly}
                                     value={edited.feedback.feedbackDate || null}
                                     onChange={d => this._onChange("feedbackDate", `${d}T00:00:00`)}
                                 />
@@ -142,6 +144,7 @@ class ClaimFeedbackPanel extends Component {
                             <Grid item xs={6} className={classes.item}>
                                 <PublishedComponent
                                     id="claim.ClaimOfficerPicker"
+                                    readOnly={readOnly}
                                     value={edited.feedback.chfOfficerCode}
                                     onChange={(v, s) => this._onChange("chfOfficerCode", !!v ? decodeId(v.id) : null)}
                                 />
@@ -192,6 +195,7 @@ class ClaimFeedbackPanel extends Component {
                                         min={-1}
                                         max={!!this.marks ? this.marks.length - 2 : -1}
                                         step={1}
+                                        readOnly={readOnly}
                                         value={this._mapAssessmentValue(edited.feedback.asessment)}
                                         defaultValue={-1}
                                         valueLabelDisplay="off"

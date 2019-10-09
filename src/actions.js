@@ -1,7 +1,9 @@
 import {
-  graphql, formatPageQuery, formatPageQueryWithCount, formatMutation, decodeId
+  baseApiUrl, graphql, formatPageQuery, formatPageQueryWithCount,
+  formatMutation, decodeId, openBlob
 } from "@openimis/fe-core";
 import _ from "lodash";
+import _uuid from "lodash-uuid";
 
 export function fetchClaimAdmins(mm) {
   const payload = formatPageQuery("claimAdmins",
@@ -60,7 +62,7 @@ export function formatDetails(type, details) {
     ]`
 }
 
-export function formatClaimGQL(mm, claim) { 
+export function formatClaimGQL(mm, claim) {
   return `
     ${claim.uuid !== undefined && claim.uuid !== null ? `uuid: "${claim.uuid}"` : ''}
     code: "${claim.code}"
@@ -154,6 +156,21 @@ export function submit(claims, clientMutationLabel) {
   return graphql(
     mutation.payload,
     ['CLAIM_MUTATION_REQ', 'CLAIM_SUBMIT_CLAIMS_RESP', 'CLAIM_MUTATION_ERR'],
+    {
+      clientMutationId: mutation.clientMutationId,
+      clientMutationLabel,
+      requestedDateTime
+    }
+  )
+}
+
+export function del(claims, clientMutationLabel) {
+  let claimUuids = `uuids: ["${claims.map(c => c.uuid).join("\",\"")}"]`
+  let mutation = formatMutation("deleteClaims", claimUuids, clientMutationLabel);
+  var requestedDateTime = new Date();
+  return graphql(
+    mutation.payload,
+    ['CLAIM_MUTATION_REQ', 'CLAIM_DELETE_CLAIMS_RESP', 'CLAIM_MUTATION_ERR'],
     {
       clientMutationId: mutation.clientMutationId,
       clientMutationLabel,
@@ -336,5 +353,22 @@ export function process(claims, clientMutationLabel) {
 export function claimHealthFacilitySet(healthFacility) {
   return dispatch => {
     dispatch({ type: 'CLAIM_EDIT_HEALTH_FACILITY_SET', payload: healthFacility })
+  }
+}
+
+export function print(uuids) {
+  return dispatch => {
+    dispatch({ type: 'CLAIM_PRINT', payload: uuids })
+  }
+}
+
+export function generatePrint(uuids) {
+  var url = new URL(`${window.location.origin}${baseApiUrl}/claim/print/`);
+  url.search = new URLSearchParams({ uuids });
+  return (dispatch) => {
+    return fetch(url)
+      .then(response => response.blob())
+      .then(blob => openBlob(blob, `${_uuid.uuid()}.pdf`, "pdf"))
+      .then(e => dispatch({ type: 'CLAIM_PRINT_DONE', payload: uuids }))
   }
 }

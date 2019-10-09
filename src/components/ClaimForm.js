@@ -14,6 +14,7 @@ import _ from "lodash";
 import ClaimMasterPanel from "./ClaimMasterPanel";
 import ClaimChildPanel from "./ClaimChildPanel";
 import ClaimFeedbackPanel from "./ClaimFeedbackPanel";
+import { RIGHT_SEARCH } from "../constants";
 
 const CLAIM_FORM_CONTRIBUTION_KEY = "claim.ClaimForm";
 
@@ -142,7 +143,8 @@ class ClaimForm extends Component {
     }
 
     render() {
-        const { claim_uuid, fetchingClaim, fetchedClaim, errorClaim, save, back, forReview = false, forFeedback = false } = this.props;
+        const { claim_uuid, fetchingClaim, fetchedClaim, errorClaim, add, save, back,
+            readOnly = false, forReview = false, forFeedback = false } = this.props;
         return (
             <Fragment>
                 <ProgressOrError progress={fetchingClaim} error={errorClaim} />
@@ -156,10 +158,11 @@ class ClaimForm extends Component {
                             title="edit.title"
                             titleParams={{ code: this.state.claim.code }}
                             back={back}
-                            add={!!this.props.add ? this._add : null}
+                            add={!!add ? this._add : null}
                             save={save}
                             canSave={this.canSave}
                             reload={claim_uuid && this.reload}
+                            readOnly={readOnly}
                             forReview={forReview}
                             forFeedback={forFeedback}
                             HeadPanel={ClaimMasterPanel}
