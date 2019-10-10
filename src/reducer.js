@@ -162,13 +162,12 @@ function reducer(
         case 'CLAIM_PRINT':
             return {
                 ...state,
-                generatingPrint: true,
-                printParameters: action.payload
+                generating: true,
             };
         case 'CLAIM_PRINT_DONE':
             return {
                 ...state,
-                generatingPrint: false
+                generating: false
             };
         default:
             return state;

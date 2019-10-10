@@ -13,7 +13,7 @@ import {
 } from "@openimis/fe-core";
 import ClaimSearcher from "../components/ClaimSearcher";
 
-import { selectForFeedback, selectForReview, submit, del, selectHealthFacility, print, generatePrint } from "../actions";
+import { selectForFeedback, selectForReview, submit, del, selectHealthFacility } from "../actions";
 import { RIGHT_ADD, RIGHT_LOAD, RIGHT_PRINT, RIGHT_SUBMIT, RIGHT_DELETE } from "../constants";
 
 const styles = theme => ({
@@ -76,9 +76,6 @@ class HealthFacilitiesPage extends Component {
         }
         if (prevProps.confirmed !== this.props.confirmed && !!this.props.confirmed && !!this.state.confirmedAction) {
             this.state.confirmedAction();
-        }
-        if (!prevProps.generatingPrint && !!this.props.generatingPrint) {
-            this.props.generatePrint(this.props.printParameters)
         }
     }
 
@@ -155,13 +152,6 @@ class HealthFacilitiesPage extends Component {
         )
     }
 
-    canPrintSelected = (selection) => !!selection && selection.length
-
-    printSelected = (selection) => {
-        this.props.print(selection);
-    }
-
-
     onDoubleClick = (c) => {
         historyPush(this.props.modulesManager, this.props.history, "claim.route.claimEdit", [c.uuid])
     }
@@ -180,9 +170,6 @@ class HealthFacilitiesPage extends Component {
         const { intl, classes, rights, generatingPrint } = this.props;
         if (!rights.filter(r => r >= RIGHT_ADD && r <= RIGHT_SUBMIT).length) return null;
         let actions = [];
-        if (rights.includes(RIGHT_PRINT)) {
-            actions.push({ label: "claimSummaries.printSelected", enabled: this.canPrintSelected, action: this.printSelected });
-        }
         if (rights.includes(RIGHT_SUBMIT)) {
             actions.push({ label: "claimSummaries.submitSelected", enabled: this.canSubmitSelected, action: this.submitSelected });
         }
@@ -222,8 +209,6 @@ const mapStateToProps = state => ({
     mutation: state.claim.mutation,
     claimAdmin: state.claim.claimAdmin,
     claimHealthFacility: state.claim.claimHealthFacility,
-    generatingPrint: state.claim.generatingPrint,
-    printParameters: state.claim.printParameters,
 });
 
 
@@ -237,7 +222,6 @@ const mapDispatchToProps = dispatch => {
             del,
             journalize,
             selectHealthFacility,
-            print, generatePrint,
         },
         dispatch);
 };

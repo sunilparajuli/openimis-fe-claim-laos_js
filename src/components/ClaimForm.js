@@ -14,7 +14,6 @@ import _ from "lodash";
 import ClaimMasterPanel from "./ClaimMasterPanel";
 import ClaimChildPanel from "./ClaimChildPanel";
 import ClaimFeedbackPanel from "./ClaimFeedbackPanel";
-import { RIGHT_SEARCH } from "../constants";
 
 const CLAIM_FORM_CONTRIBUTION_KEY = "claim.ClaimForm";
 
@@ -42,7 +41,7 @@ class ClaimForm extends Component {
 
     state = {
         reset: 0,
-        claim: this._newClaim(),
+        claim: this._newClaim()
     }
 
     _newClaim() {
@@ -59,30 +58,18 @@ class ClaimForm extends Component {
     componentDidMount() {
         if (this.props.claim_uuid) {
             this.props.fetchClaim(this.props.modulesManager, this.props.claim_uuid, this.props.forFeedback);
-        } else {
-            this.setState({
-                claim: this._newClaim(),
-                dirty: false,
-            });
         }
     }
 
     componentDidUpdate(prevProps, prevState, snapshot) {
         if (prevProps.fetchedClaim !== this.props.fetchedClaim && !!this.props.fetchedClaim) {
-            this.setState({
-                claim: this.props.claim,
-            })
+            this.setState({ claim: this.props.claim })
             this.props.claimHealthFacilitySet(this.props.claim.healthFacility);
         } else if (prevProps.claim_uuid && !this.props.claim_uuid) {
-            this.setState({
-                claim: this._newClaim(),
-            });
+            this.setState({ claim: this._newClaim() });
         } else if (prevProps.submittingMutation && !this.props.submittingMutation) {
             this.props.journalize(this.props.mutation);
-            this.setState({
-                reset: this.state.reset + 1,
-                dirty: false
-            });
+            this.setState({ reset: this.state.reset + 1 });
         }
     }
 
@@ -90,7 +77,6 @@ class ClaimForm extends Component {
         this.setState(
             {
                 claim: this._newClaim(),
-                dirty: false,
                 reset: this.state.reset + 1,
             },
             e => {
@@ -138,6 +124,10 @@ class ClaimForm extends Component {
         this.props.fetchClaim(this.props.modulesManager, this.props.claim_uuid, this.props.forFeedback);
     }
 
+    print = () => {
+        this.props.print(this.props.claim_uuid);
+    }
+
     onEditedChanged = claim => {
         this.setState({ claim })
     }
@@ -162,6 +152,7 @@ class ClaimForm extends Component {
                             save={save}
                             canSave={this.canSave}
                             reload={claim_uuid && this.reload}
+                            print={this.print}
                             readOnly={readOnly}
                             forReview={forReview}
                             forFeedback={forFeedback}

@@ -63,6 +63,7 @@ export function formatDetails(type, details) {
 }
 
 export function formatClaimGQL(mm, claim) {
+  debugger;
   return `
     ${claim.uuid !== undefined && claim.uuid !== null ? `uuid: "${claim.uuid}"` : ''}
     code: "${claim.code}"
@@ -81,6 +82,9 @@ export function formatClaimGQL(mm, claim) {
     dateClaimed: "${claim.dateClaimed}"
     healthFacilityId: ${decodeId(claim.healthFacility.id)}
     visitType: "${claim.visitType}"
+    ${!!claim.guaranteeId ? `guaranteeId: "${claim.guaranteeId}"` : ""}
+    ${!!claim.explanation ? `explanation: "${claim.explanation}"` : ""}
+    ${!!claim.adjustment ? `adjustment: "${claim.adjustment}"` : ""}
     ${formatDetails("service", claim.services)}
     ${formatDetails("item", claim.items)}
   `
@@ -356,19 +360,19 @@ export function claimHealthFacilitySet(healthFacility) {
   }
 }
 
-export function print(uuids) {
+export function print() {
   return dispatch => {
-    dispatch({ type: 'CLAIM_PRINT', payload: uuids })
+    dispatch({ type: 'CLAIM_PRINT' })
   }
 }
 
-export function generatePrint(uuids) {
+export function generate(uuid) {
   var url = new URL(`${window.location.origin}${baseApiUrl}/claim/print/`);
-  url.search = new URLSearchParams({ uuids });
+  url.search = new URLSearchParams({ uuid });
   return (dispatch) => {
     return fetch(url)
       .then(response => response.blob())
       .then(blob => openBlob(blob, `${_uuid.uuid()}.pdf`, "pdf"))
-      .then(e => dispatch({ type: 'CLAIM_PRINT_DONE', payload: uuids }))
+      .then(e => dispatch({ type: 'CLAIM_PRINT_DONE' }))
   }
 }

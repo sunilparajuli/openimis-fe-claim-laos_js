@@ -70,7 +70,6 @@
     "claim.claimSummaries.claimed": "Claimed",
     "claim.claimSummaries.approved": "Approved",
     "claim.claimSummaries.claimStatus": "Status",
-    "claim.claimSummaries.printSelected": "Print Selected",
     "claim.claimSummaries.submitSelected": "Submit Selected",
     "claim.claimSummaries.deleteSelected": "Delete Selected",
     "claim.claimSummaries.markSelectedForFeedback": "Select For Feedback",
