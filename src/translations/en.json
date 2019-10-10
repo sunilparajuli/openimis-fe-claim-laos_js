@@ -64,6 +64,7 @@
     "claim.claimSummaries.selection.approved": "Selected amount: {approved}",
     "claim.claimSummaries.code": "Claim No.",
     "claim.claimSummaries.healthFacility": "Health Facility",
+    "claim.claimSummaries.insuree": "Insuree",
     "claim.claimSummaries.claimedDate": "Claimed Date",
     "claim.claimSummaries.feedbackStatus": "Feedback Status",
     "claim.claimSummaries.reviewStatus": "Review Status",

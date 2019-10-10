@@ -46,13 +46,14 @@ const DEFAULT_CONFIG = {
     { key: "claim.CreateClaim.status", ref: 2 },
     { key: "claim.CreateClaim.feedbackStatus", ref: 1 },
     { key: "claim.CreateClaim.reviewStatus", ref: 1 },
+    { key: "claim.SearchResult.hightAbove", ref: 5000 },
   ],
   "core.Router": [
     { path: ROUTE_HEALTH_FACILITIES, component: HealthFacilitiesPage },
-    { path: ROUTE_CLAIM_EDIT+"/:claim_uuid?", component: EditPage },
+    { path: ROUTE_CLAIM_EDIT + "/:claim_uuid?", component: EditPage },
     { path: ROUTE_REVIEWS, component: ReviewsPage },
-    { path: ROUTE_CLAIM_REVIEW+"/:claim_uuid", component: ReviewPage },
-    { path: ROUTE_CLAIM_FEEDBACK+"/:claim_uuid", component: FeedbackPage },
+    { path: ROUTE_CLAIM_REVIEW + "/:claim_uuid", component: ReviewPage },
+    { path: ROUTE_CLAIM_FEEDBACK + "/:claim_uuid", component: FeedbackPage },
   ],
   "core.MainMenu": [ClaimMainMenu],
 }

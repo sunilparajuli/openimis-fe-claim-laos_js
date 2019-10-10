@@ -37,7 +37,8 @@ export function fetchClaimSummaries(mm, filters) {
   const payload = formatPageQueryWithCount("claims",
     filters,
     ["uuid", "code", "dateClaimed", "feedbackStatus", "reviewStatus", "claimed", "approved", "status",
-      "healthFacility" + mm.getProjection("location.HealthFacilityPicker.projection")]
+      "healthFacility" + mm.getProjection("location.HealthFacilityPicker.projection"),
+      "insuree" + mm.getProjection("insuree.InsureePicker.projection")]
   );
   return graphql(payload, 'CLAIM_CLAIM_SEARCHER');
 }
@@ -63,7 +64,6 @@ export function formatDetails(type, details) {
 }
 
 export function formatClaimGQL(mm, claim) {
-  debugger;
   return `
     ${claim.uuid !== undefined && claim.uuid !== null ? `uuid: "${claim.uuid}"` : ''}
     code: "${claim.code}"

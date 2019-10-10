@@ -21,7 +21,7 @@ import ClaimFilter from "./ClaimFilter";
 import {
     withModulesManager,
     formatMessage, formatDateFromISO, formatAmount,
-    FormattedMessage, ProgressOrError, Table
+    FormattedMessage, ProgressOrError, Table, PublishedComponent
 } from "@openimis/fe-core";
 import { fetchClaimSummaries } from "../actions";
 
@@ -158,6 +158,8 @@ class ClaimSearcher extends Component {
         super(props);
         this.rowsPerPageOptions = props.modulesManager.getConf("fe-claim", "claimFilter.rowsPerPageOptions", [10, 20, 50, 100]);
         this.defaultPageSize = props.modulesManager.getConf("fe-claim", "claimFilter.defaultPageSize", 10);
+        this.highlightAmount = parseInt(props.modulesManager.getConf("fe-claim", "claimFilter.highlightAmount", 0));
+        this.highlightAltInsurees = props.modulesManager.getConf("fe-claim", "claimFilter.highlightAltInsurees", null);
     }
 
     _resetFilters = () => {
@@ -206,6 +208,8 @@ class ClaimSearcher extends Component {
         if (!!random) {
             prms.push(`first: ${random}`);
             prms.push(`orderBy: ["dateClaimed", "?"]`);
+        } else {
+            prms.push(`orderBy: ["insuree"]`);
         }
         if (!forced.length && !random) {
             prms.push(`first: ${this.state.pageSize}`);
@@ -350,7 +354,7 @@ class ClaimSearcher extends Component {
     }
     preHeaders = () => this.state.selection.length ?
         [
-            '', '', '', '', '',
+            '', '', '', '', '', '',
             <FormattedMessage
                 module="claim"
                 id="claimSummaries.selection.claimed"
@@ -367,7 +371,12 @@ class ClaimSearcher extends Component {
             />,
             , ''
         ]
-        : ['\u200b', '', '', '', '', '', '', '',] //fixing pre headers row height!
+        : ['\u200b', '', '', '', '', '', '', '', ''] //fixing pre headers row height!
+
+    rowHighlighted = claim => !!this.highlightAmount && claim.claimed > this.highlightAmount
+    rowHighlightedAlt = claim => !!this.highlightAltInsurees &&
+        this.state.selection.filter(c => _.isEqual(c.insuree, claim.insuree)).length &&
+        !this.state.selection.includes(claim)
 
     render() {
         const { modulesManager, intl, classes, claims, claimsPageInfo, fetchingClaims, fetchedClaims, errorClaims,
@@ -434,6 +443,7 @@ class ClaimSearcher extends Component {
                                     headers={[
                                         "claimSummaries.code",
                                         "claimSummaries.healthFacility",
+                                        "claimSummaries.insuree",
                                         "claimSummaries.claimedDate",
                                         "claimSummaries.feedbackStatus",
                                         "claimSummaries.reviewStatus",
@@ -444,7 +454,14 @@ class ClaimSearcher extends Component {
                                     aligns={[, , , , , "right", "right"]}
                                     itemFormatters={[
                                         c => c.code,
-                                        c => `${c.healthFacility.code} ${c.healthFacility.name}`,
+                                        c => <PublishedComponent
+                                            readOnly={true}
+                                            id="location.HealthFacilityPicker" withLabel={false} value={c.healthFacility}
+                                        />,
+                                        c => <PublishedComponent
+                                            readOnly={true}
+                                            id="insuree.InsureePicker" withLabel={false} value={c.insuree}
+                                        />,
                                         c => formatDateFromISO(modulesManager, intl, c.dateClaimed),
                                         c => this.feedbackColFormatter(c),
                                         c => this.reviewColFormatter(c),
@@ -452,6 +469,8 @@ class ClaimSearcher extends Component {
                                         c => formatAmount(intl, c.approved),
                                         c => formatMessage(intl, "claim", `claimStatus.${c.status}`)
                                     ]}
+                                    rowHighlighted={this.rowHighlighted}
+                                    rowHighlightedAlt={this.rowHighlightedAlt}
                                     items={claims}
                                     withPagination={!this.props.forcedFilters}
                                     withSelection={true}
