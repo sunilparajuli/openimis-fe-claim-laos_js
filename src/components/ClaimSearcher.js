@@ -209,7 +209,7 @@ class ClaimSearcher extends Component {
             prms.push(`first: ${random}`);
             prms.push(`orderBy: ["dateClaimed", "?"]`);
         } else {
-            prms.push(`orderBy: ["insuree"]`);
+            prms.push(`orderBy: ["-dateClaimed"]`);
         }
         if (!forced.length && !random) {
             prms.push(`first: ${this.state.pageSize}`);

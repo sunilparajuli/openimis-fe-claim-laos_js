@@ -43,7 +43,6 @@ const DEFAULT_CONFIG = {
     { key: "claim.FeedbackStatusPicker.projection", ref: null },
     { key: "claim.RejectionReasonPicker", ref: RejectionReasonPicker },
     { key: "claim.RejectionReasonPicker.projection", ref: null },
-    { key: "claim.CreateClaim.status", ref: 2 },
     { key: "claim.CreateClaim.feedbackStatus", ref: 1 },
     { key: "claim.CreateClaim.reviewStatus", ref: 1 },
     { key: "claim.SearchResult.hightAbove", ref: 5000 },

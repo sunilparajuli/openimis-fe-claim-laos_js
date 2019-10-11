@@ -150,6 +150,7 @@ class ClaimForm extends Component {
                             back={back}
                             add={!!add ? this._add : null}
                             save={save}
+                            openDirty={forReview}
                             canSave={this.canSave}
                             reload={claim_uuid && this.reload}
                             print={this.print}
