@@ -406,7 +406,7 @@ class ClaimSearcher extends Component {
                 />
                 <Contributions contributionKey={CLAIM_SEARCHER_CONTRIBUTION_KEY} />
                 <ProgressOrError progress={fetchingClaims} error={errorClaims} />
-                {!!fetchedClaims && (
+                {!!fetchedClaims && !errorClaims && (
                     <Paper className={classes.paper}>
                         <Grid container>
                             <Grid item xs={8}>
