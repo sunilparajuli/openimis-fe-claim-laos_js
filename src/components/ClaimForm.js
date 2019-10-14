@@ -15,6 +15,8 @@ import ClaimMasterPanel from "./ClaimMasterPanel";
 import ClaimChildPanel from "./ClaimChildPanel";
 import ClaimFeedbackPanel from "./ClaimFeedbackPanel";
 
+import { RIGHT_ADD, RIGHT_LOAD } from "../constants";
+
 const CLAIM_FORM_CONTRIBUTION_KEY = "claim.ClaimForm";
 
 const styles = theme => ({
@@ -46,8 +48,8 @@ class ClaimForm extends Component {
 
     _newClaim() {
         let claim = {};
-        claim.healthFacility = this.props.claimHealthFacility;
-        claim.admin = this.props.claimAdmin;
+        claim.healthFacility = this.state && this.state.claim ? this.state.claim.healthFacility : this.props.claimHealthFacility;
+        claim.admin = this.state && this.state.claim ? this.state.claim.admin : this.props.claimAdmin;
         claim.status = this.props.modulesManager.getConf("fe-claim", "newClaim.status", 2);
         claim.dateClaimed = toISODate(moment().toDate());
         claim.dateFrom = toISODate(moment().toDate());
@@ -133,8 +135,9 @@ class ClaimForm extends Component {
     }
 
     render() {
-        const { claim_uuid, fetchingClaim, fetchedClaim, errorClaim, add, save, back,
-            readOnly = false, forReview = false, forFeedback = false } = this.props;
+        const { rights, claim_uuid, fetchingClaim, fetchedClaim, errorClaim, add, save, back,
+            forReview = false, forFeedback = false } = this.props;
+        let readOnly = this.state.claim.status !== 2 || !rights.filter(r => r === RIGHT_LOAD).length 
         return (
             <Fragment>
                 <ProgressOrError progress={fetchingClaim} error={errorClaim} />
@@ -175,6 +178,7 @@ class ClaimForm extends Component {
 }
 
 const mapStateToProps = (state, props) => ({
+    rights: !!state.core && !!state.core.user && !!state.core.user.i_user ? state.core.user.i_user.rights : [],
     userHealthFacilityFullPath: !!state.loc ? state.loc.userHealthFacilityFullPath : null,
     claim: state.claim.claim,
     fetchingClaim: state.claim.fetchingClaim,

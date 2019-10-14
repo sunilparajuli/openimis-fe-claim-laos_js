@@ -153,7 +153,6 @@ class HealthFacilitiesPage extends Component {
     }
 
     onDoubleClick = (c) => {
-        if (c.status !== 2) return
         historyPush(this.props.modulesManager, this.props.history, "claim.route.claimEdit", [c.uuid])
     }
 

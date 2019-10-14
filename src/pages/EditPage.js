@@ -69,7 +69,6 @@ class EditPage extends Component {
                 add={rights.includes(RIGHT_ADD) ? this.add : null}
                 save={rights.includes(RIGHT_LOAD) ? this.save : null}
                 print={rights.includes(RIGHT_PRINT) ? this.print : null}
-                readOnly={!rights.filter(r => r === RIGHT_ADD || r === RIGHT_LOAD).length}
             />
         )
     }
