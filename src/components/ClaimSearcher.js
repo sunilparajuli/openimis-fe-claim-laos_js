@@ -19,7 +19,6 @@ import MoreHoriz from "@material-ui/icons/MoreHoriz";
 import SortIcon from "@material-ui/icons/UnfoldMore";
 import SortAscIcon from "@material-ui/icons/ExpandLess";
 import SortDescIcon from "@material-ui/icons/ExpandMore";
-import LinkIcon from "@material-ui/icons/Link";
 import { Searcher, Contributions } from "@openimis/fe-core";
 import ClaimFilter from "./ClaimFilter";
 import {
@@ -413,19 +412,6 @@ class ClaimSearcher extends Component {
         }
     }
 
-    formatGrouper = (attr) => {
-        let random = this.randomCount();
-        if (!!random) return null;
-        if (this.state.orderBy === attr) {
-            return <LinkIcon className={this.props.classes.tableHeaderAction} size={24} />
-        } else {
-            return (
-                <IconButton size="small" onClick={e => this.sort(attr)}>
-                    <SortIcon size={24} />
-                </IconButton>)
-        }
-    }
-
     render() {
         const { modulesManager, intl, classes, claims, claimsPageInfo, fetchingClaims, fetchedClaims, errorClaims,
             onDoubleClick, actions, processing = false, fixFilter } = this.props;
@@ -501,8 +487,8 @@ class ClaimSearcher extends Component {
                                     ]}
                                     headerActions={[
                                         () => this.formatSorter('code'),
-                                        () => this.formatGrouper('healthFacility'),
-                                        () => this.formatGrouper('insuree'),
+                                        () => this.formatSorter('healthFacility__code'),
+                                        () => this.formatSorter('insuree__last_name'),
                                         () => this.formatSorter('dateClaimed',false),
                                         () => null,
                                         () => null,
