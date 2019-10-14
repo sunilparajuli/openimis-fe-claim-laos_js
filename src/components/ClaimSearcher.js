@@ -16,6 +16,10 @@ import {
     CircularProgress,
 } from "@material-ui/core";
 import MoreHoriz from "@material-ui/icons/MoreHoriz";
+import SortIcon from "@material-ui/icons/UnfoldMore";
+import SortAscIcon from "@material-ui/icons/ExpandLess";
+import SortDescIcon from "@material-ui/icons/ExpandMore";
+import LinkIcon from "@material-ui/icons/Link";
 import { Searcher, Contributions } from "@openimis/fe-core";
 import ClaimFilter from "./ClaimFilter";
 import {
@@ -37,6 +41,7 @@ const styles = theme => ({
     paperHeaderMessage: theme.paper.message,
     paperHeaderAction: theme.paper.action,
     paperDivider: theme.paper.divider,
+    tableHeaderAction: theme.table.headerAction,
     processing: {
         margin: theme.spacing(1)
     }
@@ -144,6 +149,7 @@ class ClaimSearcher extends Component {
     state = {
         open: false,
         filters: {},
+        orderBy: "-dateClaimed",
         page: 0,
         pageSize: 0,
         afterCursor: null,
@@ -159,7 +165,7 @@ class ClaimSearcher extends Component {
         this.rowsPerPageOptions = props.modulesManager.getConf("fe-claim", "claimFilter.rowsPerPageOptions", [10, 20, 50, 100]);
         this.defaultPageSize = props.modulesManager.getConf("fe-claim", "claimFilter.defaultPageSize", 10);
         this.highlightAmount = parseInt(props.modulesManager.getConf("fe-claim", "claimFilter.highlightAmount", 0));
-        this.highlightAltInsurees = props.modulesManager.getConf("fe-claim", "claimFilter.highlightAltInsurees", null);
+        this.highlightAltInsurees = props.modulesManager.getConf("fe-claim", "claimFilter.highlightAltInsurees", true);
     }
 
     _resetFilters = () => {
@@ -209,7 +215,7 @@ class ClaimSearcher extends Component {
             prms.push(`first: ${random}`);
             prms.push(`orderBy: ["dateClaimed", "?"]`);
         } else {
-            prms.push(`orderBy: ["-dateClaimed"]`);
+            prms.push(`orderBy: ["${this.state.orderBy}"]`);
         }
         if (!forced.length && !random) {
             prms.push(`first: ${this.state.pageSize}`);
@@ -378,6 +384,48 @@ class ClaimSearcher extends Component {
         this.state.selection.filter(c => _.isEqual(c.insuree, claim.insuree)).length &&
         !this.state.selection.includes(claim)
 
+    sort = attr => {
+        this.setState({ orderBy: attr },
+            e => this.props.fetchClaimSummaries(
+                this.props.modulesManager,
+                this.filtersToQueryParams()
+            ))
+    }
+
+    formatSorter = (attr, asc = true) => {
+        let random = this.randomCount();
+        if (!!random) return null;
+        if (this.state.orderBy === attr) {
+            return (
+                <IconButton size="small" onClick={e => this.sort('-' + attr)}>
+                    <SortAscIcon size={24} />
+                </IconButton>)
+        } else if (this.state.orderBy === '-' + attr) {
+            return (
+                <IconButton size="small" onClick={e => this.sort(attr)} >
+                    <SortDescIcon size={24} />
+                </IconButton>)
+        } else {
+            return (
+                <IconButton size="small" onClick={e => asc ? this.sort(attr) : this.sort('-' + attr)}>
+                    <SortIcon size={24} />
+                </IconButton>)
+        }
+    }
+
+    formatGrouper = (attr) => {
+        let random = this.randomCount();
+        if (!!random) return null;
+        if (this.state.orderBy === attr) {
+            return <LinkIcon className={this.props.classes.tableHeaderAction} size={24} />
+        } else {
+            return (
+                <IconButton size="small" onClick={e => this.sort(attr)}>
+                    <SortIcon size={24} />
+                </IconButton>)
+        }
+    }
+
     render() {
         const { modulesManager, intl, classes, claims, claimsPageInfo, fetchingClaims, fetchedClaims, errorClaims,
             onDoubleClick, actions, processing = false, fixFilter } = this.props;
@@ -450,6 +498,16 @@ class ClaimSearcher extends Component {
                                         "claimSummaries.claimed",
                                         "claimSummaries.approved",
                                         "claimSummaries.claimStatus"
+                                    ]}
+                                    headerActions={[
+                                        () => this.formatSorter('code'),
+                                        () => this.formatGrouper('healthFacility'),
+                                        () => this.formatGrouper('insuree'),
+                                        () => this.formatSorter('dateClaimed',false),
+                                        () => null,
+                                        () => null,
+                                        () => this.formatSorter('claimed', false),
+                                        () => this.formatSorter('approved', false)
                                     ]}
                                     aligns={[, , , , , "right", "right"]}
                                     itemFormatters={[
