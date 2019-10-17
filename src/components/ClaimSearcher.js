@@ -439,102 +439,104 @@ class ClaimSearcher extends Component {
                         />}
                 />
                 <Contributions contributionKey={CLAIM_SEARCHER_CONTRIBUTION_KEY} />
-                <ProgressOrError progress={fetchingClaims} error={errorClaims} />
-                {!!fetchedClaims && !errorClaims && (
-                    <Paper className={classes.paper}>
-                        <Grid container>
-                            <Grid item xs={8}>
-                                <Grid container alignItems="center" className={classes.paperHeader}>
-                                    <Grid item xs={8} className={classes.paperHeaderTitle}>
-                                        <FormattedMessage module="claim" id="claimSummaries" values={{ count }} />
-                                    </Grid>
-                                    <Grid item xs={4} className={classes.paperHeaderMessage}>
-                                        <SelectionPane intl={intl} selection={this.state.selection} />
+                <Paper className={classes.paper}>
+                    <Grid container>
+                        <ProgressOrError progress={fetchingClaims} error={errorClaims} />
+                        {!!fetchedClaims && !errorClaims && (
+                            <Fragment>
+                                <Grid item xs={8}>
+                                    <Grid container alignItems="center" className={classes.paperHeader}>
+                                        <Grid item xs={8} className={classes.paperHeaderTitle}>
+                                            <FormattedMessage module="claim" id="claimSummaries" values={{ count }} />
+                                        </Grid>
+                                        <Grid item xs={4} className={classes.paperHeaderMessage}>
+                                            <SelectionPane intl={intl} selection={this.state.selection} />
+                                        </Grid>
                                     </Grid>
                                 </Grid>
-                            </Grid>
-                            <Grid item xs={4}>
-                                <Grid container direction="row" justify="flex-end">
-                                    <StyledSelectionMenu
+                                <Grid item xs={4}>
+                                    <Grid container direction="row" justify="flex-end">
+                                        <StyledSelectionMenu
+                                            selection={this.state.selection}
+                                            claims={claims}
+                                            clearSelected={this.clearSelected}
+                                            selectAll={this.selectAll}
+                                            triggerAction={this.triggerAction}
+                                            actions={actions}
+                                            processing={processing}
+                                        />
+                                    </Grid>
+
+                                </Grid>
+                                <Grid item xs={12} className={classes.paperDivider}>
+                                    <Divider />
+                                </Grid>
+                                <Grid item xs={12}>
+                                    <Table
+                                        module="claim"
+                                        preHeaders={this.preHeaders()}
+                                        headers={[
+                                            "claimSummaries.code",
+                                            "claimSummaries.healthFacility",
+                                            "claimSummaries.insuree",
+                                            "claimSummaries.claimedDate",
+                                            "claimSummaries.feedbackStatus",
+                                            "claimSummaries.reviewStatus",
+                                            "claimSummaries.claimed",
+                                            "claimSummaries.approved",
+                                            "claimSummaries.claimStatus"
+                                        ]}
+                                        headerActions={[
+                                            () => this.formatSorter('code'),
+                                            () => this.formatSorter('healthFacility__code'),
+                                            () => this.formatSorter('insuree__last_name'),
+                                            () => this.formatSorter('dateClaimed', false),
+                                            () => null,
+                                            () => null,
+                                            () => this.formatSorter('claimed', false),
+                                            () => this.formatSorter('approved', false)
+                                        ]}
+                                        aligns={[, , , , , "right", "right"]}
+                                        itemFormatters={[
+                                            c => c.code,
+                                            c => <PublishedComponent
+                                                readOnly={true}
+                                                id="location.HealthFacilityPicker" withLabel={false} value={c.healthFacility}
+                                            />,
+                                            c => <PublishedComponent
+                                                readOnly={true}
+                                                id="insuree.InsureePicker" withLabel={false} value={c.insuree}
+                                            />,
+                                            c => formatDateFromISO(modulesManager, intl, c.dateClaimed),
+                                            c => this.feedbackColFormatter(c),
+                                            c => this.reviewColFormatter(c),
+                                            c => formatAmount(intl, c.claimed),
+                                            c => formatAmount(intl, c.approved),
+                                            c => formatMessage(intl, "claim", `claimStatus.${c.status}`)
+                                        ]}
+                                        rowHighlighted={this.rowHighlighted}
+                                        rowHighlightedAlt={this.rowHighlightedAlt}
+                                        items={claims}
+                                        withPagination={!this.props.forcedFilters}
+                                        withSelection={true}
+                                        itemIdentifier={this.rowIdentifier}
                                         selection={this.state.selection}
-                                        claims={claims}
-                                        clearSelected={this.clearSelected}
-                                        selectAll={this.selectAll}
-                                        triggerAction={this.triggerAction}
-                                        actions={actions}
-                                        processing={processing}
+                                        selectAll={this.state.selectAll}
+                                        clearAll={this.state.clearAll}
+                                        onChangeSelection={this.onChangeSelection}
+                                        onDoubleClick={onDoubleClick}
+                                        page={this.state.page}
+                                        pageSize={this.state.pageSize}
+                                        count={claimsPageInfo.totalCount}
+                                        onChangePage={this.onChangePage}
+                                        rowsPerPageOptions={this.rowsPerPageOptions}
+                                        onChangeRowsPerPage={this.onChangeRowsPerPage}
                                     />
                                 </Grid>
-
-                            </Grid>
-                            <Grid item xs={12} className={classes.paperDivider}>
-                                <Divider />
-                            </Grid>
-                            <Grid item xs={12}>
-                                <Table
-                                    module="claim"
-                                    preHeaders={this.preHeaders()}
-                                    headers={[
-                                        "claimSummaries.code",
-                                        "claimSummaries.healthFacility",
-                                        "claimSummaries.insuree",
-                                        "claimSummaries.claimedDate",
-                                        "claimSummaries.feedbackStatus",
-                                        "claimSummaries.reviewStatus",
-                                        "claimSummaries.claimed",
-                                        "claimSummaries.approved",
-                                        "claimSummaries.claimStatus"
-                                    ]}
-                                    headerActions={[
-                                        () => this.formatSorter('code'),
-                                        () => this.formatSorter('healthFacility__code'),
-                                        () => this.formatSorter('insuree__last_name'),
-                                        () => this.formatSorter('dateClaimed',false),
-                                        () => null,
-                                        () => null,
-                                        () => this.formatSorter('claimed', false),
-                                        () => this.formatSorter('approved', false)
-                                    ]}
-                                    aligns={[, , , , , "right", "right"]}
-                                    itemFormatters={[
-                                        c => c.code,
-                                        c => <PublishedComponent
-                                            readOnly={true}
-                                            id="location.HealthFacilityPicker" withLabel={false} value={c.healthFacility}
-                                        />,
-                                        c => <PublishedComponent
-                                            readOnly={true}
-                                            id="insuree.InsureePicker" withLabel={false} value={c.insuree}
-                                        />,
-                                        c => formatDateFromISO(modulesManager, intl, c.dateClaimed),
-                                        c => this.feedbackColFormatter(c),
-                                        c => this.reviewColFormatter(c),
-                                        c => formatAmount(intl, c.claimed),
-                                        c => formatAmount(intl, c.approved),
-                                        c => formatMessage(intl, "claim", `claimStatus.${c.status}`)
-                                    ]}
-                                    rowHighlighted={this.rowHighlighted}
-                                    rowHighlightedAlt={this.rowHighlightedAlt}
-                                    items={claims}
-                                    withPagination={!this.props.forcedFilters}
-                                    withSelection={true}
-                                    itemIdentifier={this.rowIdentifier}
-                                    selection={this.state.selection}
-                                    selectAll={this.state.selectAll}
-                                    clearAll={this.state.clearAll}
-                                    onChangeSelection={this.onChangeSelection}
-                                    onDoubleClick={onDoubleClick}
-                                    page={this.state.page}
-                                    pageSize={this.state.pageSize}
-                                    count={claimsPageInfo.totalCount}
-                                    onChangePage={this.onChangePage}
-                                    rowsPerPageOptions={this.rowsPerPageOptions}
-                                    onChangeRowsPerPage={this.onChangeRowsPerPage}
-                                />
-                            </Grid>
-                        </Grid>
-                    </Paper>
-                )}
+                            </Fragment>
+                        )}
+                    </Grid>
+                </Paper>
             </Fragment>
         )
     }
