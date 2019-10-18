@@ -15,7 +15,7 @@ import ClaimMasterPanel from "./ClaimMasterPanel";
 import ClaimChildPanel from "./ClaimChildPanel";
 import ClaimFeedbackPanel from "./ClaimFeedbackPanel";
 
-import { RIGHT_ADD, RIGHT_LOAD } from "../constants";
+import { RIGHT_PRINT, RIGHT_LOAD } from "../constants";
 
 const CLAIM_FORM_CONTRIBUTION_KEY = "claim.ClaimForm";
 
@@ -156,7 +156,7 @@ class ClaimForm extends Component {
                             openDirty={forReview}
                             canSave={this.canSave}
                             reload={claim_uuid && this.reload}
-                            print={this.print}
+                            print={rights.filter(r => r === RIGHT_PRINT).length ? this.print : null}
                             readOnly={readOnly}
                             forReview={forReview}
                             forFeedback={forFeedback}
