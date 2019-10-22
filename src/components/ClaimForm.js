@@ -42,7 +42,9 @@ class ClaimItemsPanel extends Component {
 class ClaimForm extends Component {
 
     state = {
+        locakNew: false,
         reset: 0,
+        update: 0,
         claim: this._newClaim()
     }
 
@@ -95,25 +97,24 @@ class ClaimForm extends Component {
         return true;
     }
 
-    canSave = (claim) => {
-        if (!claim) return false;
-        if (!claim.code) return false;
-        if (!claim.healthFacility) return false;
-        if (!claim.insuree) return false;
-        if (!claim.admin) return false;
-        if (!claim.dateClaimed) return false;
-        if (!claim.dateFrom) return false;
-        if (!claim.status) return false;
-        if (!claim.icd) return false;
-        if (!!claim.items) {
-            let items = [...claim.items];
+    canSave = () => {
+        if (!this.state.claim.code) return false;
+        if (!this.state.claim.healthFacility) return false;
+        if (!this.state.claim.insuree) return false;
+        if (!this.state.claim.admin) return false;
+        if (!this.state.claim.dateClaimed) return false;
+        if (!this.state.claim.dateFrom) return false;
+        if (!this.state.claim.status) return false;
+        if (!this.state.claim.icd) return false;
+        if (!!this.state.claim.items) {
+            let items = [...this.state.claim.items];
             if (!this.props.forReview) items.pop();
             if (items.length && items.filter(i => !this.canSaveDetail(i, 'item')).length) {
                 return false;
             }
         }
-        if (!!claim.services) {
-            let services = [...claim.services];
+        if (!!this.state.claim.services) {
+            let services = [...this.state.claim.services];
             if (!this.props.forReview) services.pop();
             if (services.length && services.filter(s => !this.canSaveDetail(s, 'service')).length) {
                 return false;
@@ -134,10 +135,16 @@ class ClaimForm extends Component {
         this.setState({ claim })
     }
 
+    save = (claim) => {
+        this.setState(
+            { lockNew: !claim.uuid }, // avoid duplicates
+            e => this.props.save(claim))
+    }
+
     render() {
-        const { rights, claim_uuid, fetchingClaim, fetchedClaim, errorClaim, add, save, back,
+        const { rights, claim_uuid, fetchingClaim, fetchedClaim, errorClaim, add, back,
             forReview = false, forFeedback = false } = this.props;
-        let readOnly = this.state.claim.status !== 2 || !rights.filter(r => r === RIGHT_LOAD).length 
+        let readOnly = this.state.lockNew || (!forReview && this.state.claim.status !== 2) || (forReview && this.state.claim.status !== 4) || !rights.filter(r => r === RIGHT_LOAD).length
         return (
             <Fragment>
                 <ProgressOrError progress={fetchingClaim} error={errorClaim} />
@@ -148,12 +155,13 @@ class ClaimForm extends Component {
                             edited_id={claim_uuid}
                             edited={this.state.claim}
                             reset={this.state.reset}
+                            update={this.state.update}
                             title="edit.title"
                             titleParams={{ code: this.state.claim.code }}
                             back={back}
                             add={!!add ? this._add : null}
-                            save={save}
-                            openDirty={forReview}
+                            save={!!this.props.save ? this.save : null}
+                            openDirty={forReview && !readOnly}
                             canSave={this.canSave}
                             reload={claim_uuid && this.reload}
                             print={rights.filter(r => r === RIGHT_PRINT).length ? this.print : null}

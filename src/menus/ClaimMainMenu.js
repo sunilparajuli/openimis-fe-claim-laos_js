@@ -39,11 +39,5 @@ class ClaimMainMenu extends Component {
 
 const mapStateToProps = state => ({
   rights: !!state.core && !!state.core.user && !!state.core.user.i_user ? state.core.user.i_user.rights : [],
-  userHealthFacilityStr: !!state.loc ? state.loc.userHealthFacilityStr : null,
-  userRegionStr: !!state.loc ? state.loc.userRegionStr : null,
-  userDistrictStr: !!state.loc ? state.loc.userDistrictStr : null,
-  claimsPageInfo: state.claim.claimsPageInfo,
-  submittingMutation: state.claim.submittingMutation,
-  mutation: state.claim.mutation,
 });
 export default injectIntl(connect(mapStateToProps)(ClaimMainMenu));

@@ -36,16 +36,6 @@ function reducer(
                 claimAdmins: null,
                 errorClaimAdmins: null,
             };
-        case 'CLAIM_CLAIM_ADMIN_SELECTED':
-            return {
-                ...state,
-                claimAdmin: action.payload,
-            }
-        case 'CLAIM_CLAIM_HEALTH_FACILITY_SELECTED':
-            return {
-                ...state,
-                claimHealthFacility: action.payload,
-            }
         case 'CLAIM_CLAIM_ADMINS_RESP':
             return {
                 ...state,
@@ -60,6 +50,16 @@ function reducer(
                 fetchingClaimAdmins: false,
                 errorClaimAdmins: formatServerError(action.payload)
             };
+        case 'CLAIM_CLAIM_ADMIN_SELECTED':
+            return {
+                ...state,
+                claimAdmin: action.payload,
+            }
+        case 'CLAIM_CLAIM_HEALTH_FACILITY_SELECTED':
+            return {
+                ...state,
+                claimHealthFacility: action.payload,
+            }
         case 'CLAIM_CLAIM_OFFICERS_REQ':
             return {
                 ...state,

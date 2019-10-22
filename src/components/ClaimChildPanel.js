@@ -97,7 +97,7 @@ class ClaimChildPanel extends Component {
     }
 
     render() {
-        const { intl, edited, type, picker, forReview, fetchingPricelist, readOnly=false } = this.props;
+        const { intl, edited, type, picker, forReview, fetchingPricelist, readOnly = false } = this.props;
         if (!edited) return null;
         const totalClaimed = _.round(this.state.data.reduce(
             (sum, r) => sum + claimedAmount(r), 0),
@@ -154,10 +154,12 @@ class ClaimChildPanel extends Component {
             );
             itemFormatters.push(
                 (i, idx) => <NumberInput
+                    readOnly={readOnly}
                     value={i.qtyApproved}
                     onChange={v => this._onChange(idx, "qtyApproved", v)}
                 />,
                 (i, idx) => <AmountInput
+                    readOnly={readOnly}
                     value={i.priceApproved}
                     onChange={v => this._onChange(idx, "priceApproved", v)}
                 />,

@@ -132,7 +132,7 @@ export function fetchClaim(mm, claimUuid, forFeedback) {
     "icd4" + mm.getProjection("medical.DiagnosisPicker.projection"),
   ]
   if (!!forFeedback) {
-    projections.push("feedback{id, careRendered, paymentAsked, drugPrescribed, drugReceived, asessment, feedbackDate, chfOfficerCode}")
+    projections.push("feedback{id, careRendered, paymentAsked, drugPrescribed, drugReceived, asessment, feedbackDate, officerId}")
   } else {
     projections.push(
       "services{" +
@@ -218,7 +218,7 @@ export function deliverFeedback(claim, clientMutationLabel) {
     claimUuid: "${claim.uuid}"
     feedback: {
       ${!!feedback.feedbackDate ? `feedbackDate: "${feedback.feedbackDate}"` : ''}
-      ${!!feedback.chfOfficerCode ? `chfOfficerCode: ${feedback.chfOfficerCode}` : ''}
+      ${!!feedback.officerId ? `officerId: ${feedback.officerId}` : ''}
       ${feedback.careRendered !== undefined && feedback.careRendered !== null ? `careRendered: ${feedback.careRendered}` : ''}
       ${feedback.paymentAsked !== undefined && feedback.paymentAsked !== null ? `paymentAsked: ${feedback.paymentAsked}` : ''}
       ${feedback.drugPrescribed !== undefined && feedback.drugPrescribed !== null ? `drugPrescribed: ${feedback.drugPrescribed}` : ''}

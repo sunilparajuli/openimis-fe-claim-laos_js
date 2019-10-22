@@ -145,8 +145,8 @@ class ClaimFeedbackPanel extends Component {
                                 <PublishedComponent
                                     id="claim.ClaimOfficerPicker"
                                     readOnly={readOnly}
-                                    value={edited.feedback.chfOfficerCode}
-                                    onChange={(v, s) => this._onChange("chfOfficerCode", !!v ? decodeId(v.id) : null)}
+                                    value={edited.feedback.officerId}
+                                    onChange={(v, s) => this._onChange("officerId", !!v ? decodeId(v.id) : null)}
                                 />
                             </Grid>
                         } />
