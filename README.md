@@ -30,6 +30,7 @@ It is dedicated to be deployed as a module of [openimis-fe_js](https://github.co
 * `claim.ReviewStatusPicker`, constant-based picker, translation keys: `claim.reviewStatus.null`, `claim.reviewStatus.1`,...
 * `claim.ApprovalStatusPicker`, constant-based picker, translation keys: `claim.approvalStatus.null`, `claim.approvalStatus.1`,...
 * `claim.RejectionReasonPicker`, constant-based picker (with tooltip), translation keys: `claim.rejectionReason.null`, `claim.rejectionReason.1`,...
+* `claim.ClaimMasterPanelExt`, ready to use extension for the `claim.MasterPanel`, loading the `policy.InsureePolicyEligibilitySummary` published component and displaying the last claim (visit) code, date from and date to
 
 ## Dispatched Redux Actions
 * `CLAIM_CLAIM_ADMINS_{REQ|RESP|ERR}`: loading the claim admins cache
@@ -38,6 +39,7 @@ It is dedicated to be deployed as a module of [openimis-fe_js](https://github.co
 * `CLAIM_CLAIM_HEALTH_FACILITY_SELECTED`: when health facility is selected in filter (enable claim add button)
 * `CLAIM_CLAIM_SEARCHER_{REQ|RESP|ERR}`: querying for claims (filter updates or refresh button pushed)
 * `CLAIM_CLAIM_{REQ|RESP|ERR}`: loading a claim (double click on claim in result table)
+* `CLAIM_LAST_CLAIM_AT_{REQ|RESP|ERR}`: loading the last (other) claim of the claim insuree at the claim health facility (cfr. `claim.ClaimMasterPanelExt`)
 * `CLAIM_MUTATION_{REQ|ERR}`: sending a mutation (update, deliver feedback,...)
 * `CLAIM_CREATE_CLAIM_RESP`: recieving the result of create claim mutation
 * `CLAIM_UPDATE_CLAIM_RESP`: recieving the result of update claim mutation

@@ -47,6 +47,17 @@ class Head extends Component {
         }
     }
 
+    _healthFacilityFilter = v => {
+        return [{
+            id: 'healthFacility',
+            value: v,
+            filter: `healthFacility_Uuid: "${!!v && v.uuid}"`
+        }, {
+            id: 'batchRun',
+            value: null
+        }];
+    }
+
     _onChangeRegion = (v, s) => {
         this.props.onChangeFilters([
             this._regionFilter(v),
@@ -92,14 +103,7 @@ class Head extends Component {
     }
 
     _onChangeHealthFacility = (v, s) => {
-        let filters = [{
-            id: 'healthFacility',
-            value: v,
-            filter: `healthFacility_Uuid: "${!!v && v.uuid}"`
-        }, {
-            id: 'batchRun',
-            value: null
-        }];
+        let filters = this._healthFacilityFilter(v);
         if (!!v) {
             filters.push(
                 this._regionFilter(v.location.parent),
@@ -107,22 +111,36 @@ class Head extends Component {
             );
         }
         this.props.onChangeFilters(filters);
+        this.props.selectHealthFacility(v);
         this.setState({
             reset: this.state.reset + 1,
         });
-        this.props.selectHealthFacility(v);
     }
 
     _onChangeClaimAdmin = (v, s) => {
-        this.props.onChangeFilters([
+        let filters = [
             {
                 id: 'claimAdmin',
                 value: v,
                 filter: `admin_Uuid: "${!!v && v.uuid}"`
             }
-        ]);
+        ];
+        let hfFilter = this.props.filters['healthFacility'] ? this.props.filters['healthFacility']['value'] : null;
+        if (!!v && (!hfFilter || hfFilter.uuid !== v.healthFacility.uuid)) {
+            filters.push(
+                ...this._healthFacilityFilter(v.healthFacility),
+                this._regionFilter(v.healthFacility.location.parent),
+                this._districtFilter(v.healthFacility.location)
+            );
+            this.props.selectHealthFacility(v.healthFacility);
+        }
+        this.props.onChangeFilters(filters);
         this.props.selectClaimAdmin(v);
+        this.setState({
+            reset: this.state.reset + 1,
+        });
     }
+
 
     render() {
         const { classes, filters, onChangeFilters } = this.props;
@@ -165,6 +183,7 @@ class Head extends Component {
                         <PublishedComponent
                             id="claim.ClaimAdminPicker"
                             value={(filters['claimAdmin'] && filters['claimAdmin']['value'])}
+                            hfFilter={(filters['healthFacility'] && filters['healthFacility']['value'])}
                             onChange={this._onChangeClaimAdmin}
                         />
                     </Grid>

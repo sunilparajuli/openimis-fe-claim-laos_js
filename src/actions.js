@@ -152,6 +152,18 @@ export function fetchClaim(mm, claimUuid, forFeedback) {
   return graphql(payload, 'CLAIM_CLAIM');
 }
 
+export function fetchLastClaimAt(claim) {
+  const payload = formatPageQuery("claims",
+    [
+      `insuree_ChfId: "${claim.insuree.chfId}"`,
+      `codeIsNot: "${claim.code}"`,
+      `healthFacility_Uuid: "${claim.healthFacility.uuid}"`,
+      "first: 1", `orderBy: "-dateFrom"`],
+    ["code", "dateFrom", "dateTo"]
+  );
+  return graphql(payload, 'CLAIM_LAST_CLAIM_AT');
+}
+
 export function submit(claims, clientMutationLabel) {
   let claimUuids = `uuids: ["${claims.map(c => c.uuid).join("\",\"")}"]`
   let mutation = formatMutation("submitClaims", claimUuids, clientMutationLabel);

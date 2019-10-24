@@ -104,22 +104,27 @@ class ClaimForm extends Component {
         if (!this.state.claim.admin) return false;
         if (!this.state.claim.dateClaimed) return false;
         if (!this.state.claim.dateFrom) return false;
+        if (!!this.state.claim.dateTo && this.state.claim.dateFrom >this.state.claim.dateTo) return false;
         if (!this.state.claim.status) return false;
         if (!this.state.claim.icd) return false;
+        if (!this.state.claim.items && !this.state.claim.services) return false;
+        let items = [];
         if (!!this.state.claim.items) {
-            let items = [...this.state.claim.items];
+            items = [...this.state.claim.items];
             if (!this.props.forReview) items.pop();
             if (items.length && items.filter(i => !this.canSaveDetail(i, 'item')).length) {
                 return false;
             }
         }
+        let services = [];
         if (!!this.state.claim.services) {
-            let services = [...this.state.claim.services];
+            services = [...this.state.claim.services];
             if (!this.props.forReview) services.pop();
             if (services.length && services.filter(s => !this.canSaveDetail(s, 'service')).length) {
                 return false;
             }
         }
+        if (!items.length && !services.length) return false;
         return true;
     }
 

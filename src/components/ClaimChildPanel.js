@@ -3,7 +3,7 @@ import { connect } from "react-redux";
 import { injectIntl } from 'react-intl';
 import {
     formatAmount, formatMessage, formatMessageWithValues, NumberInput, Table,
-    PublishedComponent, AmountInput, TextInput, decodeId
+    PublishedComponent, AmountInput, TextInput, decodeId, withModulesManager
 } from "@openimis/fe-core";
 import { IconButton } from "@material-ui/core";
 import DeleteIcon from "@material-ui/icons/Delete";
@@ -14,6 +14,13 @@ class ClaimChildPanel extends Component {
 
     state = {
         data: []
+    }
+
+    constructor(props) {
+        super(props);
+        this.fixedPricesAtEnter = props.modulesManager.getConf("fe-claim", "claimForm.fixedPricesAtEnter", false);
+        this.fixedPricesAtReview = props.modulesManager.getConf("fe-claim", "claimForm.fixedPricesAtReview", false);
+        this.showJustificationOnEntry = props.modulesManager.getConf("fe-claim", "claimForm.showJustificationOnEntry", false);
     }
 
     initData = () => {
@@ -132,7 +139,7 @@ class ClaimChildPanel extends Component {
                 onChange={v => this._onChange(idx, "qtyProvided", v)}
             />,
             (i, idx) => <AmountInput
-                readOnly={!!forReview || readOnly}
+                readOnly={!!forReview || readOnly || this.fixedPricesAtEnter}
                 value={i.priceAsked}
                 onChange={v => this._onChange(idx, "priceAsked", v)}
             />,
@@ -143,34 +150,44 @@ class ClaimChildPanel extends Component {
             />,
         ];
         if (!!forReview) {
-            preHeaders.push('',
+            if (!this.fixedPricesAtReview) {
+                preHeaders.push('');
+            }
+            preHeaders.push(
                 totalClaimed > 0 ? formatMessageWithValues(
                     intl, "claim", `edit.${type}s.totalApproved`,
                     { totalApproved: formatAmount(intl, totalApproved) }) : '',
             );
             headers.push(
                 `edit.${type}s.appQuantity`,
-                `edit.${type}s.appPrice`,
             );
             itemFormatters.push(
                 (i, idx) => <NumberInput
                     readOnly={readOnly}
                     value={i.qtyApproved}
                     onChange={v => this._onChange(idx, "qtyApproved", v)}
-                />,
-                (i, idx) => <AmountInput
-                    readOnly={readOnly}
-                    value={i.priceApproved}
-                    onChange={v => this._onChange(idx, "priceApproved", v)}
-                />,
-            );
+                />)
+            if (!this.fixedPricesAtReview) {
+                headers.push(
+                    `edit.${type}s.appPrice`,
+                );
+                itemFormatters.push(
+                    (i, idx) => <AmountInput
+                        readOnly={readOnly}
+                        value={i.priceApproved}
+                        onChange={v => this._onChange(idx, "priceApproved", v)}
+                    />,
+                );
+            }
         }
 
-        preHeaders.push('');
-        headers.push(`edit.${type}s.justification`);
-        itemFormatters.push(
-            (i, idx) => <TextInput readOnly={readOnly} value={i.justification} onChange={v => this._onChange(idx, "justification", v)} />
-        );
+        if (this.showJustificationOnEntry) {
+            preHeaders.push('');
+            headers.push(`edit.${type}s.justification`);
+            itemFormatters.push(
+                (i, idx) => <TextInput readOnly={readOnly} value={i.justification} onChange={v => this._onChange(idx, "justification", v)} />
+            );
+        }
         if (!!forReview) {
             preHeaders.push('', '');
             headers.push(
@@ -228,4 +245,4 @@ const mapStateToProps = (state, props) => ({
         state.medical_pricelist.pricelist ? state.medical_pricelist.pricelist : {},
 });
 
-export default injectIntl(connect(mapStateToProps)(ClaimChildPanel));
+export default withModulesManager(injectIntl(connect(mapStateToProps)(ClaimChildPanel)));

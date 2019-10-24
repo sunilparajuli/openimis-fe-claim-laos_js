@@ -496,7 +496,7 @@ class ClaimSearcher extends Component {
                                             () => this.formatSorter('claimed', false),
                                             () => this.formatSorter('approved', false)
                                         ]}
-                                        aligns={[, , , , , "right", "right"]}
+                                        aligns={[, , , , , , , "right", "right"]}
                                         itemFormatters={[
                                             c => c.code,
                                             c => <PublishedComponent

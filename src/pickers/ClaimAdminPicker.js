@@ -36,15 +36,17 @@ class ClaimAdminPicker extends Component {
         const {
             intl, value, reset, claimAdmins,
             fetchingClaimAdmins, fetchedClaimAdmins, errorClaimAdmins,
-            withLabel = true, label, readOnly = false
+            withLabel = true, label, readOnly = false, required = false,
+            hfFilter = null
         } = this.props;
+        let admins = !!hfFilter ? claimAdmins.filter(a => a.healthFacility.uuid === hfFilter.uuid) : claimAdmins;
         return (
             <Fragment>
                 <ProgressOrError progress={fetchingClaimAdmins} error={errorClaimAdmins} />
                 {fetchedClaimAdmins && (
                     <FormControl fullWidth>
                         <AutoSuggestion
-                            items={claimAdmins}
+                            items={admins}
                             label={!!withLabel && (label || formatMessage(intl, "claim", "ClaimAdminPicker.label"))}
                             getSuggestions={this.claimAdmins}
                             getSuggestionValue={this.formatSuggestion}
@@ -52,6 +54,7 @@ class ClaimAdminPicker extends Component {
                             value={value}
                             reset={reset}
                             readOnly={readOnly}
+                            required={required}
                         />
                     </FormControl>
                 )}

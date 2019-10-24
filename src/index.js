@@ -11,6 +11,7 @@ import ReviewStatusPicker from "./pickers/ReviewStatusPicker";
 import ApprovalStatusPicker from "./pickers/ApprovalStatusPicker";
 import RejectionReasonPicker from "./pickers/RejectionReasonPicker";
 import FeedbackStatusPicker from "./pickers/FeedbackStatusPicker";
+import ClaimMasterPanelExt from "./components/ClaimMasterPanelExt";
 import messages_en from "./translations/en.json";
 import reducer from "./reducer";
 
@@ -30,7 +31,11 @@ const DEFAULT_CONFIG = {
     { key: "claim.route.feedback", ref: ROUTE_CLAIM_FEEDBACK },
     { key: "claim.route.review", ref: ROUTE_CLAIM_REVIEW },
     { key: "claim.ClaimAdminPicker", ref: ClaimAdminPicker },
-    { key: "claim.ClaimAdminPicker.projection", ref: ["id", "uuid", "code", "lastName", "otherNames"] },
+    {
+      key: "claim.ClaimAdminPicker.projection",
+      ref: ["id", "uuid", "code", "lastName", "otherNames",
+        "healthFacility{id, uuid, code, name, location{id, uuid, code, name, parent{id, uuid, code, name}}}"]
+    },
     { key: "claim.ClaimOfficerPicker", ref: ClaimOfficerPicker },
     { key: "claim.ClaimOfficerPicker.projection", ref: ["id", "uuid", "code", "lastName", "otherNames"] },
     { key: "claim.ClaimStatusPicker", ref: ClaimStatusPicker },
@@ -45,6 +50,7 @@ const DEFAULT_CONFIG = {
     { key: "claim.RejectionReasonPicker.projection", ref: null },
     { key: "claim.CreateClaim.feedbackStatus", ref: 1 },
     { key: "claim.CreateClaim.reviewStatus", ref: 1 },
+    { key: "claim.ClaimMasterPanelExt", ref: ClaimMasterPanelExt },
   ],
   "core.Router": [
     { path: ROUTE_HEALTH_FACILITIES, component: HealthFacilitiesPage },

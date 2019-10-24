@@ -24,7 +24,7 @@ class ClaimOfficerPicker extends Component {
                     !this.props.fetchingClaimOfficers && this.props.fetchClaimOfficers(this.props.modulesManager)
                 },
                 Math.floor(Math.random() * 300)
-            );              
+            );
         }
     }
 
@@ -36,7 +36,7 @@ class ClaimOfficerPicker extends Component {
         const {
             intl, value, reset, claimOfficers,
             fetchingClaimOfficers, fetchedClaimOfficers, errorClaimOfficers,
-            withLabel = true, label
+            withLabel = true, label, readOnly = false, required = false
         } = this.props;
         let v = claimOfficers ? claimOfficers.filter(o => parseInt(decodeId(o.id)) === value) : [];
         v = v.length ? v[0] : null;
@@ -53,6 +53,8 @@ class ClaimOfficerPicker extends Component {
                             onSuggestionSelected={this.onSuggestionSelected}
                             value={v}
                             reset={reset}
+                            readOnly={readOnly}
+                            required={required}
                         />
                     </FormControl>
                 )}

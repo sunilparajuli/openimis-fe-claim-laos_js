@@ -2,7 +2,7 @@ import React, { Component } from "react";
 import { bindActionCreators } from "redux";
 import { connect } from "react-redux";
 import { injectIntl } from 'react-intl';
-import { Grid, InputAdornment, IconButton } from "@material-ui/core";
+import { Grid, InputAdornment, IconButton, Tooltip } from "@material-ui/core";
 import FilterIcon from "@material-ui/icons/FilterList";
 import FeedbackIcon from "@material-ui/icons/SpeakerNotesOutlined";
 import ReviewIcon from "@material-ui/icons/SupervisorAccount";
@@ -381,8 +381,8 @@ class ReviewsPage extends Component {
     provideFeedback = c => historyPush(this.props.modulesManager, this.props.history, "claim.route.feedback", [c.uuid])
 
     feedbackColFormatter = c => (
-        <Grid container>
-            <Grid item xs={6}>
+        <Grid container justify="flex-end" alignItems="center">
+            <Grid item>
                 <PublishedComponent
                     id="claim.FeedbackStatusPicker"
                     withLabel={false}
@@ -395,8 +395,10 @@ class ReviewsPage extends Component {
                 />
             </Grid>
             {!!this.props.rights.includes(RIGHT_FEEDBACK) &&
-                <Grid item xs={6}>
-                    <IconButton onClick={e => this.provideFeedback(c)}><FeedbackIcon /></IconButton>
+                <Grid item>
+                    <Tooltip title={formatMessage(this.props.intl, "claim", "feedbackButton.tooltip")}>
+                        <IconButton onClick={e => this.provideFeedback(c)}><FeedbackIcon /></IconButton>
+                    </Tooltip>
                 </Grid>
             }
         </Grid>
@@ -437,8 +439,8 @@ class ReviewsPage extends Component {
     }
     review = c => historyPush(this.props.modulesManager, this.props.history, "claim.route.review", [c.uuid])
     reviewColFormatter = c => (
-        <Grid container>
-            <Grid item xs={6}>
+        <Grid container justify="flex-end" alignItems="center">
+            <Grid item>
                 <PublishedComponent
                     id="claim.ReviewStatusPicker"
                     withLabel={false}
@@ -451,8 +453,10 @@ class ReviewsPage extends Component {
                 />
             </Grid>
             {!!this.props.rights.includes(RIGHT_CLAIMREVIEW) &&
-                <Grid item xs={6}>
-                    <IconButton onClick={e => this.review(c)}><ReviewIcon /></IconButton>
+                <Grid item>
+                    <Tooltip title={formatMessage(this.props.intl, "claim", "reviewButton.tooltip")}>
+                        <IconButton onClick={e => this.review(c)}><ReviewIcon /></IconButton>
+                    </Tooltip>
                 </Grid>
             }
         </Grid>

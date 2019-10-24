@@ -22,6 +22,10 @@ function reducer(
         fetchedClaim: false,
         errorClaim: null,
         claim: {},
+        fetchingLastClaimAt: false,
+        fetchedLastClaimAt: false,
+        errorLastClaimAt: null,
+        lastClaimAt: {},
         submittingMutation: false,
         mutation: {},
     },
@@ -115,7 +119,7 @@ function reducer(
                 errorClaim: null,
             };
         case 'CLAIM_CLAIM_RESP':
-            let claims = parseData(action.payload.data.claims);
+            var claims = parseData(action.payload.data.claims);
             return {
                 ...state,
                 fetchingClaim: false,
@@ -128,6 +132,29 @@ function reducer(
                 ...state,
                 fetchingClaim: false,
                 errorClaim: formatServerError(action.payload)
+            };
+        case 'CLAIM_LAST_CLAIM_AT_REQ':
+            return {
+                ...state,
+                fetchingLastClaimAt: true,
+                fetchedLastClaimAt: false,
+                lastClaimAt: null,
+                errorLastClaimAt: null,
+            };
+        case 'CLAIM_LAST_CLAIM_AT_RESP':
+            var claims = parseData(action.payload.data.claims);
+            return {
+                ...state,
+                fetchingLastClaimAt: false,
+                fetchedLastClaimAt: true,
+                lastClaimAt: (!!claims && claims.length > 0) ? claims[0] : null,
+                errorCLastClaimAt: formatGraphQLError(action.payload)
+            };
+        case 'CLAIM_LAST_CLAIM_AT_ERR':
+            return {
+                ...state,
+                fetchingLastClaimAt: false,
+                errorLastClaimAt: formatServerError(action.payload)
             };
         case 'CLAIM_MUTATION_REQ':
             return dispatchMutationReq(state, action)

@@ -4,7 +4,7 @@ import { connect } from "react-redux";
 import { injectIntl } from 'react-intl';
 import { bindActionCreators } from "redux";
 import {
-    formatMessage, ControlledField,
+    formatMessage, ControlledField, withModulesManager,
     PublishedComponent, Contributions, AmountInput, TextInput,
 } from "@openimis/fe-core";
 import { Grid } from "@material-ui/core";
@@ -29,6 +29,13 @@ class ClaimMasterPanel extends Component {
 
     state = {
         data: {}
+    }
+
+    constructor(props) {
+        super(props);
+        this.codeMaxLength = props.modulesManager.getConf("fe-claim", "claimForm.codeMaxLength", 10);
+        this.guaranteeIdMaxLength = props.modulesManager.getConf("fe-claim", "claimForm.guaranteeIdMaxLength", 50);
+        this.showAdjustmentOnEntry = props.modulesManager.getConf("fe-claim", "claimForm.showAdjustmentOnEntry", false);
     }
 
     componentDidMount() {
@@ -80,6 +87,7 @@ class ClaimMasterPanel extends Component {
                             value={edited.healthFacility}
                             reset={reset}
                             readOnly={true}
+                            required={true}
                         />
                     </Grid>
                 } />
@@ -91,6 +99,7 @@ class ClaimMasterPanel extends Component {
                             reset={reset}
                             onChange={(v, s) => this.updateAttribute("insuree", v, s)}
                             readOnly={ro}
+                            required={true}
                         />
                     </Grid>
                 } />
@@ -103,6 +112,7 @@ class ClaimMasterPanel extends Component {
                             reset={reset}
                             onChange={d => this.updateAttribute("dateClaimed", d)}
                             readOnly={ro}
+                            required={true}
                         />
                     </Grid>
                 } />
@@ -115,6 +125,7 @@ class ClaimMasterPanel extends Component {
                             reset={reset}
                             onChange={d => this.updateAttribute("dateFrom", d)}
                             readOnly={ro}
+                            required={true}
                         />
                     </Grid>
                 } />
@@ -140,6 +151,7 @@ class ClaimMasterPanel extends Component {
                             reset={reset}
                             onChange={(v, s) => this.updateAttribute("visitType", v)}
                             readOnly={ro}
+                            required={true}
                         />
                     </Grid>
                 } />
@@ -154,6 +166,7 @@ class ClaimMasterPanel extends Component {
                                 reset={reset}
                                 onChange={(v, s) => this.updateAttribute("icd", v)}
                                 readOnly={ro}
+                                required
                             />
                         </Grid>
                     } />
@@ -163,10 +176,14 @@ class ClaimMasterPanel extends Component {
                         <TextInput
                             module="claim"
                             label="code"
+                            required
                             value={edited.code}
                             reset={reset}
                             onChange={v => this.updateAttribute("code", v)}
                             readOnly={ro}
+                            inputProps={{
+                                "maxLength": this.codeMaxLength,
+                            }}
                         />
                     </Grid>
                 } />
@@ -179,6 +196,9 @@ class ClaimMasterPanel extends Component {
                             reset={reset}
                             onChange={v => this.updateAttribute("guaranteeId", v)}
                             readOnly={ro}
+                            inputProps={{
+                                "maxLength": this.guaranteeIdMaxLength
+                            }}
                         />
                     </Grid>
                 } />
@@ -308,13 +328,14 @@ class ClaimMasterPanel extends Component {
                             value={edited.admin}
                             onChange={(v, s) => this.updateAttribute("admin", v)}
                             readOnly={true}
+                            required={true}
                         />
                     </Grid>
                 } />
                 {!forFeedback &&
                     <Fragment>
                         <ControlledField module="claim" id="Claim.explanation" field={
-                            <Grid item xs={4} className={classes.item}>
+                            <Grid item xs={this.showAdjustmentOnEntry ? 4 : 8} className={classes.item}>
                                 <TextInput
                                     module="claim"
                                     label="explanation"
@@ -325,18 +346,20 @@ class ClaimMasterPanel extends Component {
                                 />
                             </Grid>
                         } />
-                        <ControlledField module="claim" id="Claim.adjustment" field={
-                            <Grid item xs={4} className={classes.item}>
-                                <TextInput
-                                    module="claim"
-                                    label="adjustment"
-                                    value={edited.adjustment}
-                                    reset={reset}
-                                    onChange={v => this.updateAttribute("adjustment", v)}
-                                    readOnly={!!forFeedback || ro}
-                                />
-                            </Grid>
-                        } />
+                        {!!forReview || this.showAdjustmentOnEntry &&
+                            <ControlledField module="claim" id="Claim.adjustment" field={
+                                <Grid item xs={4} className={classes.item}>
+                                    <TextInput
+                                        module="claim"
+                                        label="adjustment"
+                                        value={edited.adjustment}
+                                        reset={reset}
+                                        onChange={v => this.updateAttribute("adjustment", v)}
+                                        readOnly={!!forFeedback || ro}
+                                    />
+                                </Grid>
+                            } />
+                        }
                     </Fragment>
                 }
                 <Contributions contributionKey={CLAIM_MASTER_PANEL_CONTRIBUTION_KEY} />
@@ -353,4 +376,9 @@ const mapDispatchToProps = dispatch => {
     return bindActionCreators({ claimHealthFacilitySet }, dispatch);
 };
 
-export default injectIntl(connect(mapStateToProps, mapDispatchToProps)(withTheme(withStyles(styles)(ClaimMasterPanel))))
+export default withModulesManager(
+    injectIntl(
+        connect(mapStateToProps, mapDispatchToProps)(withTheme(withStyles(styles)(ClaimMasterPanel))
+        )
+    )
+)
