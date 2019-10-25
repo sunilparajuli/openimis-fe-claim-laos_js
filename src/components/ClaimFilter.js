@@ -68,6 +68,15 @@ class Head extends Component {
             {
                 id: 'healthFacility',
                 value: null
+            },
+            {
+                id: 'claimAdmin',
+                value: null,
+                filter: null
+            },
+            {
+                id: 'batchRun',
+                value: null
             }
         ]);
         this.setState({
@@ -81,6 +90,11 @@ class Head extends Component {
             {
                 id: 'healthFacility',
                 value: null
+            },
+            {
+                id: 'claimAdmin',
+                value: null,
+                filter: null
             },
             {
                 id: 'batchRun',
@@ -107,11 +121,17 @@ class Head extends Component {
         if (!!v) {
             filters.push(
                 this._regionFilter(v.location.parent),
-                this._districtFilter(v.location)
+                this._districtFilter(v.location),
+                {
+                    id: 'claimAdmin',
+                    value: null,
+                    filter: null
+                }
             );
         }
         this.props.onChangeFilters(filters);
         this.props.selectHealthFacility(v);
+        this.props.selectClaimAdmin(null);
         this.setState({
             reset: this.state.reset + 1,
         });

@@ -41,41 +41,56 @@ class HealthFacilitiesPage extends Component {
         }
     }
 
-    _filterOnUserHealthFacilityFullPath() {
+    _filterOnHealthFacility(hf) {
         let defaultFilters = { ...this.state.defaultFilters }
-        defaultFilters.healthFacility = {
-            "value": this.props.userHealthFacilityFullPath,
-            "filter": `healthFacility_Id: "${this.props.userHealthFacilityFullPath.id}"`
-        }
-        let district = this.props.userHealthFacilityFullPath.location;
-        defaultFilters.district = {
-            "value": district,
-            "filter": `healthFacility_Location_Id: "${district.id}"`
-        }
-        let region = district.parent;
-        defaultFilters.region = {
-            "value": region,
-            "filter": `healthFacility_Location_Parent_Id: "${region.id}"`
+        if (!hf) {
+            delete(defaultFilters.healthFacility);
+            delete(defaultFilters.district);
+            delete(defaultFilters.region);
+            delete(defaultFilters.claimAdmin);
+        } else {
+            defaultFilters.healthFacility = {
+                "value": hf,
+                "filter": `healthFacility_Id: "${hf.id}"`
+            }
+            let district = hf.location;
+            defaultFilters.district = {
+                "value": district,
+                "filter": `healthFacility_Location_Id: "${district.id}"`
+            }
+            let region = district.parent;
+            defaultFilters.region = {
+                "value": region,
+                "filter": `healthFacility_Location_Parent_Id: "${region.id}"`
+            }
+            if (!!this.props.claimAdmin) {
+                defaultFilters.claimAdmin = {
+                    "value": this.props.claimAdmin,
+                    "filter": `admin_Uuid: "${this.props.claimAdmin.uuid}"`
+                }
+            }
         }
         this.setState({ defaultFilters })
-        this.props.selectHealthFacility(this.props.userHealthFacilityFullPath);
+        this.props.selectHealthFacility(hf);
     }
 
     componentDidMount() {
-        if (!!this.props.userHealthFacilityFullPath) {
-            this._filterOnUserHealthFacilityFullPath();
+        if (!!this.props.claimHealthFacility) {
+            this._filterOnHealthFacility(this.props.claimHealthFacility);
+        } else if (!!this.props.userHealthFacilityFullPath) {
+            this._filterOnHealthFacility(this.props.userHealthFacilityFullPath);
         }
     }
 
     componentDidUpdate(prevProps, prevState, snapshot) {
         if (prevProps.submittingMutation && !this.props.submittingMutation) {
             this.props.journalize(this.props.mutation);
-        }
-        if (!_.isEqual(prevProps.userHealthFacilityFullPath, this.props.userHealthFacilityFullPath)) {
-            this._filterOnUserHealthFacilityFullPath();
-        }
-        if (prevProps.confirmed !== this.props.confirmed && !!this.props.confirmed && !!this.state.confirmedAction) {
+        } else if (prevProps.confirmed !== this.props.confirmed && !!this.props.confirmed && !!this.state.confirmedAction) {
             this.state.confirmedAction();
+        } else if (!_.isEqual(prevProps.userHealthFacilityFullPath, this.props.userHealthFacilityFullPath)) {
+            this._filterOnHealthFacility(this.props.userHealthFacilityFullPath);
+        } else if (!_.isEqual(prevProps.claimHealthFacility, this.props.claimHealthFacility)) {
+            this._filterOnHealthFacility(this.props.claimHealthFacility);
         }
     }
 

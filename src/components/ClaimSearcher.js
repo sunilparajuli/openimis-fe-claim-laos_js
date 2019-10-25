@@ -183,8 +183,7 @@ class ClaimSearcher extends Component {
     componentDidUpdate(prevProps, prevState, snapshot) {
         if (!_.isEqual(prevProps.defaultFilters, this.props.defaultFilters)) {
             this._resetFilters();
-        }
-        if (!_.isEqual(prevProps.forcedFilters, this.props.forcedFilters)) {
+        } else if (!_.isEqual(prevProps.forcedFilters, this.props.forcedFilters)) {
             this.applyFilters();
         }
     }
