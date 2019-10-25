@@ -39,7 +39,7 @@ class ClaimAdminPicker extends Component {
             withLabel = true, label, readOnly = false, required = false,
             hfFilter = null
         } = this.props;
-        let admins = !!hfFilter ? claimAdmins.filter(a => a.healthFacility.uuid === hfFilter.uuid) : claimAdmins;
+        let admins = !!hfFilter ? (claimAdmins || []).filter(a => a.healthFacility.uuid === hfFilter.uuid) : claimAdmins;
         return (
             <Fragment>
                 <ProgressOrError progress={fetchingClaimAdmins} error={errorClaimAdmins} />
