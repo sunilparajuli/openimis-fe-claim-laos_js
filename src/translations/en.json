@@ -76,6 +76,7 @@
     "claim.claimSummaries.claimed": "Claimed",
     "claim.claimSummaries.approved": "Approved",
     "claim.claimSummaries.claimStatus": "Status",
+    "claim.claimSummaries.claimAttachments": "Attachments",
     "claim.claimSummaries.submitSelected": "Submit Selected",
     "claim.claimSummaries.deleteSelected": "Delete Selected",
     "claim.claimSummaries.markSelectedForFeedback": "Select For Feedback",
@@ -85,6 +86,7 @@
     "claim.claimSummaries.markBypassedReview": "Bypass Review",
     "claim.claimSummaries.markSkippedReview": "Skip Review",
     "claim.claimSummaries.processSelected": "Process Selected",
+    "claim.attachments.title": "Attachments of claim {code}",
     "claim.edit.title": "Claim {code}",
     "claim.noservice": "No Service To Display",
     "claim.edit.services.title": "Services",
@@ -192,5 +194,14 @@
     "ClaimMasterPanelExt.InsureeLastVisit.noOtheClaim": "No Other Visit (Claim)",
     "claim.ClaimMasterPanelExt.InsureeLastVisit.claimCode": "Claim No.",
     "claim.ClaimMasterPanelExt.InsureeLastVisit.lastClaimAtFrom": "Visit Date From",
-    "claim.ClaimMasterPanelExt.InsureeLastVisit.lastClaimAtTo": "Visit Date To"
+    "claim.ClaimMasterPanelExt.InsureeLastVisit.lastClaimAtTo": "Visit Date To",
+    "claim.claimAttachment.type": "Type",
+    "claim.claimAttachment.title": "Title",
+    "claim.claimAttachment.date": "Date",
+    "claim.claimAttachment.fileName": " ",
+    "claim.claimAttachment.delete": " ",
+    "claim.deleteClaimAttachment.confirm.title": "Delete Claim Attachment",
+    "claim.deleteClaimAttachment.confirm.message": "Are you sure you want to delete claim attachment {file}?",    
+    "claim.ClaimAttachment.delete.mutationLabel": "Deleted attachment {file} from claim {code}",
+    "claim.ClaimAttachment.create.mutationLabel": "Added attachment {file} to claim {code}"
 }

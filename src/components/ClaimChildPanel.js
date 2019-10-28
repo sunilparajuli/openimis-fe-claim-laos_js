@@ -20,7 +20,7 @@ class ClaimChildPanel extends Component {
         super(props);
         this.fixedPricesAtEnter = props.modulesManager.getConf("fe-claim", "claimForm.fixedPricesAtEnter", false);
         this.fixedPricesAtReview = props.modulesManager.getConf("fe-claim", "claimForm.fixedPricesAtReview", false);
-        this.showJustificationOnEntry = props.modulesManager.getConf("fe-claim", "claimForm.showJustificationOnEntry", false);
+        this.showJustificationAtEnter = props.modulesManager.getConf("fe-claim", "claimForm.showJustificationAtEnter", false);
     }
 
     initData = () => {
@@ -181,7 +181,7 @@ class ClaimChildPanel extends Component {
             }
         }
 
-        if (this.showJustificationOnEntry) {
+        if (this.showJustificationAtEnter) {
             preHeaders.push('');
             headers.push(`edit.${type}s.justification`);
             itemFormatters.push(

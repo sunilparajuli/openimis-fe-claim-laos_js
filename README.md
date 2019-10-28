@@ -76,3 +76,8 @@ None
 * `claimFilter.defaultPageSize`, pagination pre-selected page size options in Claim Searcher component (Default: `10`)
 * `claimFilter.highlightAmount`, amount triggering the primary highligh (default bold) for claims in claim searcher result. Default: `0`, menaing no highlight threshold
 * `claimFilter.highlightAltInsurees`, boolean to trigger the secondary highligh (default italic) for claims of the same insuree. Default: `true`
+* `claimForm.fixedPricesAtEnter`, boolean to prevent user to adapt prices at claim entry (fixed to price list). Default: false (user can change the price)
+* `claimForm.fixedPricesAtReview`, boolean to prevent user to adapt prices at claim review (fixed to price list). Default: false (user can change the price)
+* `claimForm.showJustificationAtEnter`, boolean to display justification field(s) for items and services at claim entry. Default false;
+* `claimForm.showAdjustmentAtEnter`, boolean to display adjustment field at claim entry. Default false;
+* `claimAttachments`, boolean to enable claim attachments

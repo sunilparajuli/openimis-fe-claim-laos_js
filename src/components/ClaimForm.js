@@ -3,11 +3,13 @@ import { withTheme, withStyles } from "@material-ui/core/styles";
 import { injectIntl } from 'react-intl';
 import { connect } from "react-redux";
 import { bindActionCreators } from "redux";
+import PrintIcon from "@material-ui/icons/ListAlt";
+import AttachIcon from "@material-ui/icons/AttachFile";
 import {
-    Contributions, ProgressOrError, Form,
+    Contributions, ProgressOrError, Form, PublishedComponent,
     withModulesManager, withHistory, journalize, toISODate
 } from "@openimis/fe-core";
-import { fetchClaim, claimHealthFacilitySet } from "../actions";
+import { fetchClaim, claimHealthFacilitySet, print, generate } from "../actions";
 import moment from "moment";
 import _ from "lodash";
 
@@ -15,7 +17,7 @@ import ClaimMasterPanel from "./ClaimMasterPanel";
 import ClaimChildPanel from "./ClaimChildPanel";
 import ClaimFeedbackPanel from "./ClaimFeedbackPanel";
 
-import { RIGHT_PRINT, RIGHT_LOAD } from "../constants";
+import { RIGHT_ADD, RIGHT_LOAD, RIGHT_PRINT } from "../constants";
 
 const CLAIM_FORM_CONTRIBUTION_KEY = "claim.ClaimForm";
 
@@ -45,7 +47,14 @@ class ClaimForm extends Component {
         locakNew: false,
         reset: 0,
         update: 0,
-        claim: this._newClaim()
+        claim: this._newClaim(),
+        printParam: null,
+        attachmentsClaim: null,
+    }
+
+    constructor(props) {
+        super(props);
+        this.claimAttachments = props.modulesManager.getConf("fe-claim", "claimAttachments", false);
     }
 
     _newClaim() {
@@ -74,6 +83,8 @@ class ClaimForm extends Component {
         } else if (prevProps.submittingMutation && !this.props.submittingMutation) {
             this.props.journalize(this.props.mutation);
             this.setState({ reset: this.state.reset + 1 });
+        } else if (!prevProps.generating && !!this.props.generating) {
+            this.props.generate(this.state.printParam)
         }
     }
 
@@ -104,7 +115,7 @@ class ClaimForm extends Component {
         if (!this.state.claim.admin) return false;
         if (!this.state.claim.dateClaimed) return false;
         if (!this.state.claim.dateFrom) return false;
-        if (!!this.state.claim.dateTo && this.state.claim.dateFrom >this.state.claim.dateTo) return false;
+        if (!!this.state.claim.dateTo && this.state.claim.dateFrom > this.state.claim.dateTo) return false;
         if (!this.state.claim.status) return false;
         if (!this.state.claim.icd) return false;
         if (!this.state.claim.items && !this.state.claim.services) return false;
@@ -132,10 +143,6 @@ class ClaimForm extends Component {
         this.props.fetchClaim(this.props.modulesManager, this.props.claim_uuid, this.props.forFeedback);
     }
 
-    print = () => {
-        this.props.print(this.props.claim_uuid);
-    }
-
     onEditedChanged = claim => {
         this.setState({ claim })
     }
@@ -146,15 +153,45 @@ class ClaimForm extends Component {
             e => this.props.save(claim))
     }
 
+    print = (claimUuid) => {
+        this.setState(
+            { printParam: claimUuid },
+            e => this.props.print()
+        )
+    }
+
     render() {
         const { rights, claim_uuid, fetchingClaim, fetchedClaim, errorClaim, add, back,
-            forReview = false, forFeedback = false } = this.props;
-        let readOnly = this.state.lockNew || (!forReview && this.state.claim.status !== 2) || (forReview && this.state.claim.status !== 4) || !rights.filter(r => r === RIGHT_LOAD).length
+            forReview = false, forFeedback = false, } = this.props;
+        let readOnly = this.state.lockNew ||
+            (!forReview && this.state.claim.status !== 2) ||
+            (forReview && this.state.claim.status !== 4) ||
+            !rights.filter(r => r === RIGHT_LOAD).length
+        var actions = []
+        if (!!this.state.claim && rights.includes(RIGHT_PRINT)) {
+            actions.push({
+                doIt: e => this.print(claim_uuid),
+                icon: <PrintIcon />
+            })
+        }
+        if (!!this.claimAttachments && !!this.state.claim) {
+            actions.push({
+                doIt: e => this.setState({ attachmentsClaim: this.state.claim }),
+                icon: <AttachIcon />
+            })
+        }
         return (
             <Fragment>
                 <ProgressOrError progress={fetchingClaim} error={errorClaim} />
                 {(!!fetchedClaim || !claim_uuid) && (
                     <Fragment>
+                        {!!claim_uuid && (
+                            <PublishedComponent id="claim.AttachmentsDialog"
+                                readOnly={!rights.includes(RIGHT_ADD)}
+                                claim={this.state.attachmentsClaim}
+                                close={e => this.setState({ attachmentsClaim: null })}
+                            />
+                        )}
                         <Form
                             module="claim"
                             edited_id={claim_uuid}
@@ -169,7 +206,7 @@ class ClaimForm extends Component {
                             openDirty={forReview && !readOnly}
                             canSave={this.canSave}
                             reload={claim_uuid && this.reload}
-                            print={rights.filter(r => r === RIGHT_PRINT).length ? this.print : null}
+                            actions={actions}
                             readOnly={readOnly}
                             forReview={forReview}
                             forFeedback={forFeedback}
@@ -201,10 +238,11 @@ const mapStateToProps = (state, props) => ({
     mutation: state.claim.mutation,
     claimAdmin: state.claim.claimAdmin,
     claimHealthFacility: state.claim.claimHealthFacility,
+    generating: state.claim.generating,
 });
 
 const mapDispatchToProps = dispatch => {
-    return bindActionCreators({ fetchClaim, claimHealthFacilitySet, journalize }, dispatch);
+    return bindActionCreators({ fetchClaim, claimHealthFacilitySet, journalize, print, generate }, dispatch);
 };
 
 export default withHistory(withModulesManager(connect(mapStateToProps, mapDispatchToProps)(

@@ -1,5 +1,5 @@
 import {
-  baseApiUrl, graphql, formatPageQuery, formatPageQueryWithCount,
+  baseApiUrl, graphql, formatQuery, formatPageQuery, formatPageQueryWithCount,
   formatMutation, decodeId, openBlob
 } from "@openimis/fe-core";
 import _ from "lodash";
@@ -33,12 +33,72 @@ export function fetchClaimOfficers(mm) {
   return graphql(payload, 'CLAIM_CLAIM_OFFICERS');
 }
 
-export function fetchClaimSummaries(mm, filters) {
+export function fetchClaimAttachments(claim) {
+  const payload = formatPageQuery(
+    "claimAttachments",
+    [`claim_Uuid: "${claim.uuid}"`],
+    ["id", "type", "title", "date", "filename", "mime"]
+  )
+  return graphql(payload, 'CLAIM_CLAIM_ATTACHMENTS');
+}
+
+export function deleteAttachment(attach, clientMutationLabel) {
+  let mutation = formatMutation("deleteClaimAttachment", `id: "${decodeId(attach.id)}"`, clientMutationLabel);
+  var requestedDateTime = new Date();
+  return graphql(
+    mutation.payload,
+    ['CLAIM_MUTATION_REQ', 'CLAIM_DELETE_CLAIM_ATTACHMENT_RESP', 'CLAIM_MUTATION_ERR'],
+    {
+      clientMutationId: mutation.clientMutationId,
+      clientMutationLabel,
+      requestedDateTime
+    }
+  )
+}
+
+export function createAttachment(attach, clientMutationLabel) {
+  let payload = `
+    ${!!attach.type ? `type: "${attach.type}"` : ""}
+    ${!!attach.title ? `title: "${attach.title}"` : ""}
+    ${!!attach.date ? `date: "${attach.date}"` : ""}
+    ${!!attach.mime ? `mime: "${attach.mime}"` : ""}
+    ${!!attach.filename ? `filename: "${attach.filename}"` : ""}
+    ${!!attach.document ? `document: "${attach.document}"` : ""}
+    claimUuid: "${attach.claimUuid}"
+  `
+  let mutation = formatMutation("createClaimAttachment", payload, clientMutationLabel);
+  var requestedDateTime = new Date();
+  return graphql(
+    mutation.payload,
+    ['CLAIM_MUTATION_REQ', 'CLAIM_CREATE_CLAIM_ATTACHMENT_RESP', 'CLAIM_MUTATION_ERR'],
+    {
+      clientMutationId: mutation.clientMutationId,
+      clientMutationLabel,
+      requestedDateTime
+    }
+  )
+}
+
+export function downloadAttachment(attach) {
+  var url = new URL(`${window.location.origin}${baseApiUrl}/claim/attach`);
+  url.search = new URLSearchParams({ id: decodeId(attach.id) });
+  return (dispatch) => {
+    return fetch(url)
+      .then(response => response.blob())
+      .then(blob => openBlob(blob, attach.filename, attach.mime))
+  }
+}
+
+export function fetchClaimSummaries(mm, filters, withAttachmentsCount) {
+  var projections =     ["uuid", "code", "dateClaimed", "feedbackStatus", "reviewStatus", "claimed", "approved", "status",
+  "healthFacility" + mm.getProjection("location.HealthFacilityPicker.projection"),
+  "insuree" + mm.getProjection("insuree.InsureePicker.projection")]
+  if (withAttachmentsCount) {
+    projections.push("attachmentsCount")
+  }
   const payload = formatPageQueryWithCount("claims",
     filters,
-    ["uuid", "code", "dateClaimed", "feedbackStatus", "reviewStatus", "claimed", "approved", "status",
-      "healthFacility" + mm.getProjection("location.HealthFacilityPicker.projection"),
-      "insuree" + mm.getProjection("insuree.InsureePicker.projection")]
+    projections
   );
   return graphql(payload, 'CLAIM_CLAIM_SEARCHER');
 }

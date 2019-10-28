@@ -35,7 +35,7 @@ class ClaimMasterPanel extends Component {
         super(props);
         this.codeMaxLength = props.modulesManager.getConf("fe-claim", "claimForm.codeMaxLength", 10);
         this.guaranteeIdMaxLength = props.modulesManager.getConf("fe-claim", "claimForm.guaranteeIdMaxLength", 50);
-        this.showAdjustmentOnEntry = props.modulesManager.getConf("fe-claim", "claimForm.showAdjustmentOnEntry", false);
+        this.showAdjustmentAtEnter = props.modulesManager.getConf("fe-claim", "claimForm.showAdjustmentAtEnter", false);
     }
 
     componentDidMount() {
@@ -335,7 +335,7 @@ class ClaimMasterPanel extends Component {
                 {!forFeedback &&
                     <Fragment>
                         <ControlledField module="claim" id="Claim.explanation" field={
-                            <Grid item xs={this.showAdjustmentOnEntry ? 4 : 8} className={classes.item}>
+                            <Grid item xs={this.showAdjustmentAtEnter ? 4 : 8} className={classes.item}>
                                 <TextInput
                                     module="claim"
                                     label="explanation"
@@ -346,7 +346,7 @@ class ClaimMasterPanel extends Component {
                                 />
                             </Grid>
                         } />
-                        {!!forReview || this.showAdjustmentOnEntry &&
+                        {!!forReview || this.showAdjustmentAtEnter &&
                             <ControlledField module="claim" id="Claim.adjustment" field={
                                 <Grid item xs={4} className={classes.item}>
                                     <TextInput

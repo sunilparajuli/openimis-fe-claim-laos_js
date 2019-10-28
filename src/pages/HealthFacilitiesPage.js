@@ -14,7 +14,7 @@ import {
 import ClaimSearcher from "../components/ClaimSearcher";
 
 import { selectForFeedback, selectForReview, submit, del, selectHealthFacility } from "../actions";
-import { RIGHT_ADD, RIGHT_LOAD, RIGHT_PRINT, RIGHT_SUBMIT, RIGHT_DELETE } from "../constants";
+import { RIGHT_ADD, RIGHT_LOAD, RIGHT_SUBMIT, RIGHT_DELETE } from "../constants";
 
 const styles = theme => ({
     fab: theme.fab

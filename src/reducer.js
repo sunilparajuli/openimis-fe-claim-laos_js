@@ -9,6 +9,10 @@ function reducer(
         fetchedClaimAdmins: false,
         errorClaimAdmins: null,
         claimAdmins: null,
+        fetchingClaimAttachments: false,
+        fetchedClaimAttachments: false,
+        errorClaimAttachments: null,
+        claimAttachments: null,
         fetchingClaimOfficers: false,
         fetchedClaimOfficers: false,
         errorClaimOfficers: null,
@@ -53,6 +57,28 @@ function reducer(
                 ...state,
                 fetchingClaimAdmins: false,
                 errorClaimAdmins: formatServerError(action.payload)
+            };
+        case 'CLAIM_CLAIM_ATTACHMENTS_REQ':
+            return {
+                ...state,
+                fetchingClaimAttachments: true,
+                fetchedClaimAttachments: false,
+                claimAttachments: null,
+                errorClaimAttachments: null,
+            };
+        case 'CLAIM_CLAIM_ATTACHMENTS_RESP':
+            return {
+                ...state,
+                fetchingClaimAttachments: false,
+                fetchedClaimAttachments: true,
+                claimAttachments: parseData(action.payload.data.claimAttachments),
+                errorClaimAttachments: formatGraphQLError(action.payload),
+            };
+        case 'CLAIM_CLAIM_ATTACHMENTS_ERR':
+            return {
+                ...state,
+                fetchingClaimAttachments: false,
+                errorClaimAttachments: formatServerError(action.payload)
             };
         case 'CLAIM_CLAIM_ADMIN_SELECTED':
             return {
@@ -186,6 +212,10 @@ function reducer(
             return dispatchMutationResp(state, "deliverClaimReview", action);
         case 'CLAIM_PROCESS_CLAIMS_RESP':
             return dispatchMutationResp(state, "processClaims", action);
+        case 'CLAIM_CREATE_CLAIM_ATTACHMENT_RESP':
+                    return dispatchMutationResp(state, "createClaimAttachment", action);            
+        case 'CLAIM_DELETE_CLAIM_ATTACHMENT_RESP':
+            return dispatchMutationResp(state, "deleteClaimAttachment", action);
         case 'CLAIM_PRINT':
             return {
                 ...state,

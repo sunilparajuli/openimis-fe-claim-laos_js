@@ -19,6 +19,7 @@ import MoreHoriz from "@material-ui/icons/MoreHoriz";
 import SortIcon from "@material-ui/icons/UnfoldMore";
 import SortAscIcon from "@material-ui/icons/ExpandLess";
 import SortDescIcon from "@material-ui/icons/ExpandMore";
+import AttachIcon from "@material-ui/icons/AttachFile";
 import { Searcher, Contributions } from "@openimis/fe-core";
 import ClaimFilter from "./ClaimFilter";
 import {
@@ -67,7 +68,8 @@ class SelectionPane extends Component {
 class SelectionMenu extends Component {
 
     state = {
-        anchorEl: null
+        anchorEl: null,
+        attachmentsClaim: null,
     }
 
     openMenu = (e) => this.setState({ anchorEl: e.currentTarget })
@@ -165,6 +167,7 @@ class ClaimSearcher extends Component {
         this.defaultPageSize = props.modulesManager.getConf("fe-claim", "claimFilter.defaultPageSize", 10);
         this.highlightAmount = parseInt(props.modulesManager.getConf("fe-claim", "claimFilter.highlightAmount", 0));
         this.highlightAltInsurees = props.modulesManager.getConf("fe-claim", "claimFilter.highlightAltInsurees", true);
+        this.claimAttachments = props.modulesManager.getConf("fe-claim", "claimAttachments", false);
     }
 
     _resetFilters = () => {
@@ -252,7 +255,8 @@ class ClaimSearcher extends Component {
         },
             e => this.props.fetchClaimSummaries(
                 this.props.modulesManager,
-                this.filtersToQueryParams()
+                this.filtersToQueryParams(),
+                !!this.claimAttachments
             )
         )
     }
@@ -268,7 +272,8 @@ class ClaimSearcher extends Component {
         },
             e => this.props.fetchClaimSummaries(
                 this.props.modulesManager,
-                this.filtersToQueryParams()
+                this.filtersToQueryParams(),
+                !!this.claimAttachments
             )
         )
     }
@@ -295,7 +300,8 @@ class ClaimSearcher extends Component {
             },
             e => this.props.fetchClaimSummaries(
                 this.props.modulesManager,
-                this.filtersToQueryParams()
+                this.filtersToQueryParams(),
+                !!this.claimAttachments
             )
         )
     }
@@ -310,7 +316,8 @@ class ClaimSearcher extends Component {
                 },
                 e => this.props.fetchClaimSummaries(
                     this.props.modulesManager,
-                    this.filtersToQueryParams()
+                    this.filtersToQueryParams(),
+                    !!this.claimAttachments
                 )
             )
         } else if (nbr < this.state.page) {
@@ -322,7 +329,8 @@ class ClaimSearcher extends Component {
                 },
                 e => this.props.fetchClaimSummaries(
                     this.props.modulesManager,
-                    this.filtersToQueryParams()
+                    this.filtersToQueryParams(),
+                    !!this.claimAttachments
                 )
             )
         }
@@ -356,26 +364,101 @@ class ClaimSearcher extends Component {
             },
             e => a(s));
     }
-    preHeaders = () => this.state.selection.length ?
-        [
-            '', '', '', '', '', '',
-            <FormattedMessage
-                module="claim"
-                id="claimSummaries.selection.claimed"
-                values={{
-                    claimed: <b>{formatAmount(this.props.intl, this.state.selection.reduce((t, v) => t + v.claimed, 0))}</b>,
-                }}
-            />,
-            <FormattedMessage
-                module="claim"
-                id="claimSummaries.selection.approved"
-                values={{
-                    approved: <b>{formatAmount(this.props.intl, this.state.selection.reduce((t, v) => t + v.approved, 0))}</b>,
-                }}
-            />,
-            , ''
+    preHeaders = () => {
+        var result = this.state.selection.length ?
+            [
+                '', '', '', '', '', '',
+                <FormattedMessage
+                    module="claim"
+                    id="claimSummaries.selection.claimed"
+                    values={{
+                        claimed: <b>{formatAmount(this.props.intl, this.state.selection.reduce((t, v) => t + v.claimed, 0))}</b>,
+                    }}
+                />,
+                <FormattedMessage
+                    module="claim"
+                    id="claimSummaries.selection.approved"
+                    values={{
+                        approved: <b>{formatAmount(this.props.intl, this.state.selection.reduce((t, v) => t + v.approved, 0))}</b>,
+                    }}
+                />,
+                , ''
+            ]
+            : ['\u200b', '', '', '', '', '', '', '', ''] //fixing pre headers row height!
+        if (this.claimAttachments) {
+            result.push('')
+        }
+        return result;
+    }
+
+    headers = () => {
+        var result = [
+            "claimSummaries.code",
+            "claimSummaries.healthFacility",
+            "claimSummaries.insuree",
+            "claimSummaries.claimedDate",
+            "claimSummaries.feedbackStatus",
+            "claimSummaries.reviewStatus",
+            "claimSummaries.claimed",
+            "claimSummaries.approved",
+            "claimSummaries.claimStatus"
+        ];
+        if (this.claimAttachments) {
+            result.push("claimSummaries.claimAttachments")
+        }
+        return result;
+    }
+
+    headerActions = () => {
+        var result = [
+            () => this.formatSorter('code'),
+            () => this.formatSorter('healthFacility__code'),
+            () => this.formatSorter('insuree__last_name'),
+            () => this.formatSorter('dateClaimed', false),
+            () => null,
+            () => null,
+            () => this.formatSorter('claimed', false),
+            () => this.formatSorter('approved', false)
         ]
-        : ['\u200b', '', '', '', '', '', '', '', ''] //fixing pre headers row height!
+        if (this.claimAttachments) {
+            result.push(
+                () => null
+            )
+        }
+        return result;
+    }
+
+    aligns = () => {
+        return [, , , , , , "right", "right"]
+    }
+
+    itemFormatters = () => {
+        var result = [
+            c => c.code,
+            c => <PublishedComponent
+                readOnly={true}
+                id="location.HealthFacilityPicker" withLabel={false} value={c.healthFacility}
+            />,
+            c => <PublishedComponent
+                readOnly={true}
+                id="insuree.InsureePicker" withLabel={false} value={c.insuree}
+            />,
+            c => formatDateFromISO(this.props.modulesManager, this.props.intl, c.dateClaimed),
+            c => this.feedbackColFormatter(c),
+            c => this.reviewColFormatter(c),
+            c => formatAmount(this.props.intl, c.claimed),
+            c => formatAmount(this.props.intl, c.approved),
+            c => formatMessage(this.props.intl, "claim", `claimStatus.${c.status}`)
+        ]
+        if (this.claimAttachments) {
+            result.push(
+                c => !!c.attachmentsCount && (
+                    <IconButton onClick={e => this.setState({ attachmentsClaim: c })} > <AttachIcon /></IconButton >
+                )
+            )
+        }
+        return result;
+    }
 
     rowHighlighted = claim => !!this.highlightAmount && claim.claimed > this.highlightAmount
     rowHighlightedAlt = claim => !!this.highlightAltInsurees &&
@@ -386,7 +469,8 @@ class ClaimSearcher extends Component {
         this.setState({ orderBy: attr },
             e => this.props.fetchClaimSummaries(
                 this.props.modulesManager,
-                this.filtersToQueryParams()
+                this.filtersToQueryParams(),
+                !!this.claimAttachments
             ))
     }
 
@@ -412,7 +496,7 @@ class ClaimSearcher extends Component {
     }
 
     render() {
-        const { modulesManager, intl, classes, claims, claimsPageInfo, fetchingClaims, fetchedClaims, errorClaims,
+        const { intl, classes, claims, claimsPageInfo, fetchingClaims, fetchedClaims, errorClaims,
             onDoubleClick, actions, processing = false, fixFilter } = this.props;
 
         let count = this.randomCount();
@@ -422,6 +506,10 @@ class ClaimSearcher extends Component {
 
         return (
             <Fragment>
+                <PublishedComponent id="claim.AttachmentsDialog"
+                    readOnly={true}
+                    claim={this.state.attachmentsClaim}
+                    close={e => this.setState({ attachmentsClaim: null })} />
                 <Searcher
                     module="claim"
                     open={e => this.setState({ open: true })}
@@ -474,45 +562,10 @@ class ClaimSearcher extends Component {
                                     <Table
                                         module="claim"
                                         preHeaders={this.preHeaders()}
-                                        headers={[
-                                            "claimSummaries.code",
-                                            "claimSummaries.healthFacility",
-                                            "claimSummaries.insuree",
-                                            "claimSummaries.claimedDate",
-                                            "claimSummaries.feedbackStatus",
-                                            "claimSummaries.reviewStatus",
-                                            "claimSummaries.claimed",
-                                            "claimSummaries.approved",
-                                            "claimSummaries.claimStatus"
-                                        ]}
-                                        headerActions={[
-                                            () => this.formatSorter('code'),
-                                            () => this.formatSorter('healthFacility__code'),
-                                            () => this.formatSorter('insuree__last_name'),
-                                            () => this.formatSorter('dateClaimed', false),
-                                            () => null,
-                                            () => null,
-                                            () => this.formatSorter('claimed', false),
-                                            () => this.formatSorter('approved', false)
-                                        ]}
-                                        aligns={[, , , , , , , "right", "right"]}
-                                        itemFormatters={[
-                                            c => c.code,
-                                            c => <PublishedComponent
-                                                readOnly={true}
-                                                id="location.HealthFacilityPicker" withLabel={false} value={c.healthFacility}
-                                            />,
-                                            c => <PublishedComponent
-                                                readOnly={true}
-                                                id="insuree.InsureePicker" withLabel={false} value={c.insuree}
-                                            />,
-                                            c => formatDateFromISO(modulesManager, intl, c.dateClaimed),
-                                            c => this.feedbackColFormatter(c),
-                                            c => this.reviewColFormatter(c),
-                                            c => formatAmount(intl, c.claimed),
-                                            c => formatAmount(intl, c.approved),
-                                            c => formatMessage(intl, "claim", `claimStatus.${c.status}`)
-                                        ]}
+                                        headers={this.headers()}
+                                        headerActions={this.headerActions()}
+                                        aligns={this.aligns()}
+                                        itemFormatters={this.itemFormatters()}
                                         rowHighlighted={this.rowHighlighted}
                                         rowHighlightedAlt={this.rowHighlightedAlt}
                                         items={claims}
