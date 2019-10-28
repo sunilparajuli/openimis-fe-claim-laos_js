@@ -44,7 +44,7 @@ class ClaimItemsPanel extends Component {
 class ClaimForm extends Component {
 
     state = {
-        locakNew: false,
+        lockNew: false,
         reset: 0,
         update: 0,
         claim: this._newClaim(),
@@ -79,7 +79,7 @@ class ClaimForm extends Component {
             this.setState({ claim: this.props.claim })
             this.props.claimHealthFacilitySet(this.props.claim.healthFacility);
         } else if (prevProps.claim_uuid && !this.props.claim_uuid) {
-            this.setState({ claim: this._newClaim() });
+            this.setState({ claim: this._newClaim(), lockNew: false });
         } else if (prevProps.submittingMutation && !this.props.submittingMutation) {
             this.props.journalize(this.props.mutation);
             this.setState({ reset: this.state.reset + 1 });
@@ -92,6 +92,7 @@ class ClaimForm extends Component {
         this.setState(
             {
                 claim: this._newClaim(),
+                lockNew: false,
                 reset: this.state.reset + 1,
             },
             e => {

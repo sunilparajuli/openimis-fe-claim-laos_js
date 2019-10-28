@@ -24,7 +24,7 @@ class EditPage extends Component {
                     this.props.intl,
                     "claim",
                     "CreateClaim.mutationLabel",
-                    { insuree: claim.insuree_str }
+                    { code: claim.code }
                 )
             );
         } else {

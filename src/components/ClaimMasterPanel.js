@@ -33,7 +33,7 @@ class ClaimMasterPanel extends Component {
 
     constructor(props) {
         super(props);
-        this.codeMaxLength = props.modulesManager.getConf("fe-claim", "claimForm.codeMaxLength", 10);
+        this.codeMaxLength = props.modulesManager.getConf("fe-claim", "claimForm.codeMaxLength", 8);
         this.guaranteeIdMaxLength = props.modulesManager.getConf("fe-claim", "claimForm.guaranteeIdMaxLength", 50);
         this.showAdjustmentAtEnter = props.modulesManager.getConf("fe-claim", "claimForm.showAdjustmentAtEnter", false);
     }
@@ -52,9 +52,10 @@ class ClaimMasterPanel extends Component {
         }
     }
 
-    updateAttribute = (attr, v) => {
+    updateAttribute = (attr, v, s) => {
         let data = { ...this.state.data };
         data[attr] = v;
+        data[attr+"_str"] = s;
         this.props.onEditedChanged(data);
     }
 
