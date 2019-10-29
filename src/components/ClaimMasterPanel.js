@@ -55,7 +55,7 @@ class ClaimMasterPanel extends Component {
     updateAttribute = (attr, v, s) => {
         let data = { ...this.state.data };
         data[attr] = v;
-        data[attr+"_str"] = s;
+        data[attr + "_str"] = s;
         this.props.onEditedChanged(data);
     }
 
@@ -189,7 +189,7 @@ class ClaimMasterPanel extends Component {
                     </Grid>
                 } />
                 <ControlledField module="claim" id="Claim.guarantee" field={
-                    <Grid item xs={2} className={classes.item}>
+                    <Grid item xs={!forReview && edited.status >= 4 ? 1 : 2} className={classes.item}>
                         <TextInput
                             module="claim"
                             label="guaranteeId"
@@ -233,7 +233,7 @@ class ClaimMasterPanel extends Component {
                 }
                 {!forFeedback &&
                     <ControlledField module="claim" id="Claim.claimed" field={
-                        <Grid item xs={forReview ? 1 : 2} className={classes.item}>
+                        <Grid item xs={forReview || edited.status >= 4 ? 1 : 2} className={classes.item}>
                             <AmountInput
                                 value={edited.claimed}
                                 module="claim"
@@ -243,12 +243,12 @@ class ClaimMasterPanel extends Component {
                         </Grid>
                     } />
                 }
-                {forReview &&
+                {(forReview || edited.status >= 4) &&
                     <Fragment>
                         <ControlledField module="claim" id="Claim.approved" field={
                             <Grid item xs={1} className={classes.item}>
                                 <AmountInput
-                                    value={edited.approved}
+                                    value={edited.approved || null}
                                     module="claim"
                                     label="approved"
                                     readOnly={true}
@@ -258,7 +258,7 @@ class ClaimMasterPanel extends Component {
                         <ControlledField module="claim" id="Claim.valuated" field={
                             <Grid item xs={1} className={classes.item}>
                                 <AmountInput
-                                    value={edited.valuated}
+                                    value={edited.valuated || null}
                                     module="claim"
                                     label="valuated"
                                     readOnly={true}
@@ -347,7 +347,7 @@ class ClaimMasterPanel extends Component {
                                 />
                             </Grid>
                         } />
-                        {!!forReview || this.showAdjustmentAtEnter &&
+                        {(!!forReview || this.showAdjustmentAtEnter || edited.status >= 4) &&
                             <ControlledField module="claim" id="Claim.adjustment" field={
                                 <Grid item xs={4} className={classes.item}>
                                     <TextInput

@@ -28,7 +28,7 @@ class ClaimChildPanel extends Component {
         if (!!this.props.edited[`${this.props.type}s`]) {
             data = this.props.edited[`${this.props.type}s`] || []
         }
-        if (!this.props.forReview && !_.isEqual(data[data.length - 1], {})) {
+        if (!this.props.forReview && this.props.edited.status < 4 && !_.isEqual(data[data.length - 1], {})) {
             data.push({});
         }
         return data;
@@ -149,7 +149,7 @@ class ClaimChildPanel extends Component {
                 onChange={v => this._onChange(idx, "explanation", v)}
             />,
         ];
-        if (!!forReview) {
+        if (!!forReview || edited.status >= 4) {
             if (!this.fixedPricesAtReview) {
                 preHeaders.push('');
             }
@@ -181,14 +181,14 @@ class ClaimChildPanel extends Component {
             }
         }
 
-        if (this.showJustificationAtEnter) {
+        if (this.showJustificationAtEnter || edited.status >= 4) {
             preHeaders.push('');
             headers.push(`edit.${type}s.justification`);
             itemFormatters.push(
                 (i, idx) => <TextInput readOnly={readOnly} value={i.justification} onChange={v => this._onChange(idx, "justification", v)} />
             );
         }
-        if (!!forReview) {
+        if (!!forReview || edited.status >= 4) {
             preHeaders.push('', '');
             headers.push(
                 `edit.${type}s.status`,
@@ -207,7 +207,7 @@ class ClaimChildPanel extends Component {
                     readOnly={readOnly}
                     id="claim.RejectionReasonPicker"
                     withLabel={false}
-                    value={i.rejectionReason}
+                    value={i.rejectionReason || null}
                     compact={true}
                     onChange={v => this._onChange(idx, 'rejectionReason', v)}
                 />,
