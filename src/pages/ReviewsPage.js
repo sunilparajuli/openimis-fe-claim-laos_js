@@ -282,7 +282,9 @@ class ReviewsPage extends Component {
         }
     }
 
-    canMarkSelectedForFeedback = selection => !!selection && selection.length && selection.filter(s => s.feedbackStatus <= 2).length === selection.length
+    canMarkSelectedForFeedback = selection => !!selection && selection.length &&
+        selection.filter(s => s.feedbackStatus <= 2).length === selection.length &&
+        selection.filter(s => s.status === 4).length === selection.length
 
     markSelectedForFeedback = selection => {
         this._labelMutation(selection,
@@ -291,7 +293,9 @@ class ReviewsPage extends Component {
             this.props.selectForFeedback);
     }
 
-    canMarkBypassedFeedback = selection => !!selection && selection.length && selection.filter(s => s.feedbackStatus === 4).length === selection.length
+    canMarkBypassedFeedback = selection => !!selection && selection.length &&
+        selection.filter(s => s.feedbackStatus === 4).length === selection.length &&
+        selection.filter(s => s.status === 4).length === selection.length
 
     markBypassedFeedback = selection => {
         this._labelMutation(selection,
@@ -300,7 +304,8 @@ class ReviewsPage extends Component {
             this.props.bypassFeedback);
     }
 
-    canMarkSkippedFeedback = selection => !!selection && selection.length
+    canMarkSkippedFeedback = selection => !!selection && selection.length &&
+        selection.filter(s => s.status === 4).length === selection.length
 
     markSkippedFeedback = selection => {
         this._labelMutation(selection,
@@ -309,7 +314,9 @@ class ReviewsPage extends Component {
             this.props.skipFeedback);
     }
 
-    canMarkSelectedForReview = selection => !!selection && selection.length && selection.filter(s => s.reviewStatus <= 2).length === selection.length
+    canMarkSelectedForReview = selection => !!selection && selection.length &&
+        selection.filter(s => s.reviewStatus <= 2).length === selection.length &&
+        selection.filter(s => s.status === 4).length === selection.length
 
     markSelectedForReview = selection => {
         this._labelMutation(selection,
@@ -318,7 +325,9 @@ class ReviewsPage extends Component {
             this.props.selectForReview);
     }
 
-    canMarkBypassedReview = selection => !!selection && selection.length && selection.filter(s => s.reviewStatus === 4).length === selection.length
+    canMarkBypassedReview = selection => !!selection && selection.length &&
+        selection.filter(s => s.reviewStatus === 4).length === selection.length &&
+        selection.filter(s => s.status === 4).length === selection.length
 
     markBypassedReview = selection => {
         this._labelMutation(selection,
@@ -327,7 +336,8 @@ class ReviewsPage extends Component {
             this.props.bypassReview);
     }
 
-    canMarkSkippedReview = selection => !!selection && selection.length
+    canMarkSkippedReview = selection => !!selection && selection.length &&
+        selection.filter(s => s.status === 4).length === selection.length
 
     markSkippedReview = selection => {
         this._labelMutation(selection,
