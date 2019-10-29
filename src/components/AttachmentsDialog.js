@@ -76,7 +76,7 @@ class AttachmentsDialog extends Component {
             )
             // called from ClaimForm!
             // this.props.journalize(this.props.mutation);
-        } else if (prevProps.confirmed !== this.props.confirmed && !!this.props.confirmed) {
+        } else if (prevProps.confirmed !== this.props.confirmed && !!this.props.confirmed && !!this.state.attachmentToDelete) {
             this.props.deleteAttachment(
                 this.state.attachmentToDelete,
                 formatMessageWithValues(this.props.intl, "claim", "claim.ClaimAttachment.delete.mutationLabel", {
