@@ -13,7 +13,7 @@ import {
 } from "@openimis/fe-core";
 import ClaimSearcher from "../components/ClaimSearcher";
 
-import { selectForFeedback, selectForReview, submit, del, selectHealthFacility } from "../actions";
+import { submit, del, selectHealthFacility } from "../actions";
 import { RIGHT_ADD, RIGHT_LOAD, RIGHT_SUBMIT, RIGHT_DELETE } from "../constants";
 
 const styles = theme => ({
@@ -228,8 +228,6 @@ const mapDispatchToProps = dispatch => {
     return bindActionCreators(
         {
             coreConfirm,
-            selectForFeedback,
-            selectForReview,
             submit,
             del,
             journalize,

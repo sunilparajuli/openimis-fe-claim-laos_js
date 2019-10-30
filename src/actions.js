@@ -90,9 +90,10 @@ export function downloadAttachment(attach) {
 }
 
 export function fetchClaimSummaries(mm, filters, withAttachmentsCount) {
-  var projections =     ["uuid", "code", "dateClaimed", "feedbackStatus", "reviewStatus", "claimed", "approved", "status",
-  "healthFacility" + mm.getProjection("location.HealthFacilityPicker.projection"),
-  "insuree" + mm.getProjection("insuree.InsureePicker.projection")]
+  var projections = ["uuid", "code", "dateClaimed", "feedbackStatus", "reviewStatus", "claimed", "approved", "status",
+    "clientMutationId",
+    "healthFacility" + mm.getProjection("location.HealthFacilityPicker.projection"),
+    "insuree" + mm.getProjection("insuree.InsureePicker.projection")]
   if (withAttachmentsCount) {
     projections.push("attachmentsCount")
   }
@@ -166,6 +167,7 @@ export function createClaim(mm, claim, clientMutationLabel) {
 export function updateClaim(mm, claim, clientMutationLabel) {
   let mutation = formatMutation("updateClaim", formatClaimGQL(mm, claim), clientMutationLabel);
   var requestedDateTime = new Date();
+  claim.clientMutationId = mutation.clientMutationId;
   return graphql(
     mutation.payload,
     ['CLAIM_MUTATION_REQ', 'CLAIM_UPDATE_CLAIM_RESP', 'CLAIM_MUTATION_ERR'],
@@ -228,6 +230,7 @@ export function submit(claims, clientMutationLabel) {
   let claimUuids = `uuids: ["${claims.map(c => c.uuid).join("\",\"")}"]`
   let mutation = formatMutation("submitClaims", claimUuids, clientMutationLabel);
   var requestedDateTime = new Date();
+  claims.forEach(c => c.clientMutationId = mutation.clientMutationId);
   return graphql(
     mutation.payload,
     ['CLAIM_MUTATION_REQ', 'CLAIM_SUBMIT_CLAIMS_RESP', 'CLAIM_MUTATION_ERR'],
@@ -243,6 +246,7 @@ export function del(claims, clientMutationLabel) {
   let claimUuids = `uuids: ["${claims.map(c => c.uuid).join("\",\"")}"]`
   let mutation = formatMutation("deleteClaims", claimUuids, clientMutationLabel);
   var requestedDateTime = new Date();
+  claims.forEach(c => c.clientMutationId = mutation.clientMutationId);
   return graphql(
     mutation.payload,
     ['CLAIM_MUTATION_REQ', 'CLAIM_DELETE_CLAIMS_RESP', 'CLAIM_MUTATION_ERR'],
@@ -258,6 +262,7 @@ export function selectForFeedback(claims, clientMutationLabel) {
   let claimUuids = `uuids: ["${claims.map(c => c.uuid).join("\",\"")}"]`
   let mutation = formatMutation("selectClaimsForFeedback", claimUuids, clientMutationLabel);
   var requestedDateTime = new Date();
+  claims.forEach(c => c.clientMutationId = mutation.clientMutationId);
   return graphql(
     mutation.payload,
     ['CLAIM_MUTATION_REQ', 'CLAIM_SELECT_CLAIMS_FOR_FEEDBACK_RESP', 'CLAIM_MUTATION_ERR'],
@@ -273,6 +278,7 @@ export function bypassFeedback(claims, clientMutationLabel) {
   let claimUuids = `uuids: ["${claims.map(c => c.uuid).join("\",\"")}"]`
   let mutation = formatMutation("bypassClaimsFeedback", claimUuids, clientMutationLabel);
   var requestedDateTime = new Date();
+  claims.forEach(c => c.clientMutationId = mutation.clientMutationId);
   return graphql(
     mutation.payload,
     ['CLAIM_MUTATION_REQ', 'CLAIM_BYPASS_CLAIMS_FEEDBACK_RESP', 'CLAIM_MUTATION_ERR'],
@@ -300,6 +306,7 @@ export function deliverFeedback(claim, clientMutationLabel) {
   `
   let mutation = formatMutation("deliverClaimFeedback", feedbackGQL, clientMutationLabel)
   var requestedDateTime = new Date();
+  claim.clientMutationId = mutation.clientMutationId;
   return graphql(
     mutation.payload,
     ['CLAIM_MUTATION_REQ', 'CLAIM_DELIVER_CLAIM_FEEDBACK_RESP', 'CLAIM_MUTATION_ERR'],
@@ -315,6 +322,7 @@ export function skipFeedback(claims, clientMutationLabel) {
   let claimUuids = `uuids: ["${claims.map(c => c.uuid).join("\",\"")}"]`
   let mutation = formatMutation("skipClaimsFeedback", claimUuids, clientMutationLabel);
   var requestedDateTime = new Date();
+  claims.forEach(c => c.clientMutationId = mutation.clientMutationId);
   return graphql(
     mutation.payload,
     ['CLAIM_MUTATION_REQ', 'CLAIM_SKIP_CLAIMS_FEEDBACK_RESP', 'CLAIM_MUTATION_ERR'],
@@ -327,9 +335,13 @@ export function skipFeedback(claims, clientMutationLabel) {
 }
 
 export function selectForReview(claims, clientMutationLabel) {
-  let claimUuids = `uuids: ["${claims.map(c => c.uuid).join("\",\"")}"]`
-  let mutation = formatMutation("selectClaimsForReview", claimUuids, clientMutationLabel);
+  let mutation = formatMutation(
+    "selectClaimsForReview",
+    `uuids: ["${claims.map(c => c.uuid).join("\",\"")}"]`,
+    clientMutationLabel
+  );
   var requestedDateTime = new Date();
+  claims.forEach(c => c.clientMutationId = mutation.clientMutationId);
   return graphql(
     mutation.payload,
     ['CLAIM_MUTATION_REQ', 'CLAIM_SELECT_CLAIMS_FOR_REVIEW_RESP', 'CLAIM_MUTATION_ERR'],
@@ -345,6 +357,7 @@ export function bypassReview(claims, clientMutationLabel) {
   let claimUuids = `uuids: ["${claims.map(c => c.uuid).join("\",\"")}"]`
   let mutation = formatMutation("bypassClaimsReview", claimUuids, clientMutationLabel);
   var requestedDateTime = new Date();
+  claims.forEach(c => c.clientMutationId = mutation.clientMutationId);
   return graphql(
     mutation.payload,
     ['CLAIM_MUTATION_REQ', 'CLAIM_BYPASS_CLAIMS_REVIEW_RESP', 'CLAIM_MUTATION_ERR'],
@@ -384,6 +397,7 @@ export function deliverReview(claim, clientMutationLabel) {
   `
   let mutation = formatMutation("deliverClaimReview", reviewGQL, clientMutationLabel)
   var requestedDateTime = new Date();
+  claim.clientMutationId = mutation.clientMutationId;
   return graphql(
     mutation.payload,
     ['CLAIM_MUTATION_REQ', 'CLAIM_DELIVER_CLAIM_REVIEW_RESP', 'CLAIM_MUTATION_ERR'],
@@ -399,6 +413,7 @@ export function skipReview(claims, clientMutationLabel) {
   let claimUuids = `uuids: ["${claims.map(c => c.uuid).join("\",\"")}"]`
   let mutation = formatMutation("skipClaimsReview", claimUuids, clientMutationLabel);
   var requestedDateTime = new Date();
+  claims.forEach(c => c.clientMutationId = mutation.clientMutationId);
   return graphql(
     mutation.payload,
     ['CLAIM_MUTATION_REQ', 'CLAIM_SKIP_CLAIMS_REVIEW_RESP', 'CLAIM_MUTATION_ERR'],
@@ -414,6 +429,7 @@ export function process(claims, clientMutationLabel) {
   let claimUuids = `uuids: ["${claims.map(c => c.uuid).join("\",\"")}"]`
   let mutation = formatMutation("processClaims", claimUuids, clientMutationLabel);
   var requestedDateTime = new Date();
+  claims.forEach(c => c.clientMutationId = mutation.clientMutationId);
   return graphql(
     mutation.payload,
     ['CLAIM_MUTATION_REQ', 'CLAIM_PROCESS_CLAIMS_RESP', 'CLAIM_MUTATION_ERR'],

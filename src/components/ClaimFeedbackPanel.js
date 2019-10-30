@@ -103,7 +103,7 @@ class ClaimFeedbackPanel extends Component {
                     max={1}
                     step={1}
                     value={this._mapTristateValue(this.props.edited.feedback[f])}
-                    readOnly={!!this.props.readOnly}
+                    disabled={!!this.props.readOnly}
                     defaultValue={0}
                     valueLabelDisplay="off"
                     marks={this.tristateMarks}
@@ -195,7 +195,7 @@ class ClaimFeedbackPanel extends Component {
                                         min={-1}
                                         max={!!this.marks ? this.marks.length - 2 : -1}
                                         step={1}
-                                        readOnly={readOnly}
+                                        disabled={readOnly}
                                         value={this._mapAssessmentValue(edited.feedback.asessment)}
                                         defaultValue={-1}
                                         valueLabelDisplay="off"

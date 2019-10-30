@@ -189,7 +189,7 @@ class ClaimMasterPanel extends Component {
                     </Grid>
                 } />
                 <ControlledField module="claim" id="Claim.guarantee" field={
-                    <Grid item xs={!forReview && edited.status >= 4 ? 1 : 2} className={classes.item}>
+                    <Grid item xs={!forReview && edited.status >= 4 && !forFeedback ? 1 : 2} className={classes.item}>
                         <TextInput
                             module="claim"
                             label="guaranteeId"
@@ -243,7 +243,7 @@ class ClaimMasterPanel extends Component {
                         </Grid>
                     } />
                 }
-                {(forReview || edited.status >= 4) &&
+                {(forReview || edited.status >= 4) && !forFeedback &&
                     <Fragment>
                         <ControlledField module="claim" id="Claim.approved" field={
                             <Grid item xs={1} className={classes.item}>

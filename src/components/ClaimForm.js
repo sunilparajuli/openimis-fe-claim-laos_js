@@ -109,7 +109,8 @@ class ClaimForm extends Component {
         return true;
     }
 
-    canSave = () => {
+    canSave = (forFeedback) => {
+        debugger;
         if (!this.state.claim.code) return false;
         if (!this.state.claim.healthFacility) return false;
         if (!this.state.claim.insuree) return false;
@@ -119,24 +120,26 @@ class ClaimForm extends Component {
         if (!!this.state.claim.dateTo && this.state.claim.dateFrom > this.state.claim.dateTo) return false;
         if (!this.state.claim.status) return false;
         if (!this.state.claim.icd) return false;
-        if (!this.state.claim.items && !this.state.claim.services) return false;
-        let items = [];
-        if (!!this.state.claim.items) {
-            items = [...this.state.claim.items];
-            if (!this.props.forReview) items.pop();
-            if (items.length && items.filter(i => !this.canSaveDetail(i, 'item')).length) {
-                return false;
+        if (!forFeedback) {
+            if (!this.state.claim.items && !this.state.claim.services) return false;
+            let items = [];
+            if (!!this.state.claim.items) {
+                items = [...this.state.claim.items];
+                if (!this.props.forReview) items.pop();
+                if (items.length && items.filter(i => !this.canSaveDetail(i, 'item')).length) {
+                    return false;
+                }
             }
-        }
-        let services = [];
-        if (!!this.state.claim.services) {
-            services = [...this.state.claim.services];
-            if (!this.props.forReview) services.pop();
-            if (services.length && services.filter(s => !this.canSaveDetail(s, 'service')).length) {
-                return false;
+            let services = [];
+            if (!!this.state.claim.services) {
+                services = [...this.state.claim.services];
+                if (!this.props.forReview) services.pop();
+                if (services.length && services.filter(s => !this.canSaveDetail(s, 'service')).length) {
+                    return false;
+                }
             }
+            if (!items.length && !services.length) return false;
         }
-        if (!items.length && !services.length) return false;
         return true;
     }
 
@@ -165,17 +168,17 @@ class ClaimForm extends Component {
         const { rights, claim_uuid, fetchingClaim, fetchedClaim, errorClaim, add, back,
             forReview = false, forFeedback = false, } = this.props;
         let readOnly = this.state.lockNew ||
-            (!forReview && this.state.claim.status !== 2) ||
-            (forReview && this.state.claim.status !== 4) ||
+            (!forReview && !forFeedback && this.state.claim.status !== 2) ||
+            ((forReview || forFeedback) && this.state.claim.status !== 4) ||
             !rights.filter(r => r === RIGHT_LOAD).length
         var actions = []
-        if (!!this.state.claim && rights.includes(RIGHT_PRINT)) {
+        if (!!claim_uuid && rights.includes(RIGHT_PRINT)) {
             actions.push({
                 doIt: e => this.print(claim_uuid),
                 icon: <PrintIcon />
             })
         }
-        if (!!this.claimAttachments && !!this.state.claim) {
+        if (!!this.claimAttachments && !!claim_uuid) {
             actions.push({
                 doIt: e => this.setState({ attachmentsClaim: this.state.claim }),
                 icon: <AttachIcon />
@@ -188,7 +191,7 @@ class ClaimForm extends Component {
                     <Fragment>
                         {!!claim_uuid && (
                             <PublishedComponent id="claim.AttachmentsDialog"
-                                readOnly={!rights.includes(RIGHT_ADD)}
+                                readOnly={!rights.includes(RIGHT_ADD) || readOnly}
                                 claim={this.state.attachmentsClaim}
                                 close={e => this.setState({ attachmentsClaim: null })}
                             />
@@ -205,7 +208,7 @@ class ClaimForm extends Component {
                             add={!!add ? this._add : null}
                             save={!!this.props.save ? this.save : null}
                             openDirty={forReview && !readOnly}
-                            canSave={this.canSave}
+                            canSave={e => this.canSave(forFeedback)}
                             reload={claim_uuid && this.reload}
                             actions={actions}
                             readOnly={readOnly}

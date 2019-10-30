@@ -159,6 +159,7 @@ class ClaimSearcher extends Component {
         selectAll: 0,
         clearAll: 0,
         menuAnchor: null,
+        mutationsClaims: [],
     }
 
     constructor(props) {
@@ -459,7 +460,7 @@ class ClaimSearcher extends Component {
         }
         return result;
     }
-
+    rowLocked = claim => !!claim.clientMutationId
     rowHighlighted = claim => !!this.highlightAmount && claim.claimed > this.highlightAmount
     rowHighlightedAlt = claim => !!this.highlightAltInsurees &&
         this.state.selection.filter(c => _.isEqual(c.insuree, claim.insuree)).length &&
@@ -566,6 +567,7 @@ class ClaimSearcher extends Component {
                                         headerActions={this.headerActions()}
                                         aligns={this.aligns()}
                                         itemFormatters={this.itemFormatters()}
+                                        rowLocked={this.rowLocked}
                                         rowHighlighted={this.rowHighlighted}
                                         rowHighlightedAlt={this.rowHighlightedAlt}
                                         items={claims}

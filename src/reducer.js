@@ -213,7 +213,7 @@ function reducer(
         case 'CLAIM_PROCESS_CLAIMS_RESP':
             return dispatchMutationResp(state, "processClaims", action);
         case 'CLAIM_CREATE_CLAIM_ATTACHMENT_RESP':
-                    return dispatchMutationResp(state, "createClaimAttachment", action);            
+            return dispatchMutationResp(state, "createClaimAttachment", action);
         case 'CLAIM_DELETE_CLAIM_ATTACHMENT_RESP':
             return dispatchMutationResp(state, "deleteClaimAttachment", action);
         case 'CLAIM_PRINT':
