@@ -127,6 +127,7 @@ class ClaimMasterPanel extends Component {
                             onChange={d => this.updateAttribute("dateFrom", d)}
                             readOnly={ro}
                             required={true}
+                            maxDate={edited.dateTo}
                         />
                     </Grid>
                 } />
@@ -139,6 +140,7 @@ class ClaimMasterPanel extends Component {
                             reset={reset}
                             onChange={d => this.updateAttribute("dateTo", d)}
                             readOnly={ro}
+                            minDate={edited.dateFrom}
                         />
                     </Grid>
                 } />
