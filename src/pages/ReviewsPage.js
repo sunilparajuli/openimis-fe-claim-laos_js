@@ -400,7 +400,7 @@ class ReviewsPage extends Component {
                     withNull={false}
                     filtered={[1, 8]}
                     value={c.feedbackStatus}
-                    readOnly={!this.props.rights.includes(RIGHT_UPDATE)}
+                    readOnly={!this.props.rights.includes(RIGHT_UPDATE) || c.status !== 4}
                     onChange={(v, s) => this.onChangeFeedbackStatus(c, v)}
                 />
             </Grid>
@@ -458,7 +458,7 @@ class ReviewsPage extends Component {
                     value={c.reviewStatus}
                     withNull={false}
                     filtered={[1, 8]}
-                    readOnly={!this.props.rights.includes(RIGHT_UPDATE)}
+                    readOnly={!this.props.rights.includes(RIGHT_UPDATE) || c.status !== 4}
                     onChange={(v, s) => this.onChangeReviewStatus(c, v)}
                 />
             </Grid>
