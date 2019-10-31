@@ -149,7 +149,7 @@ class ClaimChildPanel extends Component {
                 onChange={v => this._onChange(idx, "explanation", v)}
             />,
         ];
-        if (!!forReview || edited.status >= 4) {
+        if (!!forReview || edited.status !== 2) {
             if (!this.fixedPricesAtReview) {
                 preHeaders.push('');
             }
@@ -181,14 +181,14 @@ class ClaimChildPanel extends Component {
             }
         }
 
-        if (this.showJustificationAtEnter || edited.status >= 4) {
+        if (this.showJustificationAtEnter || edited.status !== 2) {
             preHeaders.push('');
             headers.push(`edit.${type}s.justification`);
             itemFormatters.push(
                 (i, idx) => <TextInput readOnly={readOnly} value={i.justification} onChange={v => this._onChange(idx, "justification", v)} />
             );
         }
-        if (!!forReview || edited.status >= 4) {
+        if (!!forReview || edited.status !== 2) {
             preHeaders.push('', '');
             headers.push(
                 `edit.${type}s.status`,
