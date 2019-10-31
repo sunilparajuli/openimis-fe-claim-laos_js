@@ -28,7 +28,7 @@ class ClaimChildPanel extends Component {
         if (!!this.props.edited[`${this.props.type}s`]) {
             data = this.props.edited[`${this.props.type}s`] || []
         }
-        if (!this.props.forReview && this.props.edited.status < 4 && !_.isEqual(data[data.length - 1], {})) {
+        if (!this.props.forReview && this.props.edited.status == 2 && !_.isEqual(data[data.length - 1], {})) {
             data.push({});
         }
         return data;
