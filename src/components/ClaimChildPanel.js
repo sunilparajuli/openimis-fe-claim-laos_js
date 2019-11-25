@@ -103,6 +103,28 @@ class ClaimChildPanel extends Component {
         this._onEditedChanged(data);
     }
 
+    formatRejectedReason = (i, idx) => {
+        if (i.status === 1) return null;
+        return <PublishedComponent
+            readOnly={true}
+            id="claim.RejectionReasonPicker"
+            withLabel={false}
+            value={i.rejectionReason || null}
+            compact={true}
+            onChange={v => this._onChange(idx, 'rejectionReason', v)}
+        />
+    }
+
+    _onChangeApproval = (idx, attr, v) => {
+        let data = this._updateData(idx, attr, v);
+        if (v === 2) {
+            data = this._updateData(idx, 'rejectionReason', -1);
+        } else {
+            data = this._updateData(idx, 'rejectionReason', null);
+        }
+        this._onEditedChanged(data);
+    }
+
     render() {
         const { intl, edited, type, picker, forReview, fetchingPricelist, readOnly = false } = this.props;
         if (!edited) return null;
@@ -131,6 +153,7 @@ class ClaimChildPanel extends Component {
             (i, idx) => <PublishedComponent
                 readOnly={!!forReview || readOnly}
                 id={picker} withLabel={false} value={i[type]}
+                refDate={edited.dateClaimed}
                 onChange={v => this._onChangeItem(idx, type, v)}
             />,
             (i, idx) => <NumberInput
@@ -201,16 +224,9 @@ class ClaimChildPanel extends Component {
                     withNull={false}
                     withLabel={false}
                     value={i.status}
-                    onChange={v => this._onChange(idx, 'status', v)}
+                    onChange={v => this._onChangeApproval(idx, 'status', v)}
                 />,
-                (i, idx) => <PublishedComponent
-                    readOnly={readOnly}
-                    id="claim.RejectionReasonPicker"
-                    withLabel={false}
-                    value={i.rejectionReason || null}
-                    compact={true}
-                    onChange={v => this._onChange(idx, 'rejectionReason', v)}
-                />,
+                (i, idx) => this.formatRejectedReason(i, idx),
             );
         }
         if (!forReview) {

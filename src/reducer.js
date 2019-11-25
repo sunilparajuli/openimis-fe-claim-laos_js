@@ -32,6 +32,10 @@ function reducer(
         lastClaimAt: {},
         submittingMutation: false,
         mutation: {},
+        fetchingClaimCodeCount: false,
+        fetchedClaimCodeCount: false,
+        claimCodeCount: null,
+        errorClaimCodeCount: null,
     },
     action,
 ) {
@@ -182,6 +186,27 @@ function reducer(
                 fetchingLastClaimAt: false,
                 errorLastClaimAt: formatServerError(action.payload)
             };
+        case 'CLAIM_CLAIM_CODE_COUNT_REQ':
+            return {
+                ...state,
+                fetchingClaimCodeCount: true,
+                fetchedClaimCodeCount: false,
+                claimCodeCount: null,
+                errorClaimCodeCount: null,
+            }
+        case 'CLAIM_CLAIM_CODE_COUNT_RESP':
+            return {
+                ...state,
+                fetchingClaimCodeCount: false,
+                fetchedClaimCodeCount: true,
+                claimCodeCount: action.payload.data.claims.totalCount,
+            }
+        case 'CLAIM_CLAIM_CODE_COUNT_ERR':
+            return {
+                ...state,
+                fetchingClaimCodeCount: false,
+                errorClaimCodeCount: formatServerError(action.payload)
+            };
         case 'CLAIM_MUTATION_REQ':
             return dispatchMutationReq(state, action)
         case 'CLAIM_MUTATION_ERR':
@@ -216,6 +241,10 @@ function reducer(
             return dispatchMutationResp(state, "createClaimAttachment", action);
         case 'CLAIM_DELETE_CLAIM_ATTACHMENT_RESP':
             return dispatchMutationResp(state, "deleteClaimAttachment", action);
+        case 'CORE_ALERT_CLEAR':
+                var s = { ...state };
+                delete (s.alert);
+                return s;            
         case 'CLAIM_PRINT':
             return {
                 ...state,

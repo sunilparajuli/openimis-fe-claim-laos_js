@@ -168,7 +168,7 @@ class ClaimSearcher extends Component {
         this.defaultPageSize = props.modulesManager.getConf("fe-claim", "claimFilter.defaultPageSize", 10);
         this.highlightAmount = parseInt(props.modulesManager.getConf("fe-claim", "claimFilter.highlightAmount", 0));
         this.highlightAltInsurees = props.modulesManager.getConf("fe-claim", "claimFilter.highlightAltInsurees", true);
-        this.claimAttachments = props.modulesManager.getConf("fe-claim", "claimAttachments", false);
+        this.claimAttachments = props.modulesManager.getConf("fe-claim", "claimAttachments", true);
     }
 
     _resetFilters = () => {

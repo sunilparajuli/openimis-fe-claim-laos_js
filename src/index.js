@@ -13,6 +13,7 @@ import RejectionReasonPicker from "./pickers/RejectionReasonPicker";
 import FeedbackStatusPicker from "./pickers/FeedbackStatusPicker";
 import ClaimMasterPanelExt from "./components/ClaimMasterPanelExt";
 import AttachmentsDialog from "./components/AttachmentsDialog";
+import ClaimAlertForwarder from "./components/ClaimAlertForwarder";
 import messages_en from "./translations/en.json";
 import reducer from "./reducer";
 
@@ -62,6 +63,7 @@ const DEFAULT_CONFIG = {
     { path: ROUTE_CLAIM_FEEDBACK + "/:claim_uuid", component: FeedbackPage },
   ],
   "core.MainMenu": [ClaimMainMenu],
+  "core.Boot": [ClaimAlertForwarder],
 }
 
 export const ClaimModule = (cfg) => {

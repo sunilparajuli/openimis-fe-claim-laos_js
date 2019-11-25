@@ -80,4 +80,4 @@ None
 * `claimForm.fixedPricesAtReview`, boolean to prevent user to adapt prices at claim review (fixed to price list). Default: false (user can change the price)
 * `claimForm.showJustificationAtEnter`, boolean to display justification field(s) for items and services at claim entry. Default false;
 * `claimForm.showAdjustmentAtEnter`, boolean to display adjustment field at claim entry. Default false;
-* `claimAttachments`, boolean to enable claim attachments
+* `claimAttachments`, boolean to enable/disable claim attachments. Default true;

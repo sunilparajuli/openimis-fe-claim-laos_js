@@ -25,6 +25,15 @@ export function selectHealthFacility(hf) {
   }
 }
 
+export function validateClaimCode(code) {
+  const payload = formatQuery(
+    "claims",
+    [`code: "${code}"`],
+    ["totalCount"]
+  )
+  return graphql(payload, 'CLAIM_CLAIM_CODE_COUNT');  
+}
+
 export function fetchClaimOfficers(mm) {
   const payload = formatPageQuery("claimOfficers",
     null,
@@ -179,7 +188,8 @@ export function updateClaim(mm, claim, clientMutationLabel) {
   )
 }
 
-export function fetchClaim(mm, claimUuid, forFeedback) {
+export function fetchClaim(mm, claimUuid, claimCode, forFeedback) {
+  let filter = !!claimUuid ? `uuid: "${claimUuid}"` : `code: "${claimCode}"`
   let projections = [
     "uuid", "code", "dateFrom", "dateTo", "dateClaimed", "claimed", "approved", "valuated",
     "status", "feedbackStatus", "reviewStatus", "guaranteeId", "explanation", "adjustment",
@@ -208,7 +218,7 @@ export function fetchClaim(mm, claimUuid, forFeedback) {
     )
   }
   const payload = formatPageQuery("claims",
-    [`uuid: "${claimUuid}"`],
+    [filter],
     projections
   );
   return graphql(payload, 'CLAIM_CLAIM');
@@ -226,9 +236,9 @@ export function fetchLastClaimAt(claim) {
   return graphql(payload, 'CLAIM_LAST_CLAIM_AT');
 }
 
-export function submit(claims, clientMutationLabel) {
+export function submit(claims, clientMutationLabel, clientMutationDetails = null) {
   let claimUuids = `uuids: ["${claims.map(c => c.uuid).join("\",\"")}"]`
-  let mutation = formatMutation("submitClaims", claimUuids, clientMutationLabel);
+  let mutation = formatMutation("submitClaims", claimUuids, clientMutationLabel, clientMutationDetails);
   var requestedDateTime = new Date();
   claims.forEach(c => c.clientMutationId = mutation.clientMutationId);
   return graphql(
@@ -237,14 +247,15 @@ export function submit(claims, clientMutationLabel) {
     {
       clientMutationId: mutation.clientMutationId,
       clientMutationLabel,
+      clientMutationDetails: !!clientMutationDetails ? JSON.stringify(clientMutationDetails) : null,
       requestedDateTime
     }
   )
 }
 
-export function del(claims, clientMutationLabel) {
+export function del(claims, clientMutationLabel, clientMutationDetails = null) {
   let claimUuids = `uuids: ["${claims.map(c => c.uuid).join("\",\"")}"]`
-  let mutation = formatMutation("deleteClaims", claimUuids, clientMutationLabel);
+  let mutation = formatMutation("deleteClaims", claimUuids, clientMutationLabel, clientMutationDetails);
   var requestedDateTime = new Date();
   claims.forEach(c => c.clientMutationId = mutation.clientMutationId);
   return graphql(
@@ -253,14 +264,15 @@ export function del(claims, clientMutationLabel) {
     {
       clientMutationId: mutation.clientMutationId,
       clientMutationLabel,
+      clientMutationDetails: !!clientMutationDetails ? JSON.stringify(clientMutationDetails) : null,
       requestedDateTime
     }
   )
 }
 
-export function selectForFeedback(claims, clientMutationLabel) {
+export function selectForFeedback(claims, clientMutationLabel, clientMutationDetails = null) {
   let claimUuids = `uuids: ["${claims.map(c => c.uuid).join("\",\"")}"]`
-  let mutation = formatMutation("selectClaimsForFeedback", claimUuids, clientMutationLabel);
+  let mutation = formatMutation("selectClaimsForFeedback", claimUuids, clientMutationLabel, clientMutationDetails);
   var requestedDateTime = new Date();
   claims.forEach(c => c.clientMutationId = mutation.clientMutationId);
   return graphql(
@@ -269,14 +281,15 @@ export function selectForFeedback(claims, clientMutationLabel) {
     {
       clientMutationId: mutation.clientMutationId,
       clientMutationLabel,
+      clientMutationDetails: !!clientMutationDetails ? JSON.stringify(clientMutationDetails) : null,
       requestedDateTime
     }
   )
 }
 
-export function bypassFeedback(claims, clientMutationLabel) {
+export function bypassFeedback(claims, clientMutationLabel, clientMutationDetails = null) {
   let claimUuids = `uuids: ["${claims.map(c => c.uuid).join("\",\"")}"]`
-  let mutation = formatMutation("bypassClaimsFeedback", claimUuids, clientMutationLabel);
+  let mutation = formatMutation("bypassClaimsFeedback", claimUuids, clientMutationLabel, clientMutationDetails);
   var requestedDateTime = new Date();
   claims.forEach(c => c.clientMutationId = mutation.clientMutationId);
   return graphql(
@@ -285,6 +298,7 @@ export function bypassFeedback(claims, clientMutationLabel) {
     {
       clientMutationId: mutation.clientMutationId,
       clientMutationLabel,
+      clientMutationDetails: !!clientMutationDetails ? JSON.stringify(clientMutationDetails) : null,
       requestedDateTime
     }
   )
@@ -318,9 +332,9 @@ export function deliverFeedback(claim, clientMutationLabel) {
   )
 }
 
-export function skipFeedback(claims, clientMutationLabel) {
+export function skipFeedback(claims, clientMutationLabel, clientMutationDetails = null) {
   let claimUuids = `uuids: ["${claims.map(c => c.uuid).join("\",\"")}"]`
-  let mutation = formatMutation("skipClaimsFeedback", claimUuids, clientMutationLabel);
+  let mutation = formatMutation("skipClaimsFeedback", claimUuids, clientMutationLabel, clientMutationDetails);
   var requestedDateTime = new Date();
   claims.forEach(c => c.clientMutationId = mutation.clientMutationId);
   return graphql(
@@ -329,16 +343,18 @@ export function skipFeedback(claims, clientMutationLabel) {
     {
       clientMutationId: mutation.clientMutationId,
       clientMutationLabel,
+      clientMutationDetails: !!clientMutationDetails ? JSON.stringify(clientMutationDetails) : null,
       requestedDateTime
     }
   )
 }
 
-export function selectForReview(claims, clientMutationLabel) {
+export function selectForReview(claims, clientMutationLabel, clientMutationDetails = null) {
   let mutation = formatMutation(
     "selectClaimsForReview",
     `uuids: ["${claims.map(c => c.uuid).join("\",\"")}"]`,
-    clientMutationLabel
+    clientMutationLabel,
+    clientMutationDetails
   );
   var requestedDateTime = new Date();
   claims.forEach(c => c.clientMutationId = mutation.clientMutationId);
@@ -348,14 +364,20 @@ export function selectForReview(claims, clientMutationLabel) {
     {
       clientMutationId: mutation.clientMutationId,
       clientMutationLabel,
+      clientMutationDetails: !!clientMutationDetails ? JSON.stringify(clientMutationDetails) : null,
       requestedDateTime
     }
   )
 }
 
-export function bypassReview(claims, clientMutationLabel) {
+export function bypassReview(claims, clientMutationLabel, clientMutationDetails = null) {
   let claimUuids = `uuids: ["${claims.map(c => c.uuid).join("\",\"")}"]`
-  let mutation = formatMutation("bypassClaimsReview", claimUuids, clientMutationLabel);
+  let mutation = formatMutation(
+    "bypassClaimsReview",
+    claimUuids,
+    clientMutationLabel,
+    clientMutationDetails
+  );
   var requestedDateTime = new Date();
   claims.forEach(c => c.clientMutationId = mutation.clientMutationId);
   return graphql(
@@ -364,6 +386,7 @@ export function bypassReview(claims, clientMutationLabel) {
     {
       clientMutationId: mutation.clientMutationId,
       clientMutationLabel,
+      clientMutationDetails: !!clientMutationDetails ? JSON.stringify(clientMutationDetails) : null,
       requestedDateTime
     }
   )
@@ -409,9 +432,14 @@ export function deliverReview(claim, clientMutationLabel) {
   )
 }
 
-export function skipReview(claims, clientMutationLabel) {
+export function skipReview(claims, clientMutationLabel, clientMutationDetails = null) {
   let claimUuids = `uuids: ["${claims.map(c => c.uuid).join("\",\"")}"]`
-  let mutation = formatMutation("skipClaimsReview", claimUuids, clientMutationLabel);
+  let mutation = formatMutation(
+    "skipClaimsReview",
+    claimUuids,
+    clientMutationLabel,
+    clientMutationDetails
+  );
   var requestedDateTime = new Date();
   claims.forEach(c => c.clientMutationId = mutation.clientMutationId);
   return graphql(
@@ -420,14 +448,20 @@ export function skipReview(claims, clientMutationLabel) {
     {
       clientMutationId: mutation.clientMutationId,
       clientMutationLabel,
+      clientMutationDetails: !!clientMutationDetails ? JSON.stringify(clientMutationDetails) : null,
       requestedDateTime
     }
   )
 }
 
-export function process(claims, clientMutationLabel) {
+export function process(claims, clientMutationLabel, clientMutationDetails = null) {
   let claimUuids = `uuids: ["${claims.map(c => c.uuid).join("\",\"")}"]`
-  let mutation = formatMutation("processClaims", claimUuids, clientMutationLabel);
+  let mutation = formatMutation(
+    "processClaims",
+    claimUuids,
+    clientMutationLabel,
+    clientMutationDetails
+  );
   var requestedDateTime = new Date();
   claims.forEach(c => c.clientMutationId = mutation.clientMutationId);
   return graphql(
@@ -436,6 +470,7 @@ export function process(claims, clientMutationLabel) {
     {
       clientMutationId: mutation.clientMutationId,
       clientMutationLabel,
+      clientMutationDetails: !!clientMutationDetails ? JSON.stringify(clientMutationDetails) : null,
       requestedDateTime
     }
   )

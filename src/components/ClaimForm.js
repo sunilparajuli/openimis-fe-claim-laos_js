@@ -3,6 +3,7 @@ import { withTheme, withStyles } from "@material-ui/core/styles";
 import { injectIntl } from 'react-intl';
 import { connect } from "react-redux";
 import { bindActionCreators } from "redux";
+import ReplayIcon from "@material-ui/icons/Replay"
 import PrintIcon from "@material-ui/icons/ListAlt";
 import AttachIcon from "@material-ui/icons/AttachFile";
 import {
@@ -47,6 +48,7 @@ class ClaimForm extends Component {
         lockNew: false,
         reset: 0,
         update: 0,
+        claim_uuid: null,
         claim: this._newClaim(),
         printParam: null,
         attachmentsClaim: null,
@@ -54,7 +56,7 @@ class ClaimForm extends Component {
 
     constructor(props) {
         super(props);
-        this.claimAttachments = props.modulesManager.getConf("fe-claim", "claimAttachments", false);
+        this.claimAttachments = props.modulesManager.getConf("fe-claim", "claimAttachments", true);
     }
 
     _newClaim() {
@@ -69,17 +71,31 @@ class ClaimForm extends Component {
     }
 
     componentDidMount() {
+        if (!!this.props.claimHealthFacility) {
+            console.log(this.props.claimHealthFacility);
+            this.props.claimHealthFacilitySet(this.props.claimHealthFacility)
+        }
         if (this.props.claim_uuid) {
-            this.props.fetchClaim(this.props.modulesManager, this.props.claim_uuid, this.props.forFeedback);
+            this.setState(
+                { claim_uuid: this.props.claim_uuid },
+                e => this.props.fetchClaim(
+                    this.props.modulesManager,
+                    this.props.claim_uuid,
+                    null,
+                    this.props.forFeedback
+                )
+            )
         }
     }
 
     componentDidUpdate(prevProps, prevState, snapshot) {
         if (prevProps.fetchedClaim !== this.props.fetchedClaim && !!this.props.fetchedClaim) {
-            this.setState({ claim: this.props.claim })
-            this.props.claimHealthFacilitySet(this.props.claim.healthFacility);
+            this.setState(
+                { claim: this.props.claim, claim_uuid: this.props.claim.uuid, lockNew: false },
+                this.props.claimHealthFacilitySet(this.props.claim.healthFacility)
+            );
         } else if (prevProps.claim_uuid && !this.props.claim_uuid) {
-            this.setState({ claim: this._newClaim(), lockNew: false });
+            this.setState({ claim: this._newClaim(), lockNew: false, claim_uuid: null });
         } else if (prevProps.submittingMutation && !this.props.submittingMutation) {
             this.props.journalize(this.props.mutation);
             this.setState({ reset: this.state.reset + 1 });
@@ -111,13 +127,14 @@ class ClaimForm extends Component {
 
     canSave = (forFeedback) => {
         if (!this.state.claim.code) return false;
+        if (!!this.state.claim.codeError) return false;
         if (!this.state.claim.healthFacility) return false;
         if (!this.state.claim.insuree) return false;
         if (!this.state.claim.admin) return false;
         if (!this.state.claim.dateClaimed) return false;
         if (!this.state.claim.dateFrom) return false;
+        if (this.state.claim.dateClaimed < this.state.claim.dateFrom) return false;
         if (!!this.state.claim.dateTo && this.state.claim.dateFrom > this.state.claim.dateTo) return false;
-        if (!this.state.claim.status) return false;
         if (!this.state.claim.icd) return false;
         if (!forFeedback) {
             if (!this.state.claim.items && !this.state.claim.services) return false;
@@ -143,7 +160,12 @@ class ClaimForm extends Component {
     }
 
     reload = () => {
-        this.props.fetchClaim(this.props.modulesManager, this.props.claim_uuid, this.props.forFeedback);
+        this.props.fetchClaim(
+            this.props.modulesManager,
+            this.state.claim_uuid,
+            this.state.claim.code,
+            this.props.forFeedback
+        );
     }
 
     onEditedChanged = claim => {
@@ -164,20 +186,26 @@ class ClaimForm extends Component {
     }
 
     render() {
-        const { rights, claim_uuid, fetchingClaim, fetchedClaim, errorClaim, add, back,
+        const { rights, fetchingClaim, fetchedClaim, errorClaim, add, back,
             forReview = false, forFeedback = false, } = this.props;
+        const { claim_uuid } = this.state;
         let readOnly = this.state.lockNew ||
             (!forReview && !forFeedback && this.state.claim.status !== 2) ||
             ((forReview || forFeedback) && this.state.claim.status !== 4) ||
             !rights.filter(r => r === RIGHT_LOAD).length
-        var actions = []
+        var actions = [{
+            doIt: e => this.reload(claim_uuid),
+            icon: <ReplayIcon />,
+            onlyIfDirty: !readOnly
+        }]
         if (!!claim_uuid && rights.includes(RIGHT_PRINT)) {
             actions.push({
                 doIt: e => this.print(claim_uuid),
-                icon: <PrintIcon />
+                icon: <PrintIcon />,
+                onlyIfNotDirty: true
             })
         }
-        if (!!this.claimAttachments && !!claim_uuid) {
+        if (!!claim_uuid && !!this.claimAttachments) {
             actions.push({
                 doIt: e => this.setState({ attachmentsClaim: this.state.claim }),
                 icon: <AttachIcon />
@@ -208,7 +236,7 @@ class ClaimForm extends Component {
                             save={!!this.props.save ? this.save : null}
                             openDirty={forReview && !readOnly}
                             canSave={e => this.canSave(forFeedback)}
-                            reload={claim_uuid && this.reload}
+                            reload={(claim_uuid || readOnly) && this.reload}
                             actions={actions}
                             readOnly={readOnly}
                             forReview={forReview}
