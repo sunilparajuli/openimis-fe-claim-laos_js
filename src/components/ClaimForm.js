@@ -72,7 +72,6 @@ class ClaimForm extends Component {
 
     componentDidMount() {
         if (!!this.props.claimHealthFacility) {
-            console.log(this.props.claimHealthFacility);
             this.props.claimHealthFacilitySet(this.props.claimHealthFacility)
         }
         if (this.props.claim_uuid) {

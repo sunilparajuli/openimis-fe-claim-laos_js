@@ -148,7 +148,6 @@ const StyledSelectionMenu = injectIntl(withTheme(withStyles(styles)(SelectionMen
 class ClaimSearcher extends Component {
 
     state = {
-        open: false,
         filters: {},
         orderBy: "-dateClaimed",
         page: 0,
@@ -248,7 +247,6 @@ class ClaimSearcher extends Component {
 
     applyFilters = () => {
         this.setState({
-            open: false,
             page: 0,
             afterCursor: null,
             beforeCursor: null,
@@ -513,7 +511,6 @@ class ClaimSearcher extends Component {
                     close={e => this.setState({ attachmentsClaim: null })} />
                 <Searcher
                     module="claim"
-                    open={e => this.setState({ open: true })}
                     refresh={this.applyFilters}
                     apply={this.applyFilters}
                     del={this.deleteFilter}
