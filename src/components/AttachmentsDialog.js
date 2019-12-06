@@ -4,7 +4,7 @@ import { connect } from "react-redux";
 import { injectIntl } from 'react-intl';
 import { withTheme, withStyles } from "@material-ui/core/styles";
 import DeleteIcon from "@material-ui/icons/Delete";
-import FileIcon from "@material-ui/icons/Search";
+import FileIcon from "@material-ui/icons/Add";
 import {
     Dialog, DialogTitle, Divider, Button,
     DialogActions, DialogContent, Link, IconButton

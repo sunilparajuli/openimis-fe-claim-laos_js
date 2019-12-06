@@ -8,7 +8,7 @@ import _ from "lodash";
 import { Grid, Divider } from "@material-ui/core";
 import {
     formatMessage, withModulesManager,
-    ControlledField, PublishedComponent, TextInput, encodeId
+    ControlledField, PublishedComponent, TextInput
 } from "@openimis/fe-core";
 import { selectClaimAdmin, selectHealthFacility } from "../actions";
 
@@ -213,6 +213,7 @@ class Head extends Component {
                         <PublishedComponent
                             id="claim_batch.BatchRunPicker"
                             value={(filters['batchRun'] && filters['batchRun']['value'])}
+                            noneLabel={formatMessage(this.props.intl, "claim", "ClaimFilter.BatchRuns.any")}
                             scope={!!filters['district'] && filters['district']['value']}
                             onChange={(v, s) => onChangeFilters([
                                 {

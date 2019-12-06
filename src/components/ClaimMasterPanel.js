@@ -11,10 +11,11 @@ import { Grid } from "@material-ui/core";
 import _ from "lodash";
 import ClaimAdminPicker from "../pickers/ClaimAdminPicker";
 import { claimedAmount, approvedAmount } from "../helpers/amounts";
-import { claimHealthFacilitySet } from "../actions";
+import { claimHealthFacilitySet, validateClaimCode } from "../actions";
 import ClaimStatusPicker from "../pickers/ClaimStatusPicker";
 import FeedbackStatusPicker from "../pickers/FeedbackStatusPicker";
 import ReviewStatusPicker from "../pickers/ReviewStatusPicker";
+import _debounce from "lodash/debounce";
 
 const CLAIM_MASTER_PANEL_CONTRIBUTION_KEY = "claim.MasterPanel"
 
@@ -28,7 +29,9 @@ const styles = theme => ({
 class ClaimMasterPanel extends Component {
 
     state = {
-        data: {}
+        data: {},
+        claimCode: null,
+        claimCodeError: null,
     }
 
     constructor(props) {
@@ -47,17 +50,49 @@ class ClaimMasterPanel extends Component {
             prevProps.reset !== this.props.reset
         ) {
             this.setState({ data: this.props.edited });
+        } else if (!prevProps.fetchingClaimCodeCount && this.props.fetchingClaimCodeCount) {
+            this.setState({ claimCodeError: null })
+        } else if (!prevProps.fetchedClaimCodeCount && this.props.fetchedClaimCodeCount) {
+            if (!!this.props.claimCodeCount) {
+                this.setState({ claimCodeError: formatMessage(this.props.intl, "claim", "edit.claimCodeExists") })
+                this.updateAttribute('codeError', true)
+            } else {
+                this.updateAttributes([
+                    { attr: 'code', v: this.state.claimCode },
+                    { attr: 'codeError', v: null },
+                ])
+            }
         } else if (!_.isEqual(prevProps.edited, this.props.edited)) {
             this.setState({ data: this.props.edited })
         }
     }
 
-    updateAttribute = (attr, v, s) => {
+    validateClaimCode = (v) => {
+        this.setState(
+            {
+                claimCodeError: null,
+                claimCode: v
+            },
+            e => this.props.validateClaimCode(v)
+        )
+    }
+
+    debounceUpdateCode = _debounce(
+        this.validateClaimCode,
+        this.props.modulesManager.getConf("fe-claim", "debounceTime", 800)
+    )
+
+
+    updateAttributes = updates => {
         let data = { ...this.state.data };
-        data[attr] = v;
-        data[attr + "_str"] = s;
+        updates.forEach(update => {
+            data[update.attr] = update.v;
+            data[update.attr + "_str"] = update.s;
+        });
         this.props.onEditedChanged(data);
     }
+
+    updateAttribute = (attr, v, s) => this.updateAttributes([{ attr, v, s }])
 
     render() {
         const { intl, classes, edited, reset, readOnly = false, forReview, forFeedback } = this.props;
@@ -114,6 +149,7 @@ class ClaimMasterPanel extends Component {
                             onChange={d => this.updateAttribute("dateClaimed", d)}
                             readOnly={ro}
                             required={true}
+                            minDate={edited.dateFrom}
                         />
                     </Grid>
                 } />
@@ -127,6 +163,7 @@ class ClaimMasterPanel extends Component {
                             onChange={d => this.updateAttribute("dateFrom", d)}
                             readOnly={ro}
                             required={true}
+                            maxDate={edited.dateTo < edited.dateClaimed ? edited.dateTo : edited.dateClaimed}
                         />
                     </Grid>
                 } />
@@ -139,6 +176,7 @@ class ClaimMasterPanel extends Component {
                             reset={reset}
                             onChange={d => this.updateAttribute("dateTo", d)}
                             readOnly={ro}
+                            minDate={edited.dateFrom}
                         />
                     </Grid>
                 } />
@@ -179,8 +217,9 @@ class ClaimMasterPanel extends Component {
                             label="code"
                             required
                             value={edited.code}
+                            error={this.state.claimCodeError}
                             reset={reset}
-                            onChange={v => this.updateAttribute("code", v)}
+                            onChange={this.debounceUpdateCode}
                             readOnly={ro}
                             inputProps={{
                                 "maxLength": this.codeMaxLength,
@@ -371,10 +410,14 @@ class ClaimMasterPanel extends Component {
 
 const mapStateToProps = (state, props) => ({
     userHealthFacilityFullPath: !!state.loc ? state.loc.userHealthFacilityFullPath : null,
+    fetchingClaimCodeCount: state.claim.fetchingClaimCodeCount,
+    fetchedClaimCodeCount: state.claim.fetchedClaimCodeCount,
+    claimCodeCount: state.claim.claimCodeCount,
+    errorClaimCodeCount: state.claim.errorClaimCodeCount,
 })
 
 const mapDispatchToProps = dispatch => {
-    return bindActionCreators({ claimHealthFacilitySet }, dispatch);
+    return bindActionCreators({ claimHealthFacilitySet, validateClaimCode }, dispatch);
 };
 
 export default withModulesManager(

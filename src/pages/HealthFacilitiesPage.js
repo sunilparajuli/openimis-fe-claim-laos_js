@@ -17,6 +17,7 @@ import { submit, del, selectHealthFacility } from "../actions";
 import { RIGHT_ADD, RIGHT_LOAD, RIGHT_SUBMIT, RIGHT_DELETE } from "../constants";
 
 const styles = theme => ({
+    page: theme.page,
     fab: theme.fab
 });
 
@@ -115,7 +116,8 @@ class HealthFacilitiesPage extends Component {
                     "claim",
                     "SubmitClaims.mutationLabel",
                     { count: selection.length }
-                )
+                ),
+                selection.map(c => c.code)
             );
         }
     }
@@ -150,7 +152,8 @@ class HealthFacilitiesPage extends Component {
                     "claim",
                     "DeleteClaims.mutationLabel",
                     { count: selection.length }
-                )
+                ),
+                selection.map(c => c.code)
             );
             confirm = e => this.props.coreConfirm(
                 formatMessage(this.props.intl, "claim", "deleteClaims.confirm.title"),
@@ -192,7 +195,7 @@ class HealthFacilitiesPage extends Component {
             actions.push({ label: "claimSummaries.deleteSelected", enabled: this.canDeleteSelected, action: this.deleteSelected });
         }
         return (
-            <Fragment>
+            <div className={classes.page}>
                 <ClaimSearcher
                     defaultFilters={this.state.defaultFilters}
                     onDoubleClick={rights.includes(RIGHT_LOAD) ? this.onDoubleClick : null}
@@ -208,7 +211,7 @@ class HealthFacilitiesPage extends Component {
                         </div>
                     </Tooltip>
                 }
-            </Fragment>
+            </div>
         );
     }
 }

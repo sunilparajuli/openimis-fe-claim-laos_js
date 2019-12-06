@@ -819,10 +819,10 @@
     prop-types "^15.7.2"
     react-is "^16.8.6"
 
-"@openimis/fe-core@>=1.0.0":
-  version "1.0.0"
-  resolved "https://registry.yarnpkg.com/@openimis/fe-core/-/fe-core-1.0.0.tgz#2969a7090a380551c2007e02630fa5f9d04c3347"
-  integrity sha512-pq2hXfeXP9XZlLXiO5OUyzKCeUuNtRTCExmXvPm2jFlEpwpnRq3orLKl0Z0ui393ltgHkku7nGDyoy7mdoyBpw==
+"@openimis/fe-core@>=1.0.2":
+  version "1.0.2"
+  resolved "https://registry.yarnpkg.com/@openimis/fe-core/-/fe-core-1.0.2.tgz#79a04c92986d84070f547b4dcd3760b96c83bd47"
+  integrity sha512-GDQniMI1YCmBQ5Gw4DOt3kW3T7SqN7hPhcl9FDucQz/x0GfwBjK8hYwsLU/thI4bS0lGSkNv4OCW+83dJV6omw==
 
 "@svgr/core@^2.4.1":
   version "2.4.1"

@@ -2,12 +2,17 @@ import React, { Component, Fragment } from "react";
 import { injectIntl } from 'react-intl';
 import { connect } from "react-redux";
 import { bindActionCreators } from "redux";
+import { withTheme, withStyles } from "@material-ui/core/styles";
 import {
     withModulesManager, withHistory, formatMessageWithValues,
     journalize, historyPush
 } from "@openimis/fe-core";
 import ClaimForm from "../components/ClaimForm";
 import { deliverFeedback } from "../actions";
+
+const styles = theme => ({
+    page: theme.page,
+});
 
 class FeedbackPage extends Component {
 
@@ -33,13 +38,15 @@ class FeedbackPage extends Component {
     }
 
     render() {
-        const { history, modulesManager, claim_uuid } = this.props;
+        const { classes, history, modulesManager, claim_uuid } = this.props;
         return (
-            <ClaimForm
-                claim_uuid={claim_uuid}
-                back={e => historyPush(modulesManager, history, "claim.route.reviews")}
-                save={this.save}
-                forFeedback={true} />
+            <div className={classes.page}>
+                <ClaimForm
+                    claim_uuid={claim_uuid}
+                    back={e => historyPush(modulesManager, history, "claim.route.reviews")}
+                    save={this.save}
+                    forFeedback={true} />
+            </div>
         )
     }
 }
@@ -55,5 +62,5 @@ const mapDispatchToProps = dispatch => {
 };
 
 export default withHistory(withModulesManager(connect(mapStateToProps, mapDispatchToProps)(
-    injectIntl(FeedbackPage)
+    injectIntl(withTheme(withStyles(styles)(FeedbackPage)))
 )));

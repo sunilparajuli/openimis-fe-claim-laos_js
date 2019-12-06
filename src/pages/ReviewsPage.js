@@ -21,6 +21,7 @@ import { RIGHT_UPDATE, RIGHT_FEEDBACK, RIGHT_CLAIMREVIEW, RIGHT_PROCESS } from "
 import { withTheme, withStyles } from "@material-ui/core/styles";
 
 const styles = theme => ({
+    page: theme.page,
     item: {
         padding: theme.spacing(1)
     },
@@ -278,7 +279,9 @@ class ReviewsPage extends Component {
                     "claim",
                     labelMultiple,
                     { count: selection.length }
-                ));
+                ),
+                selection.map(c => c.code)
+            );
         }
     }
 
@@ -400,7 +403,7 @@ class ReviewsPage extends Component {
                     withNull={false}
                     filtered={[1, 8]}
                     value={c.feedbackStatus}
-                    readOnly={!this.props.rights.includes(RIGHT_UPDATE)}
+                    readOnly={!this.props.rights.includes(RIGHT_UPDATE) || c.status !== 4}
                     onChange={(v, s) => this.onChangeFeedbackStatus(c, v)}
                 />
             </Grid>
@@ -458,7 +461,7 @@ class ReviewsPage extends Component {
                     value={c.reviewStatus}
                     withNull={false}
                     filtered={[1, 8]}
-                    readOnly={!this.props.rights.includes(RIGHT_UPDATE)}
+                    readOnly={!this.props.rights.includes(RIGHT_UPDATE) || c.status !== 4}
                     onChange={(v, s) => this.onChangeReviewStatus(c, v)}
                 />
             </Grid>
@@ -472,8 +475,12 @@ class ReviewsPage extends Component {
         </Grid>
     )
 
+    onDoubleClick = (c) => {
+        this.review(c)
+    }
+
     render() {
-        const { rights } = this.props;
+        const { classes, rights } = this.props;
         if (!rights.filter(r => r >= RIGHT_CLAIMREVIEW && r <= RIGHT_PROCESS).length) return null;
         let actions = [];
         if (rights.includes(RIGHT_UPDATE)) {
@@ -490,14 +497,17 @@ class ReviewsPage extends Component {
             actions.push({ label: "claimSummaries.processSelected", enabled: this.canProcessSelected, action: this.processSelected });
         }
         return (
-            <ClaimSearcher
-                defaultFilters={this.state.defaultFilters}
-                forcedFilters={this.state.forcedFilters}
-                fixFilter={<FixFilter filtersChange={this.filtersChange} />}
-                actions={actions}
-                feedbackColFormatter={this.feedbackColFormatter}
-                reviewColFormatter={this.reviewColFormatter}
-            />
+            <div className={classes.page}>
+                <ClaimSearcher
+                    defaultFilters={this.state.defaultFilters}
+                    forcedFilters={this.state.forcedFilters}
+                    fixFilter={<FixFilter filtersChange={this.filtersChange} />}
+                    actions={actions}
+                    onDoubleClick={rights.includes(RIGHT_UPDATE) ? this.onDoubleClick : null}
+                    feedbackColFormatter={this.feedbackColFormatter}
+                    reviewColFormatter={this.reviewColFormatter}
+                />
+            </div>
         );
     }
 }
