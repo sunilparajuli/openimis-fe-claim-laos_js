@@ -38,6 +38,7 @@ class ClaimMasterPanel extends FormPanel {
         this.codeMaxLength = props.modulesManager.getConf("fe-claim", "claimForm.codeMaxLength", 8);
         this.guaranteeIdMaxLength = props.modulesManager.getConf("fe-claim", "claimForm.guaranteeIdMaxLength", 50);
         this.showAdjustmentAtEnter = props.modulesManager.getConf("fe-claim", "claimForm.showAdjustmentAtEnter", false);
+        this.insureePicker = props.modulesManager.getConf("fe-claim", "claimForm.insureePicker", "insuree.InsureeChfIdPicker");
     }
 
     componentDidUpdate(prevProps, prevState, snapshot) {
@@ -108,7 +109,7 @@ class ClaimMasterPanel extends FormPanel {
                 <ControlledField module="claim" id="Claim.insuree" field={
                     <Grid item xs={3} className={classes.item}>
                         <PublishedComponent
-                            id="insuree.InsureePicker"
+                            id={this.insureePicker}
                             value={edited.insuree}
                             reset={reset}
                             onChange={(v, s) => this.updateAttribute("insuree", v, s)}
