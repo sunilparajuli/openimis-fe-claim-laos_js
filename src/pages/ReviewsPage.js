@@ -15,7 +15,7 @@ import ClaimSearcher from "../components/ClaimSearcher";
 import {
     selectHealthFacility,
     selectForFeedback, bypassFeedback, skipFeedback,
-    selectForReview, bypassReview, skipReview,
+    selectForReview, bypassReview, deliverReview, skipReview,
     process
 } from "../actions";
 import { RIGHT_UPDATE, RIGHT_FEEDBACK, RIGHT_CLAIMREVIEW, RIGHT_PROCESS } from "../constants";
@@ -342,6 +342,17 @@ class ReviewsPage extends ClaimsSearcherPage {
             this.props.bypassReview);
     }
 
+    canMarkDeliveredReview = selection => !!selection && selection.length &&
+        selection.filter(s => s.reviewStatus === 4).length === selection.length &&
+        selection.filter(s => s.status === 4).length === selection.length
+
+    markDeliveredReview = selection => {
+        this._labelMutation(selection,
+            "DeliverClaimReview.mutationLabel",
+            "DeliverClaimsReview.mutationLabel",
+            this.props.deliverReview);
+    }
+
     canMarkSkippedReview = selection => !!selection && selection.length &&
         selection.filter(s => s.status === 4).length === selection.length
 
@@ -441,6 +452,15 @@ class ReviewsPage extends ClaimsSearcherPage {
                         { code: c.code }
                     ));
                 break;
+            case 8:
+                this.props.deliverReview([c],
+                    formatMessageWithValues(
+                        this.props.intl,
+                        "claim",
+                        "DeliverClaimReview.mutationLabel",
+                        { code: c.code }
+                    ));
+                break;                
             case 16:
                 this.props.bypassReview([c],
                     formatMessageWithValues(
@@ -450,7 +470,7 @@ class ReviewsPage extends ClaimsSearcherPage {
                         { code: c.code }
                     ));
                 break;
-            default: console.log('Illegal new Feedback Status ' + v); // TODO: handle error
+            default: console.log('Illegal new Review Status ' + v); // TODO: handle error
         }
     }
     review = c => historyPush(this.props.modulesManager, this.props.history, "claim.route.review", [c.uuid])
@@ -463,7 +483,7 @@ class ReviewsPage extends ClaimsSearcherPage {
                     name="reviewStatus"
                     value={c.reviewStatus}
                     withNull={false}
-                    filtered={[1, 8]}
+                    filtered={[1]}
                     readOnly={!this.props.rights.includes(RIGHT_UPDATE) || c.status !== 4}
                     onChange={(v, s) => this.onChangeReviewStatus(c, v)}
                 />
@@ -493,6 +513,7 @@ class ReviewsPage extends ClaimsSearcherPage {
                 { label: "claimSummaries.markSkippedFeedback", enabled: this.canMarkSkippedFeedback, action: this.markSkippedFeedback },
                 { label: "claimSummaries.markSelectedForReview", enabled: this.canMarkSelectedForReview, action: this.markSelectedForReview },
                 { label: "claimSummaries.markBypassedReview", enabled: this.canMarkBypassedReview, action: this.markBypassedReview },
+                { label: "claimSummaries.markDeliveredReview", enabled: this.canMarkDeliveredReview, action: this.markDeliveredReview },
                 { label: "claimSummaries.markSkippedReview", enabled: this.canMarkSkippedReview, action: this.markSkippedReview },
             )
         }
@@ -536,6 +557,7 @@ const mapDispatchToProps = dispatch => {
             skipFeedback,
             selectForReview,
             bypassReview,
+            deliverReview,
             skipReview,
             process,
         },
