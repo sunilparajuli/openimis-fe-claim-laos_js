@@ -74,7 +74,7 @@ class ClaimMasterPanel extends FormPanel {
     )
 
     render() {
-        const { intl, classes, edited, reset, readOnly = false, forReview, forFeedback } = this.props;
+        const { intl, classes, edited, reset, readOnly = false, forReview, roReview = false, forFeedback } = this.props;
         if (!edited) return null;
         let totalClaimed = 0;
         let totalApproved = 0;
@@ -374,7 +374,7 @@ class ClaimMasterPanel extends FormPanel {
                                         value={edited.adjustment}
                                         reset={reset}
                                         onChange={v => this.updateAttribute("adjustment", v)}
-                                        readOnly={!!forFeedback || ro}
+                                        readOnly={!!forFeedback || (ro && forReview && roReview) }
                                     />
                                 </Grid>
                             } />

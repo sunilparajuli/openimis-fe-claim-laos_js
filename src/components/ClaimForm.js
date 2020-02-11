@@ -249,6 +249,7 @@ class ClaimForm extends Component {
                             actions={actions}
                             readOnly={readOnly}
                             forReview={forReview}
+                            roReview={forReview && this.state.claim.reviewStatus >= 8 }
                             forFeedback={forFeedback}
                             HeadPanel={ClaimMasterPanel}
                             Panels={!!forFeedback ?

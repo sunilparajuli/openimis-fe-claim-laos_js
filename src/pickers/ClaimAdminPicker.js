@@ -44,19 +44,17 @@ class ClaimAdminPicker extends Component {
             <Fragment>
                 <ProgressOrError progress={fetchingClaimAdmins} error={errorClaimAdmins} />
                 {fetchedClaimAdmins && (
-                    <FormControl fullWidth>
-                        <AutoSuggestion
-                            items={admins}
-                            label={!!withLabel && (label || formatMessage(intl, "claim", "ClaimAdminPicker.label"))}
-                            getSuggestions={this.claimAdmins}
-                            getSuggestionValue={this.formatSuggestion}
-                            onSuggestionSelected={this.onSuggestionSelected}
-                            value={value}
-                            reset={reset}
-                            readOnly={readOnly}
-                            required={required}
-                        />
-                    </FormControl>
+                    <AutoSuggestion
+                        items={admins}
+                        label={!!withLabel && (label || formatMessage(intl, "claim", "ClaimAdminPicker.label"))}
+                        getSuggestions={this.claimAdmins}
+                        getSuggestionValue={this.formatSuggestion}
+                        onSuggestionSelected={this.onSuggestionSelected}
+                        value={value}
+                        reset={reset}
+                        readOnly={readOnly}
+                        required={required}
+                    />
                 )}
             </Fragment>
         )
