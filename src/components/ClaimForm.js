@@ -197,7 +197,8 @@ class ClaimForm extends Component {
         const { claim_uuid, lockNew } = this.state;
         let readOnly = lockNew ||
             (!forReview && !forFeedback && this.state.claim.status !== 2) ||
-            ((forReview || forFeedback) && this.state.claim.status !== 4) ||
+            (forReview && (this.state.claim.reviewStatus >= 8 || this.state.claim.status !== 4)) ||
+            (forFeedback && this.state.claim.status !== 4) ||
             !rights.filter(r => r === RIGHT_LOAD).length
         var actions = [{
             doIt: e => this.reload(claim_uuid),

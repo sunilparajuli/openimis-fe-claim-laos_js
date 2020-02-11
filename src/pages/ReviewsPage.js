@@ -354,6 +354,7 @@ class ReviewsPage extends ClaimsSearcherPage {
     }
 
     canMarkSkippedReview = selection => !!selection && selection.length &&
+        selection.filter(s => s.reviewStatus === 4).length === selection.length &&
         selection.filter(s => s.status === 4).length === selection.length
 
     markSkippedReview = selection => {
@@ -402,7 +403,7 @@ class ReviewsPage extends ClaimsSearcherPage {
                         { code: c.code }
                     ));
                 break;
-            default: console.log('Illegal new Feedback Status ' + v); // TODO: handle error
+            default: console.log('Illegal new Feedback Status ' + v);
         }
     }
     provideFeedback = c => historyPush(this.props.modulesManager, this.props.history, "claim.route.feedback", [c.uuid])
@@ -470,10 +471,26 @@ class ReviewsPage extends ClaimsSearcherPage {
                         { code: c.code }
                     ));
                 break;
-            default: console.log('Illegal new Review Status ' + v); // TODO: handle error
+            default: console.log('Illegal new Review Status ' + v);
         }
     }
     review = c => historyPush(this.props.modulesManager, this.props.history, "claim.route.review", [c.uuid])
+    reviewStatusFilter = (claim) => {
+        switch (claim.reviewStatus) {
+          case 1:
+            return [1, 8, 16];
+          case 2:
+            return [1, 2, 8, 16];
+          case 4:
+            return [1, 4];
+          case 8:
+            return [1, 2, 4, 8, 16];
+          case 16:
+            return [1, 2, 4, 8, 16];
+          default:
+            console.log("Illegal Review Status " + claim.reviewStatus);
+        }
+    }
     reviewColFormatter = c => (
         <Grid container justify="flex-end" alignItems="center">
             <Grid item>
@@ -483,8 +500,8 @@ class ReviewsPage extends ClaimsSearcherPage {
                     name="reviewStatus"
                     value={c.reviewStatus}
                     withNull={false}
-                    filtered={[1]}
-                    readOnly={!this.props.rights.includes(RIGHT_UPDATE) || c.status !== 4}
+                    filtered={this.reviewStatusFilter(c)}
+                    readOnly={!this.props.rights.includes(RIGHT_UPDATE) || c.status !== 4 || c.reviewStatus >= 8 }
                     onChange={(v, s) => this.onChangeReviewStatus(c, v)}
                 />
             </Grid>
