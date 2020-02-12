@@ -42,7 +42,6 @@
     "claim.ClaimFilter.randomFilter.invalidAlert.message": "Random filtering ({random}%) must be 1 or more, and maximum 100",
     "claim.ClaimFilter.Reviews.value": "Value Filter",
     "claim.ClaimFilter.Reviews.variance": "Variance",
-    "claim.ClaimFilter.BatchRuns.any": "Any",
     "claim.mainDiagnosis": "Main Diagnosis",
     "claim.secDiagnosis1": "Sec Dg1",
     "claim.secDiagnosis2": "Sec Dg2",
