@@ -55,6 +55,7 @@ class RawRandomAndValueFilters extends Component {
         delete (filters.random)
         this.setState({
             random: parseFloat(v),
+            randomToggled: false,
             filters
         })
     }
@@ -63,6 +64,7 @@ class RawRandomAndValueFilters extends Component {
         delete (filters.value)
         this.setState({
             value: parseFloat(v),
+            valueToggled: false,
             filters
         })
     }
@@ -71,6 +73,7 @@ class RawRandomAndValueFilters extends Component {
         delete (filters.value)
         this.setState({
             variance: parseFloat(v),
+            varianceToggled: false,
             filters
         })
     }
@@ -123,34 +126,48 @@ class RawRandomAndValueFilters extends Component {
                 {
                     id: 'claimedAbove',
                     value: null,
-                }, {
-                    id: 'claimedUnder',
-                    value: null
                 }
             ];
         } else {
-            let min = this.state.value;
-            let max = this.state.value;
-            if (this.state.variance !== 0) {
-                min = min - min * this.state.variance / 100;
-                max = max + max * this.state.variance / 100;
-            }
             filters.value = [
                 { id: 'value', value: this.state.value },
                 {
                     id: 'claimedAbove',
-                    value: min,
-                    filter: `claimed_Gte: ${min}`
-                }, {
-                    id: 'claimedUnder',
-                    value: max,
-                    filter: `claimed_Lte: ${max}`
+                    value: this.state.value,
+                    filter: `claimed_Gte: ${this.state.value}`
                 }]
         }
         this.setState(
             {
                 filters,
                 valueToggled: !this.state.valueToggled,
+            },
+            e => this.props.onChangeFilters(Object.values(this.state.filters).flat())
+        )
+    }
+    toggleVarianceFilter = (e) => {
+        let filters = this.state.filters;
+        if (!!this.state.varianceToggled) {
+            filters.value = [
+                { id: 'variance', value: null },
+                {
+                    id: 'diagnosisVariance',
+                    value: null,
+                }
+            ];
+        } else {
+            filters.value = [
+                { id: 'value', value: this.state.value },
+                {
+                    id: 'diagnosisVariance',
+                    value: this.state.variance,
+                    filter: `diagnosisVariance: ${this.state.variance}`
+                }]
+        }
+        this.setState(
+            {
+                filters,
+                varianceToggled: !this.state.varianceToggled,
             },
             e => this.props.onChangeFilters(Object.values(this.state.filters).flat())
         )
@@ -185,43 +202,48 @@ class RawRandomAndValueFilters extends Component {
                         }}
                     />
                 </Grid>
-                <Grid item xs={2} className={classes.item} />
                 <Grid item xs={3} className={classes.item}>
-                    <Grid container diretcion="row">
-                        <Grid item xs={6}>
-                            <AmountInput
-                                module="claim" label="ClaimFilter.Reviews.value"
-                                value={this.state.value}
-                                onChange={this.valueChange}
-                            />
-                        </Grid>
-                        <Grid item xs={6}>
-                            <NumberInput
-                                module="claim" label="ClaimFilter.Reviews.variance"
-                                value={this.state.variance}
-                                onChange={this.varianceChange}
-                                startAdornment={
-                                    <InputAdornment position="start">%</InputAdornment>
-                                }
-                                endAdornment={
-                                    <InputAdornment position="end">
-                                        <IconButton
-                                            className={!!this.state.valueToggled ? classes.toggledButton : null}
-                                            onClick={this.toggleValueFilter}
-                                            edge="end">
-                                            <FilterIcon />
-                                        </IconButton>
-                                    </InputAdornment>
-                                }
-                                inputProps={{
-                                    step: 10,
-                                    min: 0,
-                                    max: 100,
-                                    type: "number",
-                                }}
-                            />
-                        </Grid>
-                    </Grid>
+                    <AmountInput
+                        module="claim" label="ClaimFilter.Reviews.value"
+                        value={this.state.value}
+                        endAdornment={
+                            <InputAdornment position="end">
+                                <IconButton
+                                    className={!!this.state.valueToggled ? classes.toggledButton : null}
+                                    onClick={this.toggleValueFilter}
+                                    edge="end">
+                                    <FilterIcon />
+                                </IconButton>
+                            </InputAdornment>
+                        }
+                        onChange={this.valueChange}
+                    />
+                </Grid>
+                <Grid item xs={3}>
+                    <NumberInput
+                        module="claim" label="ClaimFilter.Reviews.variance"
+                        value={this.state.variance}
+                        onChange={this.varianceChange}
+                        startAdornment={
+                            <InputAdornment position="start">%</InputAdornment>
+                        }
+                        endAdornment={
+                            <InputAdornment position="end">
+                                <IconButton
+                                    className={!!this.state.varianceToggled ? classes.toggledButton : null}
+                                    onClick={this.toggleVarianceFilter}
+                                    edge="end">
+                                    <FilterIcon />
+                                </IconButton>
+                            </InputAdornment>
+                        }
+                        inputProps={{
+                            step: 10,
+                            min: 0,
+                            max: 100,
+                            type: "number",
+                        }}
+                    />
                 </Grid>
             </Grid>
         )
