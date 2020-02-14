@@ -158,6 +158,7 @@ class Head extends Component {
                         <PublishedComponent
                             id="claim.ClaimAdminPicker"
                             value={(filters['claimAdmin'] && filters['claimAdmin']['value'])}
+                            withNull={true}
                             hfFilter={(filters['healthFacility'] && filters['healthFacility']['value'])}
                             onChange={this._onChangeClaimAdmin}
                         />

@@ -83,3 +83,4 @@ None
 * `claimForm.showAdjustmentAtEnter`, boolean to display adjustment field at claim entry. Default false;
 * `claimForm.insureePicker`, the insuree picker to use when filling a claim. Default insuree.InsureeChfIdPicker (the exact chfid entry picker). Other pre-canned option (from insuree reference module): insuree.InsureePicker (dialog picker with search on chfid, last name and other names)
 * `claimAttachments`, boolean to enable/disable claim attachments. Default true;
+* `ClaimAdminPicker.selectThreshold`: claim administrators suggestions count threshold under which the AutoSuggestion switch to a SelectInut (drop down list), efault: 10

@@ -4,8 +4,7 @@ import { bindActionCreators } from "redux";
 import { withTheme, withStyles } from "@material-ui/core/styles";
 import { injectIntl } from 'react-intl';
 import { fetchClaimAdmins } from "../actions";
-import { formatMessage, AutoSuggestion, ProgressOrError, withModulesManager } from "@openimis/fe-core";
-import { FormControl } from "@material-ui/core";
+import { formatMessage, AutoSuggestion, SelectInput, ProgressOrError, withModulesManager } from "@openimis/fe-core";
 
 const styles = theme => ({
     label: {
@@ -14,6 +13,11 @@ const styles = theme => ({
 });
 
 class ClaimAdminPicker extends Component {
+
+    constructor(props) {
+        super(props);
+        this.selectThreshold = props.modulesManager.getConf("fe-claim", "ClaimAdminPicker.selectThreshold", 10);
+    }
 
     componentDidMount() {
         if (!this.props.fetchedClaimAdmins) {
@@ -32,29 +36,61 @@ class ClaimAdminPicker extends Component {
 
     onSuggestionSelected = v => this.props.onChange(v, this.formatSuggestion(v));
 
+    renderSelect = (admins) => {
+        const {
+            intl, value,
+            withLabel = true, label, withNull = false, nullLabel = null,
+            readOnly = false, required = false,
+        } = this.props;
+        var options = [...admins.map(r => ({ value: r, label: this.formatSuggestion(r)}))];
+        if (withNull) {
+            options.unshift({ value: null, label: nullLabel || formatMessage(intl, "claim", "claim.ClaimAdminPicker.null")})
+        }
+        return <SelectInput
+            module={"claim"}
+            strLabel={!!withLabel && (label || formatMessage(intl, "claim", "ClaimAdminPicker.label"))}
+            options={options}
+            value={value}
+            onChange={this.onSuggestionSelected}
+            readOnly={readOnly}
+            required={required}
+        />
+    }
+
+    renderAutoSuggestion = (admins) => {
+        const {
+            intl, value,
+            withLabel = true, label,
+            reset, readOnly = false, required = false,
+        } = this.props;
+        return <AutoSuggestion
+            items={admins}
+            label={!!withLabel && (label || formatMessage(intl, "claim", "ClaimAdminPicker.label"))}
+            getSuggestions={this.claimAdmins}
+            getSuggestionValue={this.formatSuggestion}
+            onSuggestionSelected={this.onSuggestionSelected}
+            value={value}
+            reset={reset}
+            readOnly={readOnly}
+            required={required}
+         />
+    }
+
     render() {
         const {
-            intl, value, reset, claimAdmins,
+            claimAdmins,
             fetchingClaimAdmins, fetchedClaimAdmins, errorClaimAdmins,
-            withLabel = true, label, readOnly = false, required = false,
             hfFilter = null
         } = this.props;
         let admins = !!hfFilter ? (claimAdmins || []).filter(a => a.healthFacility.uuid === hfFilter.uuid) : claimAdmins;
         return (
             <Fragment>
                 <ProgressOrError progress={fetchingClaimAdmins} error={errorClaimAdmins} />
-                {fetchedClaimAdmins && (
-                    <AutoSuggestion
-                        items={admins}
-                        label={!!withLabel && (label || formatMessage(intl, "claim", "ClaimAdminPicker.label"))}
-                        getSuggestions={this.claimAdmins}
-                        getSuggestionValue={this.formatSuggestion}
-                        onSuggestionSelected={this.onSuggestionSelected}
-                        value={value}
-                        reset={reset}
-                        readOnly={readOnly}
-                        required={required}
-                    />
+                {fetchedClaimAdmins && admins.length < this.selectThreshold && (
+                    this.renderSelect(admins)
+                )}
+                {fetchedClaimAdmins && admins.length >= this.selectThreshold && (
+                    this.renderAutoSuggestion(admins)
                 )}
             </Fragment>
         )
