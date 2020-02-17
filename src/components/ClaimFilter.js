@@ -96,10 +96,10 @@ class Head extends Component {
         if (!!v) {
             filters.push(
                 this._regionFilter({
-                    id: v.regionId,
-                    uuid: v.regionUuid,
-                    code: v.regionCode,
-                    name: v.regionName
+                    id: v.parent.id,
+                    uuid: v.parent.uuid,
+                    code: v.parent.code,
+                    name: v.parent.name
                 }))
         }
         this.props.onChangeFilters(filters);
@@ -126,6 +126,7 @@ class Head extends Component {
                         <PublishedComponent
                             id="location.RegionPicker"
                             value={(filters['region'] && filters['region']['value'])}
+                            withNull={true}
                             onChange={this._onChangeRegion}
                         />
                     </Grid>
@@ -136,6 +137,7 @@ class Head extends Component {
                             id="location.DistrictPicker"
                             value={(filters['district'] && filters['district']['value'])}
                             region={(filters['region'] && filters['region']['value'])}
+                            withNull={true}
                             reset={this.state.reset}
                             onChange={this._onChangeDistrict}
                         />
@@ -158,6 +160,7 @@ class Head extends Component {
                         <PublishedComponent
                             id="claim.ClaimAdminPicker"
                             value={(filters['claimAdmin'] && filters['claimAdmin']['value'])}
+                            withNull={true}
                             hfFilter={(filters['healthFacility'] && filters['healthFacility']['value'])}
                             onChange={this._onChangeClaimAdmin}
                         />
@@ -168,7 +171,7 @@ class Head extends Component {
                         <PublishedComponent
                             id="claim_batch.BatchRunPicker"
                             value={(filters['batchRun'] && filters['batchRun']['value'])}
-                            noneLabel={formatMessage(this.props.intl, "claim", "ClaimFilter.BatchRuns.any")}
+                            withNull={true}
                             scope={!!filters['district'] && filters['district']['value']}
                             onChange={(v, s) => onChangeFilters([
                                 {

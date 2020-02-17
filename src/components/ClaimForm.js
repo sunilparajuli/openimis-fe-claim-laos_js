@@ -3,12 +3,13 @@ import { withTheme, withStyles } from "@material-ui/core/styles";
 import { injectIntl } from 'react-intl';
 import { connect } from "react-redux";
 import { bindActionCreators } from "redux";
+import CheckIcon from "@material-ui/icons/Check"
 import ReplayIcon from "@material-ui/icons/Replay"
 import PrintIcon from "@material-ui/icons/ListAlt";
 import AttachIcon from "@material-ui/icons/AttachFile";
 import {
     Contributions, ProgressOrError, Form, PublishedComponent,
-    withModulesManager, withHistory, journalize, toISODate
+    withModulesManager, withHistory, journalize, toISODate, formatMessage,
 } from "@openimis/fe-core";
 import { fetchClaim, claimHealthFacilitySet, print, generate } from "../actions";
 import moment from "moment";
@@ -184,13 +185,20 @@ class ClaimForm extends Component {
         )
     }
 
+    _deliverReview = (claim) => {
+        this.setState(
+            { lockNew: !claim.uuid }, // avoid duplicates submissions
+            e => this.props.deliverReview(claim))
+    }
+
     render() {
         const { rights, fetchingClaim, fetchedClaim, errorClaim, add, save, back,
             forReview = false, forFeedback = false, } = this.props;
         const { claim_uuid, lockNew } = this.state;
         let readOnly = lockNew ||
             (!forReview && !forFeedback && this.state.claim.status !== 2) ||
-            ((forReview || forFeedback) && this.state.claim.status !== 4) ||
+            (forReview && (this.state.claim.reviewStatus >= 8 || this.state.claim.status !== 4)) ||
+            (forFeedback && this.state.claim.status !== 4) ||
             !rights.filter(r => r === RIGHT_LOAD).length
         var actions = [{
             doIt: e => this.reload(claim_uuid),
@@ -233,12 +241,15 @@ class ClaimForm extends Component {
                             back={back}
                             add={!!add ? this._add : null}
                             save={!!save ? this._save : null}
-                            openDirty={forReview && !readOnly}
+                            fab={forReview  && !readOnly && this.state.claim.reviewStatus < 8 && (<CheckIcon/>)}
+                            fabAction={this._deliverReview}
+                            fabTooltip={formatMessage(this.props.intl, "claim", "claim.Review.deliverReview.fab.tooltip")}
                             canSave={e => this.canSave(forFeedback)}
                             reload={(claim_uuid || readOnly) && this.reload}
                             actions={actions}
                             readOnly={readOnly}
                             forReview={forReview}
+                            roReview={forReview && this.state.claim.reviewStatus >= 8 }
                             forFeedback={forFeedback}
                             HeadPanel={ClaimMasterPanel}
                             Panels={!!forFeedback ?

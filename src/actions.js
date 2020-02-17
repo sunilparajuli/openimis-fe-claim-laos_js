@@ -412,24 +412,46 @@ export function formatReviewDetails(type, details) {
     ]`
 }
 
-export function deliverReview(claim, clientMutationLabel) {
+export function saveReview(claim, clientMutationLabel) {
   let reviewGQL = `
     claimUuid: "${claim.uuid}"
     ${formatReviewDetails("service", claim.services)}
     ${formatReviewDetails("item", claim.items)}
   `
-  let mutation = formatMutation("deliverClaimReview", reviewGQL, clientMutationLabel)
+  let mutation = formatMutation("saveClaimReview", reviewGQL, clientMutationLabel)
   var requestedDateTime = new Date();
   claim.clientMutationId = mutation.clientMutationId;
   return graphql(
     mutation.payload,
-    ['CLAIM_MUTATION_REQ', 'CLAIM_DELIVER_CLAIM_REVIEW_RESP', 'CLAIM_MUTATION_ERR'],
+    ['CLAIM_MUTATION_REQ', 'CLAIM_SAVE_CLAIM_REVIEW_RESP', 'CLAIM_MUTATION_ERR'],
     {
       clientMutationId: mutation.clientMutationId,
       clientMutationLabel,
       requestedDateTime
     }
   )
+}
+
+export function deliverReview(claims, clientMutationLabel, clientMutationDetails = null) {
+  let claimUuids = `uuids: ["${claims.map(c => c.uuid).join("\",\"")}"]`
+  let mutation = formatMutation(
+    "deliverClaimsReview",
+    claimUuids,
+    clientMutationLabel,
+    clientMutationDetails
+  );
+  var requestedDateTime = new Date();
+  claims.forEach(c => c.clientMutationId = mutation.clientMutationId);
+  return graphql(
+    mutation.payload,
+    ['CLAIM_MUTATION_REQ', 'CLAIM_DELIVER_CLAIMS_REVIEW_RESP', 'CLAIM_MUTATION_ERR'],
+    {
+      clientMutationId: mutation.clientMutationId,
+      clientMutationLabel,
+      clientMutationDetails: !!clientMutationDetails ? JSON.stringify(clientMutationDetails) : null,
+      requestedDateTime
+    }
+  )  
 }
 
 export function skipReview(claims, clientMutationLabel, clientMutationDetails = null) {

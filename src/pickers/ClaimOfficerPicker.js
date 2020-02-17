@@ -44,19 +44,17 @@ class ClaimOfficerPicker extends Component {
             <Fragment>
                 <ProgressOrError progress={fetchingClaimOfficers} error={errorClaimOfficers} />
                 {fetchedClaimOfficers && (
-                    <FormControl fullWidth>
-                        <AutoSuggestion
-                            items={claimOfficers}
-                            label={!!withLabel && (label || formatMessage(intl, "claim", "ClaimOfficerPicker.label"))}
-                            getSuggestions={this.claimOfficers}
-                            getSuggestionValue={this.formatSuggestion}
-                            onSuggestionSelected={this.onSuggestionSelected}
-                            value={v}
-                            reset={reset}
-                            readOnly={readOnly}
-                            required={required}
-                        />
-                    </FormControl>
+                    <AutoSuggestion
+                        items={claimOfficers}
+                        label={!!withLabel && (label || formatMessage(intl, "claim", "ClaimOfficerPicker.label"))}
+                        getSuggestions={this.claimOfficers}
+                        getSuggestionValue={this.formatSuggestion}
+                        onSuggestionSelected={this.onSuggestionSelected}
+                        value={v}
+                        reset={reset}
+                        readOnly={readOnly}
+                        required={required}
+                    />
                 )}
             </Fragment>
         )

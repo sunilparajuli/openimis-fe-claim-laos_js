@@ -233,8 +233,10 @@ function reducer(
             return dispatchMutationResp(state, "bypassClaimsReview", action);
         case 'CLAIM_SKIP_CLAIMS_REVIEW_RESP':
             return dispatchMutationResp(state, "skipClaimsReview", action);
-        case 'CLAIM_DELIVER_CLAIM_REVIEW_RESP':
-            return dispatchMutationResp(state, "deliverClaimReview", action);
+        case 'CLAIM_SAVE_CLAIM_REVIEW_RESP':
+            return dispatchMutationResp(state, "saveClaimReview", action);            
+        case 'CLAIM_DELIVER_CLAIMS_REVIEW_RESP':
+            return dispatchMutationResp(state, "deliverClaimsReview", action);
         case 'CLAIM_PROCESS_CLAIMS_RESP':
             return dispatchMutationResp(state, "processClaims", action);
         case 'CLAIM_CREATE_CLAIM_ATTACHMENT_RESP':
