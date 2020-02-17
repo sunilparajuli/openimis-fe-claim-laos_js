@@ -17,6 +17,7 @@ It is dedicated to be deployed as a module of [openimis-fe_js](https://github.co
 
 ## Available Contribution Points
 * `claim.MainMenu` ability to add entries within the main menu entry (known usage: openimis-fe-claim_batch)
+* `claim.Filter` ability to extend the ClaimFilter (inside the criteria form)
 * `claim.Searcher` ability to extend the ClaimSearcher (between the criteria form and the results table)
 * `claim.ClaimForm` ability to extend the ClaimForm (entity displayed to add, edit, provide feedback and provide review)
 * `claim.MasterPanel` ability to extend the first section (paper) of the ClaimForm

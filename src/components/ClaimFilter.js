@@ -9,9 +9,11 @@ import { Grid, Divider } from "@material-ui/core";
 import {
     formatMessage, withModulesManager,
     ControlledField, PublishedComponent,
-    TextInput, AmountInput,
+    TextInput, AmountInput, Contributions,
 } from "@openimis/fe-core";
 import { selectClaimAdmin, selectHealthFacility } from "../actions";
+
+const CLAIM_FILTER_CONTRIBUTION_KEY = "claim.Filter";
 
 const styles = theme => ({
     dialogTitle: theme.dialog.title,
@@ -392,6 +394,7 @@ class Details extends Component {
                         ])}
                     />
                 </Grid>
+                <Contributions filters={filters} onChangeFilters={onChangeFilters} contributionKey={CLAIM_FILTER_CONTRIBUTION_KEY} />
                 {!!FilterExt && (
                     <Fragment>
                         <Grid item xs={12} className={classes.paperDivider}>
