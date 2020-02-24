@@ -415,6 +415,7 @@ export function formatReviewDetails(type, details) {
 export function saveReview(claim, clientMutationLabel) {
   let reviewGQL = `
     claimUuid: "${claim.uuid}"
+    ${!!claim.adjustment ? `adjustment: "${claim.adjustment}"` : ""}
     ${formatReviewDetails("service", claim.services)}
     ${formatReviewDetails("item", claim.items)}
   `
