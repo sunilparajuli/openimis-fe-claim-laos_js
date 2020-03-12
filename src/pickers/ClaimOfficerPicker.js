@@ -15,6 +15,11 @@ const styles = theme => ({
 
 class ClaimOfficerPicker extends Component {
 
+    constructor(props) {
+        super(props);
+        this.selectThreshold = props.modulesManager.getConf("fe-claim", "ClaimOfficerPicker.selectThreshold", 10);
+    }
+
     componentDidMount() {
         if (!this.props.fetchedClaimOfficers) {
             // prevent loading multiple times the cache when component is
@@ -36,7 +41,8 @@ class ClaimOfficerPicker extends Component {
         const {
             intl, value, reset, claimOfficers,
             fetchingClaimOfficers, fetchedClaimOfficers, errorClaimOfficers,
-            withLabel = true, label, readOnly = false, required = false
+            withLabel = true, label, readOnly = false, required = false,
+            withNull = false, nullLabel = null,
         } = this.props;
         let v = claimOfficers ? claimOfficers.filter(o => parseInt(decodeId(o.id)) === value) : [];
         v = v.length ? v[0] : null;
@@ -45,6 +51,7 @@ class ClaimOfficerPicker extends Component {
                 <ProgressOrError progress={fetchingClaimOfficers} error={errorClaimOfficers} />
                 {fetchedClaimOfficers && (
                     <AutoSuggestion
+                        module="claim"
                         items={claimOfficers}
                         label={!!withLabel && (label || formatMessage(intl, "claim", "ClaimOfficerPicker.label"))}
                         getSuggestions={this.claimOfficers}
@@ -54,6 +61,10 @@ class ClaimOfficerPicker extends Component {
                         reset={reset}
                         readOnly={readOnly}
                         required={required}
+                        selectThreshold={this.selectThreshold}
+                        withNull={withNull}
+                        nullLabel={nullLabel || formatMessage(intl, "claim", "claim.ClaimOfficerPicker.null")}
+                        selectLabel={this.formatSuggestion}
                     />
                 )}
             </Fragment>
