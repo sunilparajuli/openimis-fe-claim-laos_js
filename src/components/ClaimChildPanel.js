@@ -18,7 +18,7 @@ const styles = theme => ({
 class ClaimChildPanel extends Component {
 
     state = {
-        data: []
+        data: [],
     }
 
     constructor(props) {
@@ -49,7 +49,7 @@ class ClaimChildPanel extends Component {
             if (!this.props.forReview) {
                 data.push({});
             }
-            this.setState({ data });
+            this.setState({ data, reset: this.state.reset + 1 });
         } else if (prevProps.reset !== this.props.reset ||
             (!!this.props.edited[`${this.props.type}s`] &&
                 !_.isEqual(prevProps.edited[`${this.props.type}s`], this.props.edited[`${this.props.type}s`])

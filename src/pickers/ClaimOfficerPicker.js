@@ -64,7 +64,6 @@ class ClaimOfficerPicker extends Component {
                         selectThreshold={this.selectThreshold}
                         withNull={withNull}
                         nullLabel={nullLabel || formatMessage(intl, "claim", "claim.ClaimOfficerPicker.null")}
-                        selectLabel={this.formatSuggestion}
                     />
                 )}
             </Fragment>

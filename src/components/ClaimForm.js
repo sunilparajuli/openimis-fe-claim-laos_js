@@ -194,11 +194,11 @@ class ClaimForm extends Component {
     render() {
         const { rights, fetchingClaim, fetchedClaim, errorClaim, add, save, back,
             forReview = false, forFeedback = false, } = this.props;
-        const { claim_uuid, lockNew } = this.state;
+        const { claim, claim_uuid, lockNew } = this.state;
         let readOnly = lockNew ||
-            (!forReview && !forFeedback && this.state.claim.status !== 2) ||
-            (forReview && (this.state.claim.reviewStatus >= 8 || this.state.claim.status !== 4)) ||
-            (forFeedback && this.state.claim.status !== 4) ||
+            (!forReview && !forFeedback && claim.status !== 2) ||
+            (forReview && (claim.reviewStatus >= 8 || claim.status !== 4)) ||
+            (forFeedback && claim.status !== 4) ||
             !rights.filter(r => r === RIGHT_LOAD).length
         var actions = [{
             doIt: e => this.reload(claim_uuid),
@@ -212,9 +212,9 @@ class ClaimForm extends Component {
                 onlyIfNotDirty: true
             })
         }
-        if (!!claim_uuid && !!this.claimAttachments) {
+        if (!!this.claimAttachments && (!readOnly || claim.attachmentsCount > 0)) {
             actions.push({
-                doIt: e => this.setState({ attachmentsClaim: this.state.claim }),
+                doIt: e => this.setState({ attachmentsClaim: claim }),
                 icon: <AttachIcon />
             })
         }
@@ -223,13 +223,11 @@ class ClaimForm extends Component {
                 <ProgressOrError progress={fetchingClaim} error={errorClaim} />
                 {(!!fetchedClaim || !claim_uuid) && (
                     <Fragment>
-                        {!!claim_uuid && (
-                            <PublishedComponent id="claim.AttachmentsDialog"
-                                readOnly={!rights.includes(RIGHT_ADD) || readOnly}
-                                claim={this.state.attachmentsClaim}
-                                close={e => this.setState({ attachmentsClaim: null })}
-                            />
-                        )}
+                        <PublishedComponent id="claim.AttachmentsDialog"
+                            readOnly={!rights.includes(RIGHT_ADD) || readOnly}
+                            claim={this.state.attachmentsClaim}
+                            close={e => this.setState({ attachmentsClaim: null })}
+                        />
                         <Form
                             module="claim"
                             edited_id={claim_uuid}

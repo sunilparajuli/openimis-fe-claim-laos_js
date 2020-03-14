@@ -31,7 +31,7 @@ export function validateClaimCode(code) {
     [`code: "${code}"`],
     ["totalCount"]
   )
-  return graphql(payload, 'CLAIM_CLAIM_CODE_COUNT');  
+  return graphql(payload, 'CLAIM_CLAIM_CODE_COUNT');
 }
 
 export function fetchClaimOfficers(mm) {
@@ -65,16 +65,20 @@ export function deleteAttachment(attach, clientMutationLabel) {
   )
 }
 
-export function createAttachment(attach, clientMutationLabel) {
-  let payload = `
+export function formatAttachment(attach) {
+  return `
+    ${!!attach.claimUuid ? `claimUuid: "${attach.claimUuid}"` : ""}
     ${!!attach.type ? `type: "${attach.type}"` : ""}
     ${!!attach.title ? `title: "${attach.title}"` : ""}
     ${!!attach.date ? `date: "${attach.date}"` : ""}
     ${!!attach.mime ? `mime: "${attach.mime}"` : ""}
     ${!!attach.filename ? `filename: "${attach.filename}"` : ""}
     ${!!attach.document ? `document: "${attach.document}"` : ""}
-    claimUuid: "${attach.claimUuid}"
   `
+}
+
+export function createAttachment(attach, clientMutationLabel) {
+  let payload = formatAttachment(attach);
   let mutation = formatMutation("createClaimAttachment", payload, clientMutationLabel);
   var requestedDateTime = new Date();
   return graphql(
@@ -133,6 +137,14 @@ export function formatDetails(type, details) {
     ]`
 }
 
+export function formatAttachments(mm, attachments) {
+  return `[
+    ${attachments.map(a => `{
+      ${formatAttachment(a)}
+    }`).join('\n')}
+  ]`
+}
+
 export function formatClaimGQL(mm, claim) {
   return `
     ${claim.uuid !== undefined && claim.uuid !== null ? `uuid: "${claim.uuid}"` : ''}
@@ -156,6 +168,7 @@ export function formatClaimGQL(mm, claim) {
     ${!!claim.adjustment ? `adjustment: "${claim.adjustment}"` : ""}
     ${formatDetails("service", claim.services)}
     ${formatDetails("item", claim.items)}
+    ${!!claim.attachments && !!claim.attachments.length ? `attachments: ${formatAttachments(mm, claim.attachments)}` : ""}
   `
 }
 
@@ -193,6 +206,7 @@ export function fetchClaim(mm, claimUuid, claimCode, forFeedback) {
   let projections = [
     "uuid", "code", "dateFrom", "dateTo", "dateClaimed", "claimed", "approved", "valuated",
     "status", "feedbackStatus", "reviewStatus", "guaranteeId", "explanation", "adjustment",
+    "attachmentsCount",
     "healthFacility" + mm.getProjection("location.HealthFacilityPicker.projection"),
     "insuree" + mm.getProjection("insuree.InsureePicker.projection"),
     "visitType" + mm.getProjection("medical.VisitTypePicker.projection"),
@@ -452,7 +466,7 @@ export function deliverReview(claims, clientMutationLabel, clientMutationDetails
       clientMutationDetails: !!clientMutationDetails ? JSON.stringify(clientMutationDetails) : null,
       requestedDateTime
     }
-  )  
+  )
 }
 
 export function skipReview(claims, clientMutationLabel, clientMutationDetails = null) {
