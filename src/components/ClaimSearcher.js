@@ -5,7 +5,7 @@ import { injectIntl } from 'react-intl';
 import _ from "lodash";
 import { withTheme, withStyles } from "@material-ui/core/styles";
 import {
-    IconButton,
+    IconButton, Typography,
 } from "@material-ui/core";
 import AttachIcon from "@material-ui/icons/AttachFile";
 import { Searcher } from "@openimis/fe-core";
@@ -96,20 +96,24 @@ class ClaimSearcher extends Component {
         var result = selection.length ?
             [
                 '', '', '', '', '', '',
-                <FormattedMessage
-                    module="claim"
-                    id="claimSummaries.selection.claimed"
-                    values={{
-                        claimed: <b>{formatAmount(this.props.intl, selection.reduce((t, v) => t + v.claimed, 0))}</b>,
-                    }}
-                />,
-                <FormattedMessage
-                    module="claim"
-                    id="claimSummaries.selection.approved"
-                    values={{
-                        approved: <b>{formatAmount(this.props.intl, selection.reduce((t, v) => t + v.approved, 0))}</b>,
-                    }}
-                />,
+                <Typography noWrap={true}>
+                    <FormattedMessage
+                        module="claim"
+                        id="claimSummaries.selection.claimed"
+                        values={{
+                            claimed: <b>{formatAmount(this.props.intl, selection.reduce((t, v) => t + v.claimed, 0))}</b>,
+                        }}
+                    />
+                </Typography>,
+                <Typography noWrap={true}>
+                    <FormattedMessage
+                        module="claim"
+                        id="claimSummaries.selection.approved"
+                        values={{
+                            approved: <b>{formatAmount(this.props.intl, selection.reduce((t, v) => t + v.approved, 0))}</b>,
+                        }}
+                    />
+                </Typography>,
                 , ''
             ]
             : ['\u200b', '', '', '', '', '', '', '', ''] //fixing pre headers row height!
