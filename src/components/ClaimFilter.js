@@ -12,6 +12,7 @@ import {
     TextInput, AmountInput, Contributions,
 } from "@openimis/fe-core";
 import { selectClaimAdmin, selectHealthFacility } from "../actions";
+import { REGION_NATIONAL_ID } from "../constants";
 
 const CLAIM_FILTER_CONTRIBUTION_KEY = "claim.Filter";
 
@@ -38,7 +39,7 @@ class Head extends Component {
         return {
             id: 'region',
             value: v,
-            filter: `healthFacility_Location_Parent_Uuid: "${!!v && v.uuid}"`
+            filter: !!v && !!v.uuid ? `healthFacility_Location_Parent_Uuid: "${v.uuid}"` : null
         }
     }
 
@@ -116,15 +117,20 @@ class Head extends Component {
         this.props.selectClaimAdmin(v);
     }
 
+    isNational = () => {
+        const { filters } = this.props;
+        return filters['region'] && filters['region']['value']['id'] === REGION_NATIONAL_ID
+    }
 
     render() {
-        const { classes, filters, onChangeFilters } = this.props;
+        const { intl, classes, filters, onChangeFilters } = this.props;
         return (
             <Grid container className={classes.form}>
                 <ControlledField module="claim" id="ClaimFilter.region" field={
                     <Grid item xs={2} className={classes.item}>
                         <PublishedComponent
                             id="location.RegionPicker"
+                            preValues={[{ id: REGION_NATIONAL_ID, code: '', name: formatMessage(intl, "claim_batch", "claim_batch.regions.country") }]}
                             value={(filters['region'] && filters['region']['value'])}
                             withNull={true}
                             onChange={this._onChangeRegion}
@@ -133,26 +139,30 @@ class Head extends Component {
                 } />
                 <ControlledField module="claim" id="ClaimFilter.district" field={
                     <Grid item xs={2} className={classes.item}>
-                        <PublishedComponent
-                            id="location.DistrictPicker"
-                            value={(filters['district'] && filters['district']['value'])}
-                            region={(filters['region'] && filters['region']['value'])}
-                            withNull={true}
-                            reset={this.state.reset}
-                            onChange={this._onChangeDistrict}
-                        />
+                        {!this.isNational() && (
+                            <PublishedComponent
+                                id="location.DistrictPicker"
+                                value={(filters['district'] && filters['district']['value'])}
+                                region={(filters['region'] && filters['region']['value'])}
+                                withNull={true}
+                                reset={this.state.reset}
+                                onChange={this._onChangeDistrict}
+                            />
+                        )}
                     </Grid>
                 } />
                 <ControlledField module="claim" id="ClaimFilter.healthFacility" field={
                     <Grid item xs={3} className={classes.item}>
-                        <PublishedComponent
-                            id="location.HealthFacilityPicker"
-                            value={(filters['healthFacility'] && filters['healthFacility']['value'])}
-                            region={(filters['region'] && filters['region']['value'])}
-                            district={(filters['district'] && filters['district']['value'])}
-                            reset={this.state.reset}
-                            onChange={this._onChangeHealthFacility}
-                        />
+                        {!this.isNational() && (
+                            <PublishedComponent
+                                id="location.HealthFacilityPicker"
+                                value={(filters['healthFacility'] && filters['healthFacility']['value'])}
+                                region={(filters['region'] && filters['region']['value'])}
+                                district={(filters['district'] && filters['district']['value'])}
+                                reset={this.state.reset}
+                                onChange={this._onChangeHealthFacility}
+                            />
+                        )}
                     </Grid>
                 } />
                 <ControlledField module="claim" id="ClaimFilter.claimAdmin" field={
@@ -172,7 +182,8 @@ class Head extends Component {
                             id="claim_batch.BatchRunPicker"
                             value={(filters['batchRun'] && filters['batchRun']['value'])}
                             withNull={true}
-                            scope={!!filters['district'] && filters['district']['value']}
+                            scopeNational={this.isNational()}
+                            scopeDistrict={!!filters['district'] && filters['district']['value']}
                             onChange={(v, s) => onChangeFilters([
                                 {
                                     id: 'batchRun',
