@@ -51,22 +51,9 @@ export function fetchClaimAttachments(claim) {
   return graphql(payload, 'CLAIM_CLAIM_ATTACHMENTS');
 }
 
-export function deleteAttachment(attach, clientMutationLabel) {
-  let mutation = formatMutation("deleteClaimAttachment", `id: "${decodeId(attach.id)}"`, clientMutationLabel);
-  var requestedDateTime = new Date();
-  return graphql(
-    mutation.payload,
-    ['CLAIM_MUTATION_REQ', 'CLAIM_DELETE_CLAIM_ATTACHMENT_RESP', 'CLAIM_MUTATION_ERR'],
-    {
-      clientMutationId: mutation.clientMutationId,
-      clientMutationLabel,
-      requestedDateTime
-    }
-  )
-}
-
 export function formatAttachment(attach) {
   return `
+    ${!!attach.id ? `id: "${decodeId(attach.id)}"` : ""}
     ${!!attach.claimUuid ? `claimUuid: "${attach.claimUuid}"` : ""}
     ${!!attach.type ? `type: "${attach.type}"` : ""}
     ${!!attach.title ? `title: "${attach.title}"` : ""}
@@ -84,6 +71,35 @@ export function createAttachment(attach, clientMutationLabel) {
   return graphql(
     mutation.payload,
     ['CLAIM_MUTATION_REQ', 'CLAIM_CREATE_CLAIM_ATTACHMENT_RESP', 'CLAIM_MUTATION_ERR'],
+    {
+      clientMutationId: mutation.clientMutationId,
+      clientMutationLabel,
+      requestedDateTime
+    }
+  )
+}
+
+export function updateAttachment(attach, clientMutationLabel) {
+  let payload = formatAttachment(attach);
+  let mutation = formatMutation("updateClaimAttachment", payload, clientMutationLabel);
+  var requestedDateTime = new Date();
+  return graphql(
+    mutation.payload,
+    ['CLAIM_MUTATION_REQ', 'CLAIM_UPDATE_CLAIM_ATTACHMENT_RESP', 'CLAIM_MUTATION_ERR'],
+    {
+      clientMutationId: mutation.clientMutationId,
+      clientMutationLabel,
+      requestedDateTime
+    }
+  )
+}
+
+export function deleteAttachment(attach, clientMutationLabel) {
+  let mutation = formatMutation("deleteClaimAttachment", `id: "${decodeId(attach.id)}"`, clientMutationLabel);
+  var requestedDateTime = new Date();
+  return graphql(
+    mutation.payload,
+    ['CLAIM_MUTATION_REQ', 'CLAIM_DELETE_CLAIM_ATTACHMENT_RESP', 'CLAIM_MUTATION_ERR'],
     {
       clientMutationId: mutation.clientMutationId,
       clientMutationLabel,

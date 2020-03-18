@@ -3,6 +3,7 @@ import { bindActionCreators } from "redux";
 import { connect } from "react-redux";
 import { injectIntl } from 'react-intl';
 import { withTheme, withStyles } from "@material-ui/core/styles";
+import SaveIcon from "@material-ui/icons/SaveAlt";
 import DeleteIcon from "@material-ui/icons/Delete";
 import FileIcon from "@material-ui/icons/Add";
 import {
@@ -15,7 +16,7 @@ import {
     formatMessage, formatMessageWithValues,
     journalize, coreConfirm
 } from "@openimis/fe-core";
-import { fetchClaimAttachments, downloadAttachment, deleteAttachment, createAttachment } from "../actions";
+import { fetchClaimAttachments, downloadAttachment, deleteAttachment, createAttachment, updateAttachment } from "../actions";
 import { RIGHT_ADD } from "../constants";
 
 const styles = theme => ({
@@ -23,14 +24,6 @@ const styles = theme => ({
     dialogContent: theme.dialog.content,
 });
 
-const newAttachment = {
-    title: "",
-    type: "",
-    date: null,
-    filename: null,
-    mime: null,
-    document: null,
-}
 
 class AttachmentsDialog extends Component {
     state = {
@@ -38,17 +31,8 @@ class AttachmentsDialog extends Component {
         claimUuid: null,
         claimAttachments: [],
         attachmentToDelete: null,
-        ...newAttachment
-    }
-
-    stateAttachment = () => {
-        return {
-            title: this.state.title,
-            type: this.state.type,
-            date: this.state.date,
-            filename: this.state.filename,
-            mime: this.state.mime,
-        }
+        updatedAttachments: new Set(),
+        reset: 0,
     }
 
     componentDidUpdate(prevProps, props, snapshot) {
@@ -58,27 +42,34 @@ class AttachmentsDialog extends Component {
             if (!this.props.readOnly && this.props.rights.includes(RIGHT_ADD)) {
                 claimAttachments.push({});
             }
-            this.setState({ claimAttachments });
-        } else if (!_.isEqual(prevProps.claim, this.props.claim) && !!this.props.claim) {
-            this.setState({ open: true, claimUuid: this.props.claim.uuid, claimAttachments: readOnly ? [] : [{}] },
+            this.setState({ claimAttachments, updatedAttachments: new Set() });
+        } else if (!_.isEqual(prevProps.claim, this.props.claim) && !!this.props.claim && !!this.props.claim.uuid) {
+            this.setState({ open: true, claimUuid: this.props.claim.uuid, claimAttachments: readOnly ? [] : [{}], updatedAttachments: new Set() },
                 e => {
                     if (!!this.props.claim && !!this.props.claim.uuid) {
                         this.props.fetchClaimAttachments(this.props.claim);
                     }
                 })
+        } else if (!_.isEqual(prevProps.claim, this.props.claim) && !!this.props.claim && !this.props.claim.uuid) {
+            let claimAttachments = [...(this.props.claim.attachments || [])]
+            if (!readOnly) {
+                claimAttachments.push({})
+                this.props.onUpdated()
+            }
+            this.setState({ open: true, claimUuid: null, claimAttachments, updatedAttachments: new Set() });
         } else if (prevProps.submittingMutation && !this.props.submittingMutation) {
             var claimAttachments = [...this.state.claimAttachments];
             if (!!this.state.attachmentToDelete) {
                 claimAttachments = claimAttachments.filter(a => a.id !== this.state.attachmentToDelete.id)
-            } else if (!!this.state.filename) {
-                claimAttachments.pop()
-                claimAttachments.push(this.stateAttachment(), {});
+            } else if (!_.isEqual(_.last(claimAttachments), {})) {
+                claimAttachments.push({})
             }
             this.setState(
                 {
                     claimAttachments,
+                    updatedAttachments: new Set(),
                     attachmentToDelete: null,
-                    ...newAttachment
+                    reset: this.state.reset + 1
                 }
             )
             // called from ClaimForm!
@@ -110,19 +101,20 @@ class AttachmentsDialog extends Component {
         } else {
             var claimAttachments = [...this.state.claimAttachments]
             claimAttachments.splice(i, 1)
+            claimAttachments.pop()
             this.props.claim.attachments = [...claimAttachments]
-            this.props.claim.attachments.pop()
-            this.setState({ claimAttachments })
+            claimAttachments.push({})
+            this.setState({ claimAttachments, reset: this.state.reset + 1 })
         }
     }
 
     addAttachment = document => {
-        let attachment = { ...this.stateAttachment(), document }
+        let attachment = { ..._.last(this.state.claimAttachments), document }
         if (!!this.state.claimUuid) {
             this.props.createAttachment(
                 { ...attachment, claimUuid: this.state.claimUuid },
                 formatMessageWithValues(this.props.intl, "claim", "claim.ClaimAttachment.create.mutationLabel", {
-                    file: `${this.state.title} (${this.state.filename})`,
+                    file: `${attachment.title} (${attachment.filename})`,
                     code: `${this.props.claim.code}`
                 }))
         } else {
@@ -131,23 +123,33 @@ class AttachmentsDialog extends Component {
             }
             this.props.claim.attachments.push(attachment)
             var claimAttachments = [...this.state.claimAttachments]
-            claimAttachments.pop()
-            claimAttachments.push(attachment, {});
-            this.setState({ ...newAttachment, claimAttachments })
+            claimAttachments.push({});
+            this.setState({ claimAttachments })
         }
+    }
+
+    update = i => {
+        let attachment = { claimUuid: this.state.claimUuid, ...this.state.claimAttachments[i] }
+        this.props.updateAttachment(
+            attachment,
+            formatMessageWithValues(this.props.intl, "claim", "claim.ClaimAttachment.update.mutationLabel", {
+                file: `${attachment.title} (${attachment.filename})`,
+                code: `${this.props.claim.code}`
+            })
+        )
     }
 
     download = a => {
         this.props.downloadAttachment(a)
     }
 
-    fileSelected = fileSelected => {
-        if (!!fileSelected.target.files) {
-            const file = fileSelected.target.files[0];
-            this.setState({
-                filename: file.name,
-                mime: file.type,
-            },
+    fileSelected = (f, i) => {
+        if (!!f.target.files) {
+            const file = f.target.files[0];
+            let claimAttachments = [...this.state.claimAttachments]
+            claimAttachments[i].filename = file.name
+            claimAttachments[i].mime = file.type
+            this.setState({ claimAttachments },
                 e => {
                     var reader = new FileReader();
                     reader.onloadend = loaded => {
@@ -158,8 +160,8 @@ class AttachmentsDialog extends Component {
         }
     }
 
-    formatFileName(a) {
-        if (!!a.id) return <Link onClick={e => this.download(a)}>{a.filename || ""}</Link>
+    formatFileName(a, i) {
+        if (!!a.id) return <Link onClick={e => this.download(a)} reset={this.state.reset}>{a.filename || ""}</Link>
         if (!!a.filename) return <i>{a.filename}</i>
         return (
             <IconButton
@@ -170,11 +172,19 @@ class AttachmentsDialog extends Component {
                 <input
                     type="file"
                     style={{ display: "none" }}
-                    onChange={this.fileSelected}
+                    onChange={f => this.fileSelected(f, i)}
                 />
             </IconButton>
         )
     }
+
+    updateAttachment = (i, key, value) => {
+        this.state.claimAttachments[i][key] = value;
+        this.state.updatedAttachments.add(i)
+        this.setState({ reset: this.state.reset + 1 })
+    }
+
+    cannotUpdate = (a, i) => i < this.state.claimAttachments.length - 1 && !!this.state.claimUuid && !a.id
 
     render() {
         const { classes, claim, readOnly = false,
@@ -188,25 +198,37 @@ class AttachmentsDialog extends Component {
             "claimAttachment.fileName"
         ]
         var itemFormatters = [
-            a => !!a.id ? <Link onClick={e => this.download(a)}>{a.type || ""}</Link> :
-                !!a.filename ? a.type :
-                    <TextInput onChange={v => this.setState({ type: v })} value={this.state.type} />,
-            a => !!a.filename ? <Link onClick={e => this.download(a)}>{a.title || ""}</Link> :
-                !!a.filename ? a.title :
-                    <TextInput onChange={v => this.setState({ title: v })} value={this.state.title} />,
-            a => !!a.id ? <Link onClick={e => this.download(a)}>{a.date || ""}</Link> :
-                !!a.filename ? a.date :
-                    <PublishedComponent id="core.DatePicker"
-                        value={this.state.date}
-                        onChange={d => this.setState({ date: d })}
-                    />,
-            a => this.formatFileName(a),
+            (a, i) => this.cannotUpdate(a, i) ? this.state.claimAttachments[i].type : (
+                <TextInput
+                    reset={this.state.reset}
+                    value={this.state.claimAttachments[i].type}
+                    onChange={v => this.updateAttachment(i, "type", v)}
+                />),
+            (a, i) => this.cannotUpdate(a, i) ? this.state.claimAttachments[i].title : (
+                <TextInput
+                    reset={this.state.reset}
+                    value={this.state.claimAttachments[i].title}
+                    onChange={v => this.updateAttachment(i, "title", v)}
+                />),
+            (a, i) => this.cannotUpdate(a, i) ? this.state.claimAttachments[i].date : (
+                <PublishedComponent
+                    id="core.DatePicker"
+                    onChange={v => this.updateAttachment(i, "date", v)}
+                    value={this.state.claimAttachments[i].date || null}
+                    reset={this.state.reset} />
+            ),
+            (a, i) => this.formatFileName(a, i),
         ];
-        if (!readOnly || !this.state.claimUuid) {
-            headers.push("claimAttachment.delete");
-            itemFormatters.push(
-                (a, i) => !!a.filename ? <IconButton onClick={e => this.delete(a, i)}><DeleteIcon /></IconButton> : ""
-            )
+        if (!readOnly) {
+            headers.push("claimAttachment.action");
+            itemFormatters.push((a, i) => {
+                if (!!a.id && this.state.updatedAttachments.has(i)) {
+                    return <IconButton onClick={e => this.update(i)}><SaveIcon /></IconButton>
+                } else if (i < this.state.claimAttachments.length - 1) {
+                    return <IconButton onClick={e => this.delete(a, i)}><DeleteIcon /></IconButton>
+                }
+                return null;
+            })
         }
         return (
             <Dialog
@@ -252,7 +274,7 @@ const mapStateToProps = state => ({
 
 const mapDispatchToProps = dispatch => {
     return bindActionCreators(
-        { fetchClaimAttachments, downloadAttachment, deleteAttachment, createAttachment, coreConfirm, journalize },
+        { fetchClaimAttachments, downloadAttachment, deleteAttachment, createAttachment, updateAttachment, coreConfirm, journalize },
         dispatch);
 };
 

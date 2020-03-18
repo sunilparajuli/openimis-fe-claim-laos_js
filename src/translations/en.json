@@ -205,9 +205,10 @@
     "claim.claimAttachment.title": "Title",
     "claim.claimAttachment.date": "Date",
     "claim.claimAttachment.fileName": " ",
-    "claim.claimAttachment.delete": " ",
+    "claim.claimAttachment.action": " ",
     "claim.deleteClaimAttachment.confirm.title": "Delete Claim Attachment",
     "claim.deleteClaimAttachment.confirm.message": "Are you sure you want to delete claim attachment {file}?",    
     "claim.ClaimAttachment.delete.mutationLabel": "Deleted attachment {file} from claim {code}",
-    "claim.ClaimAttachment.create.mutationLabel": "Added attachment {file} to claim {code}"
+    "claim.ClaimAttachment.create.mutationLabel": "Added attachment {file} to claim {code}",
+    "claim.ClaimAttachment.update.mutationLabel": "Updated attachment {file} of claim {code}"
 }

@@ -234,19 +234,21 @@ function reducer(
         case 'CLAIM_SKIP_CLAIMS_REVIEW_RESP':
             return dispatchMutationResp(state, "skipClaimsReview", action);
         case 'CLAIM_SAVE_CLAIM_REVIEW_RESP':
-            return dispatchMutationResp(state, "saveClaimReview", action);            
+            return dispatchMutationResp(state, "saveClaimReview", action);
         case 'CLAIM_DELIVER_CLAIMS_REVIEW_RESP':
             return dispatchMutationResp(state, "deliverClaimsReview", action);
         case 'CLAIM_PROCESS_CLAIMS_RESP':
             return dispatchMutationResp(state, "processClaims", action);
         case 'CLAIM_CREATE_CLAIM_ATTACHMENT_RESP':
             return dispatchMutationResp(state, "createClaimAttachment", action);
+        case 'CLAIM_UPDATE_CLAIM_ATTACHMENT_RESP':
+            return dispatchMutationResp(state, "updateClaimAttachment", action);
         case 'CLAIM_DELETE_CLAIM_ATTACHMENT_RESP':
             return dispatchMutationResp(state, "deleteClaimAttachment", action);
         case 'CORE_ALERT_CLEAR':
-                var s = { ...state };
-                delete (s.alert);
-                return s;            
+            var s = { ...state };
+            delete (s.alert);
+            return s;
         case 'CLAIM_PRINT':
             return {
                 ...state,

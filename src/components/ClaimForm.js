@@ -53,6 +53,7 @@ class ClaimForm extends Component {
         claim: this._newClaim(),
         printParam: null,
         attachmentsClaim: null,
+        forcedDirty: false,
     }
 
     constructor(props) {
@@ -227,6 +228,7 @@ class ClaimForm extends Component {
                             readOnly={!rights.includes(RIGHT_ADD) || readOnly}
                             claim={this.state.attachmentsClaim}
                             close={e => this.setState({ attachmentsClaim: null })}
+                            onUpdated={() => this.setState({ forcedDirty: true })}
                         />
                         <Form
                             module="claim"
@@ -237,9 +239,10 @@ class ClaimForm extends Component {
                             title="edit.title"
                             titleParams={{ code: this.state.claim.code }}
                             back={back}
+                            forcedDirty={this.state.forcedDirty}
                             add={!!add ? this._add : null}
                             save={!!save ? this._save : null}
-                            fab={forReview  && !readOnly && this.state.claim.reviewStatus < 8 && (<CheckIcon/>)}
+                            fab={forReview && !readOnly && this.state.claim.reviewStatus < 8 && (<CheckIcon />)}
                             fabAction={this._deliverReview}
                             fabTooltip={formatMessage(this.props.intl, "claim", "claim.Review.deliverReview.fab.tooltip")}
                             canSave={e => this.canSave(forFeedback)}
@@ -247,7 +250,7 @@ class ClaimForm extends Component {
                             actions={actions}
                             readOnly={readOnly}
                             forReview={forReview}
-                            roReview={forReview && this.state.claim.reviewStatus >= 8 }
+                            roReview={forReview && this.state.claim.reviewStatus >= 8}
                             forFeedback={forFeedback}
                             HeadPanel={ClaimMasterPanel}
                             Panels={!!forFeedback ?
