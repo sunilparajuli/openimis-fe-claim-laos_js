@@ -156,7 +156,7 @@ class ClaimMasterPanel extends FormPanel {
                             onChange={d => this.updateAttribute("dateClaimed", d)}
                             readOnly={ro}
                             required={true}
-                            minDate={edited.dateFrom}
+                            minDate={!!edited.dateTo ? edited.dateTo : edited.dateFrom}
                         />
                     </Grid>
                 } />
