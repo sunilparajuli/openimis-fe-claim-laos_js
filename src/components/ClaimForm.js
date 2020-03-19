@@ -51,6 +51,7 @@ class ClaimForm extends Component {
         update: 0,
         claim_uuid: null,
         claim: this._newClaim(),
+        newClaim: true,
         printParam: null,
         attachmentsClaim: null,
         forcedDirty: false,
@@ -58,6 +59,7 @@ class ClaimForm extends Component {
 
     constructor(props) {
         super(props);
+        this.canSaveClaimWithoutServiceNorItem = props.modulesManager.getConf("fe-claim", "canSaveClaimWithoutServiceNorItem", true);
         this.claimAttachments = props.modulesManager.getConf("fe-claim", "claimAttachments", true);
     }
 
@@ -96,7 +98,7 @@ class ClaimForm extends Component {
                 this.props.claimHealthFacilitySet(this.props.claim.healthFacility)
             );
         } else if (prevProps.claim_uuid && !this.props.claim_uuid) {
-            this.setState({ claim: this._newClaim(), lockNew: false, claim_uuid: null });
+            this.setState({ claim: this._newClaim(), newClaim: true, lockNew: false, claim_uuid: null });
         } else if (prevProps.submittingMutation && !this.props.submittingMutation) {
             this.props.journalize(this.props.mutation);
             this.setState({ reset: this.state.reset + 1 });
@@ -109,6 +111,7 @@ class ClaimForm extends Component {
         this.setState(
             {
                 claim: this._newClaim(),
+                newClaim: true,
                 lockNew: false,
                 reset: this.state.reset + 1,
             },
@@ -138,7 +141,8 @@ class ClaimForm extends Component {
         if (!!this.state.claim.dateTo && this.state.claim.dateFrom > this.state.claim.dateTo) return false;
         if (!this.state.claim.icd) return false;
         if (!forFeedback) {
-            if (!this.state.claim.items && !this.state.claim.services) return false;
+            if (!this.state.claim.items && !this.state.claim.services) return !!this.canSaveClaimWithoutServiceNorItem
+            //if there are items or services, they have to be complete
             let items = [];
             if (!!this.state.claim.items) {
                 items = [...this.state.claim.items];
@@ -170,7 +174,7 @@ class ClaimForm extends Component {
     }
 
     onEditedChanged = claim => {
-        this.setState({ claim })
+        this.setState({ claim, newClaim: false })
     }
 
     _save = (claim) => {
@@ -240,7 +244,7 @@ class ClaimForm extends Component {
                             titleParams={{ code: this.state.claim.code }}
                             back={back}
                             forcedDirty={this.state.forcedDirty}
-                            add={!!add ? this._add : null}
+                            add={!!add && !this.state.newClaim ? this._add : null}
                             save={!!save ? this._save : null}
                             fab={forReview && !readOnly && this.state.claim.reviewStatus < 8 && (<CheckIcon />)}
                             fabAction={this._deliverReview}

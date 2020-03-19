@@ -83,6 +83,8 @@ None
 * `claimForm.showJustificationAtEnter`, boolean to display justification field(s) for items and services at claim entry. Default false;
 * `claimForm.showAdjustmentAtEnter`, boolean to display adjustment field at claim entry. Default false;
 * `claimForm.insureePicker`, the insuree picker to use when filling a claim. Default insuree.InsureeChfIdPicker (the exact chfid entry picker). Other pre-canned option (from insuree reference module): insuree.InsureePicker (dialog picker with search on chfid, last name and other names)
+* `canSaveClaimWithoutServiceNorItem`, wherever user can save a claim without service nor item, default: true
+* `canSubmitClaimWithZero`, wherever user can submit with 0 as claimed amount (probably a claim without service/item), default: false
 * `claimAttachments`, boolean to enable/disable claim attachments. Default true;
 * `ClaimAdminPicker.selectThreshold`: claim administrators suggestions count threshold under which the AutoSuggestion switch to a SelectInut (drop down list), default: 10
 * `ClaimOfficerPicker.selectThreshold`: claim officers suggestions count threshold under which the AutoSuggestion switch to a SelectInut (drop down list), default: 10

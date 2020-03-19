@@ -36,14 +36,15 @@ class HealthFacilitiesPage extends ClaimsSearcherPage {
                 }
             }
         )
-
+        this.canSubmitClaimWithZero = props.modulesManager.getConf("fe-claim", "canSubmitClaimWithZero", false);
         this.state = {
             defaultFilters,
             confirmedAction: null,
         }
     }
 
-    canSubmitSelected = (selection) => !!selection && selection.length && selection.filter(s => s.status === 2).length === selection.length
+    canSubmitSelected = (selection) => !!selection && selection.length &&
+        selection.filter(s => s.status === 2 && (!!this.canSubmitClaimWithZero || s.claimed > 0)).length === selection.length
 
     submitSelected = (selection) => {
         if (selection.length === 1) {
@@ -70,7 +71,8 @@ class HealthFacilitiesPage extends ClaimsSearcherPage {
         }
     }
 
-    canDeleteSelected = (selection) => !!selection && selection.length && selection.filter(s => s.status === 2).length === selection.length
+    canDeleteSelected = (selection) => !!selection && selection.length &&
+        selection.filter(s => s.status === 2).length === selection.length
 
     deleteSelected = (selection) => {
         let confirm = null;
@@ -168,7 +170,7 @@ const mapStateToProps = state => ({
     rights: !!state.core && !!state.core.user && !!state.core.user.i_user ? state.core.user.i_user.rights : [],
     claimAdmin: state.claim.claimAdmin,
     claimHealthFacility: state.claim.claimHealthFacility,
-    userHealthFacilityFullPath: !!state.loc ? state.loc.userHealthFacilityFullPath : null,    
+    userHealthFacilityFullPath: !!state.loc ? state.loc.userHealthFacilityFullPath : null,
     //props used from super.componentDidUpdate !!
     submittingMutation: state.claim.submittingMutation,
     mutation: state.claim.mutation,

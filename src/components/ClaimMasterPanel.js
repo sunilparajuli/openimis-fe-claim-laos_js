@@ -50,10 +50,10 @@ class ClaimMasterPanel extends FormPanel {
                 this.setState({ claimCodeError: formatMessage(this.props.intl, "claim", "edit.claimCodeExists") })
                 this.updateAttribute('codeError', true)
             } else {
-                this.updateAttributes([
-                    { attr: 'code', v: this.state.claimCode },
-                    { attr: 'codeError', v: null },
-                ])
+                this.updateAttributes({
+                    code: this.state.claimCode,
+                    codeError: null
+                })
             }
         }
     }
@@ -112,7 +112,7 @@ class ClaimMasterPanel extends FormPanel {
                             id={this.insureePicker}
                             value={edited.insuree}
                             reset={reset}
-                            onChange={(v, s) => this.updateAttribute("insuree", v, s)}
+                            onChange={(v, s) => this.updateAttribute("insuree", v)}
                             readOnly={ro}
                             required={true}
                         />
@@ -142,6 +142,7 @@ class ClaimMasterPanel extends FormPanel {
                             onChange={d => this.updateAttribute("dateTo", d)}
                             readOnly={ro}
                             minDate={edited.dateFrom}
+                            maxDate={edited.dateClaimed}
                         />
                     </Grid>
                 } />
