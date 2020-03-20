@@ -43,6 +43,10 @@ class HealthFacilitiesPage extends ClaimsSearcherPage {
         }
     }
 
+    componentDidMount() {
+        document.title = formatMessage(this.props.intl, "location", "location.healthFacilities.page.title")
+    }
+
     canSubmitSelected = (selection) => !!selection && selection.length &&
         selection.filter(s => s.status === 2 && (!!this.canSubmitClaimWithZero || s.claimed > 0)).length === selection.length
 
@@ -120,8 +124,8 @@ class HealthFacilitiesPage extends ClaimsSearcherPage {
         )
     }
 
-    onDoubleClick = (c) => {
-        historyPush(this.props.modulesManager, this.props.history, "claim.route.claimEdit", [c.uuid])
+    onDoubleClick = (c, newTab = false) => {
+        historyPush(this.props.modulesManager, this.props.history, "claim.route.claimEdit", [c.uuid], newTab)
     }
 
     onAdd = () => {

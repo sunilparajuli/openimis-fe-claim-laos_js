@@ -8,6 +8,7 @@ import {
     IconButton, Typography,
 } from "@material-ui/core";
 import AttachIcon from "@material-ui/icons/AttachFile";
+import TabIcon from "@material-ui/icons/Tab";
 import { Searcher } from "@openimis/fe-core";
 import ClaimFilter from "./ClaimFilter";
 import {
@@ -114,9 +115,9 @@ class ClaimSearcher extends Component {
                         }}
                     />
                 </Typography>,
-                , ''
+                , '', ''
             ]
-            : ['\u200b', '', '', '', '', '', '', '', ''] //fixing pre headers row height!
+            : ['\u200b', '', '', '', '', '', '', '', '', ''] //fixing pre headers row height!
         if (this.claimAttachments) {
             result.push('')
         }
@@ -138,6 +139,7 @@ class ClaimSearcher extends Component {
         if (this.claimAttachments) {
             result.push("claimSummaries.claimAttachments")
         }
+        result.push("claimSummaries.openNewTab")
         return result;
     }
 
@@ -189,6 +191,7 @@ class ClaimSearcher extends Component {
                 )
             )
         }
+        result.push(c => <IconButton onClick={e => this.props.onDoubleClick(c, true)} > <TabIcon /></IconButton >)
         return result;
     }
     rowLocked = (selection, claim) => !!claim.clientMutationId

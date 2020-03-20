@@ -82,12 +82,15 @@ class ClaimChildPanel extends Component {
 
     _price = (v) => {
         let id = decodeId(v.id);
-        if (this.props.pricelist[`${this.props.type}s`] &&
-            this.props.pricelist[`${this.props.type}s`][id]) {
-            return this.props.pricelist[`${this.props.type}s`][id]
+        if (!!this.props.edited.healthFacility &&
+            !!this.props.edited.healthFacility[`${this.props.type}sPricelist`] &&
+            !!this.props[`${this.props.type}sPricelists`][this.props.edited.healthFacility[`${this.props.type}sPricelist`].id][id]
+        ) {
+            return this.props[`${this.props.type}sPricelists`][this.props.edited.healthFacility[`${this.props.type}sPricelist`].id][id]
         }
         return v.price;
     }
+
     _onChangeItem = (idx, attr, v) => {
         let data = this._updateData(idx, attr, v);
         if (!v) {
@@ -264,8 +267,8 @@ class ClaimChildPanel extends Component {
 
 const mapStateToProps = (state, props) => ({
     fetchingPricelist: !!state.medical_pricelist && state.medical_pricelist.fetchingPricelist,
-    pricelist: !!state.medical_pricelist &&
-        state.medical_pricelist.pricelist ? state.medical_pricelist.pricelist : {},
+    servicesPricelists: !!state.medical_pricelist ? state.medical_pricelist.servicesPricelists : {},
+    itemsPricelists: !!state.medical_pricelist ? state.medical_pricelist.itemsPricelists : {},
 });
 
 export default withModulesManager(injectIntl(withTheme(withStyles(styles)(connect(mapStateToProps)(ClaimChildPanel)))));

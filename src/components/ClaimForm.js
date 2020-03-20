@@ -9,7 +9,8 @@ import PrintIcon from "@material-ui/icons/ListAlt";
 import AttachIcon from "@material-ui/icons/AttachFile";
 import {
     Contributions, ProgressOrError, Form, PublishedComponent,
-    withModulesManager, withHistory, journalize, toISODate, formatMessage,
+    withModulesManager, withHistory, journalize, toISODate,
+    formatMessage, formatMessageWithValues,
 } from "@openimis/fe-core";
 import { fetchClaim, claimHealthFacilitySet, print, generate } from "../actions";
 import moment from "moment";
@@ -75,6 +76,7 @@ class ClaimForm extends Component {
     }
 
     componentDidMount() {
+        document.title = formatMessageWithValues(this.props.intl, "claim", "claim.edit.page.title", { code: "" })
         if (!!this.props.claimHealthFacility) {
             this.props.claimHealthFacilitySet(this.props.claimHealthFacility)
         }
@@ -92,12 +94,16 @@ class ClaimForm extends Component {
     }
 
     componentDidUpdate(prevProps, prevState, snapshot) {
+        if (prevState.claim.code !== this.state.claim.code) {
+            document.title = formatMessageWithValues(this.props.intl, "claim", "claim.edit.page.title", { code: this.state.claim.code })
+        }
         if (prevProps.fetchedClaim !== this.props.fetchedClaim && !!this.props.fetchedClaim) {
             this.setState(
-                { claim: this.props.claim, claim_uuid: this.props.claim.uuid, lockNew: false },
+                { claim: this.props.claim, claim_uuid: this.props.claim.uuid, lockNew: false, newClaim: false },
                 this.props.claimHealthFacilitySet(this.props.claim.healthFacility)
             );
         } else if (prevProps.claim_uuid && !this.props.claim_uuid) {
+            document.title = formatMessageWithValues(this.props.intl, "claim", "claim.edit.page.title", { code: "" })
             this.setState({ claim: this._newClaim(), newClaim: true, lockNew: false, claim_uuid: null });
         } else if (prevProps.submittingMutation && !this.props.submittingMutation) {
             this.props.journalize(this.props.mutation);
@@ -159,7 +165,7 @@ class ClaimForm extends Component {
                     return false;
                 }
             }
-            if (!items.length && !services.length) return false;
+            if (!items.length && !services.length) return !!this.canSaveClaimWithoutServiceNorItem;
         }
         return true;
     }

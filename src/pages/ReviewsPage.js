@@ -288,6 +288,10 @@ class ReviewsPage extends ClaimsSearcherPage {
         }
     }
 
+    componentDidMount() {
+        document.title = formatMessage(this.props.intl, "claim", "claim.reviews.page.title")
+    }
+
     _labelMutation = (selection, labelOne, labelMultiple, action) => {
         if (selection.length === 1) {
             action(selection,
@@ -496,7 +500,7 @@ class ReviewsPage extends ClaimsSearcherPage {
             default: console.log('Illegal new Review Status ' + v);
         }
     }
-    review = c => historyPush(this.props.modulesManager, this.props.history, "claim.route.review", [c.uuid])
+    review = (c, newTab = false) => historyPush(this.props.modulesManager, this.props.history, "claim.route.review", [c.uuid], newTab)
     reviewStatusFilter = (claim) => {
         switch (claim.reviewStatus) {
           case 1:
@@ -537,8 +541,8 @@ class ReviewsPage extends ClaimsSearcherPage {
         </Grid>
     )
 
-    onDoubleClick = (c) => {
-        this.review(c)
+    onDoubleClick = (c, newTab = false) => {
+        this.review(c, newTab)
     }
 
     render() {
