@@ -204,7 +204,7 @@ class ClaimSearcher extends Component {
     render() {
         const { intl,
             claims, claimsPageInfo, fetchingClaims, fetchedClaims, errorClaims,
-            FilterExt, actions, defaultFilters, onDoubleClick
+            FilterExt, actions, defaultFilters, cacheFiltersKey, onDoubleClick
         } = this.props;
 
         let count = !!this.state.random && this.state.random.value
@@ -222,6 +222,7 @@ class ClaimSearcher extends Component {
                     module="claim"
                     canSelectAll={this.canSelectAll}
                     defaultFilters={defaultFilters}
+                    cacheFiltersKey={cacheFiltersKey}
                     FilterPane={ClaimFilter}
                     FilterExt={FilterExt}
                     items={claims}

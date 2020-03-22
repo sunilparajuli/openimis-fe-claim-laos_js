@@ -25,6 +25,18 @@ export function selectHealthFacility(hf) {
   }
 }
 
+export function selectDistrict(district) {
+  return dispatch => {
+    dispatch({ type: 'CLAIM_CLAIM_DISTRICT_SELECTED', payload: district })
+  }
+}
+
+export function selectRegion(region) {
+  return dispatch => {
+    dispatch({ type: 'CLAIM_CLAIM_REGION_SELECTED', payload: region })
+  }
+}
+
 export function validateClaimCode(code) {
   const payload = formatQuery(
     "claims",

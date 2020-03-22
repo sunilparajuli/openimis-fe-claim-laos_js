@@ -15,14 +15,13 @@ import ClaimSearcher from "../components/ClaimSearcher";
 
 import { submit, del, selectHealthFacility } from "../actions";
 import { RIGHT_ADD, RIGHT_LOAD, RIGHT_SUBMIT, RIGHT_DELETE } from "../constants";
-import ClaimsSearcherPage from "./ClaimsSearcherPage";
 
 const styles = theme => ({
     page: theme.page,
     fab: theme.fab
 });
 
-class HealthFacilitiesPage extends ClaimsSearcherPage {
+class HealthFacilitiesPage extends Component {
 
     constructor(props) {
         super(props);
@@ -152,9 +151,10 @@ class HealthFacilitiesPage extends ClaimsSearcherPage {
             <div className={classes.page}>
                 <ClaimSearcher
                     defaultFilters={this.state.defaultFilters}
+                    cacheFiltersKey="claimHealthFacilitiesPageFiltersCache"
                     onDoubleClick={rights.includes(RIGHT_LOAD) ? this.onDoubleClick : null}
                     actions={actions}
-                    processing={generatingPrint}
+                    processing={generatingPrint}                    
                 />
                 {!generatingPrint && rights.includes(RIGHT_ADD) &&
                     <Tooltip title={!this.canAdd() ? formatMessage(intl, "claim", "newClaim.adminAndHFRequired") : ""}>

@@ -20,7 +20,6 @@ import {
 } from "../actions";
 import { RIGHT_UPDATE, RIGHT_FEEDBACK, RIGHT_CLAIMREVIEW, RIGHT_PROCESS } from "../constants";
 import { withTheme, withStyles } from "@material-ui/core/styles";
-import ClaimsSearcherPage from "./ClaimsSearcherPage";
 
 const styles = theme => ({
     page: theme.page,
@@ -266,7 +265,7 @@ const RandomAndValueFilters = withModulesManager(injectIntl(withTheme(withStyles
     (connect(mapStateToFixFilterProps, mapDispatchToFixFilterProps)(RawRandomAndValueFilters))
 )));
 
-class ReviewsPage extends ClaimsSearcherPage {
+class ReviewsPage extends Component {
 
     state = {
         filtersExt: [],
@@ -567,11 +566,12 @@ class ReviewsPage extends ClaimsSearcherPage {
             <div className={classes.page}>
                 <ClaimSearcher
                     defaultFilters={this.state.defaultFilters}
+                    cacheFiltersKey="claimReviewsPageFiltersCache"
                     FilterExt={RandomAndValueFilters}
                     actions={actions}
                     onDoubleClick={rights.includes(RIGHT_UPDATE) ? this.onDoubleClick : null}
                     feedbackColFormatter={this.feedbackColFormatter}
-                    reviewColFormatter={this.reviewColFormatter}
+                    reviewColFormatter={this.reviewColFormatter}                    
                 />
             </div>
         );

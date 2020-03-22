@@ -85,15 +85,43 @@ function reducer(
                 errorClaimAttachments: formatServerError(action.payload)
             };
         case 'CLAIM_CLAIM_ADMIN_SELECTED':
-            return {
-                ...state,
-                claimAdmin: action.payload,
+            var claimAdmin = action.payload;
+            var s = { ...state, claimAdmin }
+            if (claimAdmin) {
+                s.claimHealthFacility = claimAdmin.healthFacility
+                s.claimDistrict = s.claimHealthFacility.location
+                s.claimRegion = s.claimDistrict.parent
             }
+            return s
         case 'CLAIM_CLAIM_HEALTH_FACILITY_SELECTED':
-            return {
-                ...state,
-                claimHealthFacility: action.payload,
+            var claimHealthFacility = action.payload;
+            var s = { ...state, claimHealthFacility }
+            if (claimHealthFacility) {
+                s.claimDistrict = s.claimHealthFacility.location
+                s.claimRegion = s.claimDistrict.parent
+            } else {
+                delete (s.claimAdmin);
             }
+            return s
+        case 'CLAIM_CLAIM_DISTRICT_SELECTED':
+            var claimDistrict = action.payload;
+            var s = { ...state, claimDistrict }
+            if (claimDistrict) {
+                s.claimRegion = claimDistrict.parent
+            } else {
+                delete (s.claimHealthFacility);
+                delete (s.claimAdmin);
+            }
+            return s
+        case 'CLAIM_CLAIM_REGION_SELECTED':
+            var claimRegion = action.payload;
+            var s = { ...state, claimRegion }
+            if (!claimRegion) {
+                delete (s.claimDistrict);
+                delete (s.claimHealthFacility);
+                delete (s.claimAdmin);
+            }
+            return s
         case 'CLAIM_CLAIM_OFFICERS_REQ':
             return {
                 ...state,

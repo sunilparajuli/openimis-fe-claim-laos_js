@@ -57,7 +57,7 @@ const DEFAULT_CONFIG = {
   ],
   "core.Router": [
     { path: ROUTE_HEALTH_FACILITIES, component: HealthFacilitiesPage },
-    { path: ROUTE_CLAIM_EDIT + "/:claim_uuid?", component: EditPage },
+    { path: ROUTE_CLAIM_EDIT + "/:claim_uuid?", component: EditPage }, // ? = optional (needed to route new claims)
     { path: ROUTE_REVIEWS, component: ReviewsPage },
     { path: ROUTE_CLAIM_REVIEW + "/:claim_uuid", component: ReviewPage },
     { path: ROUTE_CLAIM_FEEDBACK + "/:claim_uuid", component: FeedbackPage },
