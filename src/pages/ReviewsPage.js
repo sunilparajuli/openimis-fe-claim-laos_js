@@ -291,6 +291,13 @@ class ReviewsPage extends Component {
         document.title = formatMessage(this.props.intl, "claim", "claim.reviews.page.title")
     }
 
+    componentDidUpdate(prevProps, prevState, snapshot) {
+        if (prevProps.submittingMutation && !this.props.submittingMutation) {
+            this.props.journalize(this.props.mutation);
+            this.setState({ reset: this.state.reset + 1 });
+        }
+    }
+
     _labelMutation = (selection, labelOne, labelMultiple, action) => {
         if (selection.length === 1) {
             action(selection,

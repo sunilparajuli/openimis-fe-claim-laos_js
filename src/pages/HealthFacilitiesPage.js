@@ -46,6 +46,13 @@ class HealthFacilitiesPage extends Component {
         document.title = formatMessage(this.props.intl, "location", "location.healthFacilities.page.title")
     }
 
+    componentDidUpdate(prevProps, prevState, snapshot) {
+        if (prevProps.submittingMutation && !this.props.submittingMutation) {
+            this.props.journalize(this.props.mutation);
+            this.setState({ reset: this.state.reset + 1 });
+        }
+    }
+
     canSubmitSelected = (selection) => !!selection && selection.length &&
         selection.filter(s => s.status === 2 && (!!this.canSubmitClaimWithZero || s.claimed > 0)).length === selection.length
 
