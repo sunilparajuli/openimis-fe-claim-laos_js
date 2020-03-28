@@ -204,14 +204,13 @@ class ClaimSearcher extends Component {
     render() {
         const { intl,
             claims, claimsPageInfo, fetchingClaims, fetchedClaims, errorClaims,
-            FilterExt, actions, defaultFilters, cacheFiltersKey, onDoubleClick
+            FilterExt, filterPaneContributionsKey, actions, defaultFilters, cacheFiltersKey, onDoubleClick
         } = this.props;
 
         let count = !!this.state.random && this.state.random.value
         if (!count) {
             count = claimsPageInfo.totalCount;
         }
-
         return (
             <Fragment>
                 <PublishedComponent id="claim.AttachmentsDialog"
@@ -225,6 +224,7 @@ class ClaimSearcher extends Component {
                     cacheFiltersKey={cacheFiltersKey}
                     FilterPane={ClaimFilter}
                     FilterExt={FilterExt}
+                    filterPaneContributionsKey={filterPaneContributionsKey}
                     items={claims}
                     itemsPageInfo={claimsPageInfo}
                     fetchingItems={fetchingClaims}

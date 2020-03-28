@@ -21,6 +21,8 @@ import {
 import { RIGHT_UPDATE, RIGHT_FEEDBACK, RIGHT_CLAIMREVIEW, RIGHT_PROCESS } from "../constants";
 import { withTheme, withStyles } from "@material-ui/core/styles";
 
+const CLAIM_REVIEWS_FILTER_CONTRIBUTION_KEY = "claim.ReviewsFilter";
+
 const styles = theme => ({
     page: theme.page,
     item: {
@@ -172,8 +174,7 @@ class RawRandomAndValueFilters extends Component {
         )
     }
     render() {
-        const { classes } = this.props;
-        let random = !!this.state.filters['random'] && !!this.state.filters['random'][0].value
+        const { classes } = this.props;        
         return (
             <Grid container justify="center" alignItems="center" direction="row">
                 <Grid item xs={3} className={classes.item}>
@@ -493,7 +494,7 @@ class ReviewsPage extends Component {
                         "DeliverClaimReview.mutationLabel",
                         { code: c.code }
                     ));
-                break;                
+                break;
             case 16:
                 this.props.bypassReview([c],
                     formatMessageWithValues(
@@ -509,18 +510,18 @@ class ReviewsPage extends Component {
     review = (c, newTab = false) => historyPush(this.props.modulesManager, this.props.history, "claim.route.review", [c.uuid], newTab)
     reviewStatusFilter = (claim) => {
         switch (claim.reviewStatus) {
-          case 1:
-            return [1, 8, 16];
-          case 2:
-            return [1, 2, 8, 16];
-          case 4:
-            return [1, 4];
-          case 8:
-            return [1, 2, 4, 8, 16];
-          case 16:
-            return [1, 2, 4, 8, 16];
-          default:
-            console.log("Illegal Review Status " + claim.reviewStatus);
+            case 1:
+                return [1, 8, 16];
+            case 2:
+                return [1, 2, 8, 16];
+            case 4:
+                return [1, 4];
+            case 8:
+                return [1, 2, 4, 8, 16];
+            case 16:
+                return [1, 2, 4, 8, 16];
+            default:
+                console.log("Illegal Review Status " + claim.reviewStatus);
         }
     }
     reviewColFormatter = c => (
@@ -533,7 +534,7 @@ class ReviewsPage extends Component {
                     value={c.reviewStatus}
                     withNull={false}
                     filtered={this.reviewStatusFilter(c)}
-                    readOnly={!this.props.rights.includes(RIGHT_UPDATE) || c.status !== 4 || c.reviewStatus >= 8 }
+                    readOnly={!this.props.rights.includes(RIGHT_UPDATE) || c.status !== 4 || c.reviewStatus >= 8}
                     onChange={(v, s) => this.onChangeReviewStatus(c, v)}
                 />
             </Grid>
@@ -578,7 +579,8 @@ class ReviewsPage extends Component {
                     actions={actions}
                     onDoubleClick={rights.includes(RIGHT_UPDATE) ? this.onDoubleClick : null}
                     feedbackColFormatter={this.feedbackColFormatter}
-                    reviewColFormatter={this.reviewColFormatter}                    
+                    reviewColFormatter={this.reviewColFormatter}
+                    filterPaneContributionsKey={CLAIM_REVIEWS_FILTER_CONTRIBUTION_KEY}
                 />
             </div>
         );
@@ -589,7 +591,7 @@ const mapStateToProps = state => ({
     rights: !!state.core && !!state.core.user && !!state.core.user.i_user ? state.core.user.i_user.rights : [],
     claimAdmin: state.claim.claimAdmin,
     claimHealthFacility: state.claim.claimHealthFacility,
-    userHealthFacilityFullPath: !!state.loc ? state.loc.userHealthFacilityFullPath : null,     
+    userHealthFacilityFullPath: !!state.loc ? state.loc.userHealthFacilityFullPath : null,
     claimsPageInfo: state.claim.claimsPageInfo,
     //props used from super.componentDidUpdate !!
     submittingMutation: state.claim.submittingMutation,

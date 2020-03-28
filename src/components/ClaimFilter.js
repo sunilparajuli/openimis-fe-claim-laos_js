@@ -239,7 +239,7 @@ class Details extends Component {
     )
 
     render() {
-        const { intl, classes, filters, onChangeFilters, FilterExt } = this.props;
+        const { intl, classes, filters, onChangeFilters, filterPaneContributionsKey = null, FilterExt } = this.props;
         return (
             <Grid container className={classes.form}>
                 <Grid item xs={1} className={classes.item}>
@@ -435,6 +435,9 @@ class Details extends Component {
                     />
                 </Grid>
                 <Contributions filters={filters} onChangeFilters={onChangeFilters} contributionKey={CLAIM_FILTER_CONTRIBUTION_KEY} />
+                {!!filterPaneContributionsKey && (
+                    <Contributions filters={filters} onChangeFilters={onChangeFilters} contributionKey={filterPaneContributionsKey} />
+                )}
                 {!!FilterExt && (
                     <Fragment>
                         <Grid item xs={12} className={classes.paperDivider}>

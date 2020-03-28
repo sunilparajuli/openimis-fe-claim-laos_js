@@ -16,6 +16,8 @@ import ClaimSearcher from "../components/ClaimSearcher";
 import { submit, del, selectHealthFacility } from "../actions";
 import { RIGHT_ADD, RIGHT_LOAD, RIGHT_SUBMIT, RIGHT_DELETE } from "../constants";
 
+const CLAIM_HF_FILTER_CONTRIBUTION_KEY = "claim.HealthFacilitiesFilter";
+
 const styles = theme => ({
     page: theme.page,
     fab: theme.fab
@@ -161,7 +163,8 @@ class HealthFacilitiesPage extends Component {
                     cacheFiltersKey="claimHealthFacilitiesPageFiltersCache"
                     onDoubleClick={rights.includes(RIGHT_LOAD) ? this.onDoubleClick : null}
                     actions={actions}
-                    processing={generatingPrint}                    
+                    processing={generatingPrint}
+                    filterPaneContributionsKey={CLAIM_HF_FILTER_CONTRIBUTION_KEY}
                 />
                 {!generatingPrint && rights.includes(RIGHT_ADD) &&
                     <Tooltip title={!this.canAdd() ? formatMessage(intl, "claim", "newClaim.adminAndHFRequired") : ""}>
