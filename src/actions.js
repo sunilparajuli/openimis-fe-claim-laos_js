@@ -5,12 +5,23 @@ import {
 import _ from "lodash";
 import _uuid from "lodash-uuid";
 
-export function fetchClaimAdmins(mm) {
-  const payload = formatPageQuery("claimAdmins",
-    null,
+export function fetchClaimAdmins(mm, hf, str, prev) {
+  var filters = [];
+  if (!!hf) {
+    filters.push(`healthFacility_Uuid: "${hf.uuid}"`)
+  }
+  if (!!str) {
+    filters.push(`str: "${str}"`)
+  }
+  if (_.isEqual(filters, prev)) {
+    return (dispatch) => { }
+  }
+  const payload = formatPageQuery(
+    !str ? "claimAdmins" : "claimAdminsStr",
+    filters,
     mm.getRef("claim.ClaimAdminPicker.projection")
   );
-  return graphql(payload, 'CLAIM_CLAIM_ADMINS');
+  return graphql(payload, 'CLAIM_CLAIM_ADMINS', filters);
 }
 
 export function selectClaimAdmin(admin) {

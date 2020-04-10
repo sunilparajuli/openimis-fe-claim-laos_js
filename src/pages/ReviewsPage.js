@@ -268,10 +268,6 @@ const RandomAndValueFilters = withModulesManager(injectIntl(withTheme(withStyles
 
 class ReviewsPage extends Component {
 
-    state = {
-        filtersExt: [],
-    }
-
     constructor(props) {
         super(props);
         this.state = {

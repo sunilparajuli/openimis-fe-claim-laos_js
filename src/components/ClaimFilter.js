@@ -7,7 +7,7 @@ import { injectIntl } from 'react-intl';
 import _ from "lodash";
 import { Grid, Divider } from "@material-ui/core";
 import {
-    formatMessage, withModulesManager, decodeId,
+    formatMessage, withModulesManager,
     ControlledField, PublishedComponent,
     TextInput, AmountInput, Contributions,
 } from "@openimis/fe-core";
@@ -156,7 +156,7 @@ class Head extends Component {
     }
 
     render() {
-        const { classes, filters, onChangeFilters } = this.props;
+        const { classes, filters, onChangeFilters, userHealthFacilityId } = this.props;
         return (
             <Grid container className={classes.form}>
                 <ControlledField module="claim" id="ClaimFilter.region" field={
@@ -200,20 +200,24 @@ class Head extends Component {
                             value={this._filterValue('admin')}
                             withNull={true}
                             hfFilter={this._filterValue('healthFacility')}
+                            reset={this.state.reset}
                             onChange={this._onChangeClaimAdmin}
                         />
                     </Grid>
                 } />
                 <ControlledField module="claim" id="ClaimFilter.batchRun" field={
                     <Grid item xs={3} className={classes.item}>
-                        <PublishedComponent
-                            id="claim_batch.BatchRunPicker"
-                            value={!!filters['batchRun'] ? filters['batchRun']['value'] : null}
-                            withNull={true}
-                            scopeRegion={!!filters['region'] ? filters['region']['value'] : null}
-                            scopeDistrict={!!filters['district'] ? filters['district']['value'] : null}
-                            onChange={(v, s) => onChangeFilters([this._claimBatchRunFilter(v)])}
-                        />
+                        {!userHealthFacilityId && (
+                            <PublishedComponent
+                                id="claim_batch.BatchRunPicker"
+                                value={!!filters['batchRun'] ? filters['batchRun']['value'] : null}
+                                withNull={true}
+                                scopeRegion={!!filters['region'] ? filters['region']['value'] : null}
+                                scopeDistrict={!!filters['district'] ? filters['district']['value'] : null}
+                                reset={this.state.reset}
+                                onChange={(v, s) => onChangeFilters([this._claimBatchRunFilter(v)])}
+                            />
+                        )}
                     </Grid>
                 } />
             </Grid>
@@ -222,6 +226,7 @@ class Head extends Component {
 }
 
 const mapStateToProps = state => ({
+    userHealthFacilityId: state.core.user.i_user.health_facility_id,
     claimFilter: state.claim.claimFilter,
 });
 
@@ -466,4 +471,5 @@ class ClaimFilter extends Component {
     }
 }
 
-export default withModulesManager(injectIntl(withTheme(withStyles(styles)(ClaimFilter))));
+
+export default withModulesManager(injectIntl((withTheme(withStyles(styles)(ClaimFilter)))));

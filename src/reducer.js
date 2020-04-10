@@ -6,7 +6,7 @@ import {
 function reducer(
     state = {
         fetchingClaimAdmins: false,
-        fetchedClaimAdmins: false,
+        fetchedClaimAdmins: null,
         errorClaimAdmins: null,
         claimAdmins: null,
         fetchingClaimAttachments: false,
@@ -44,7 +44,7 @@ function reducer(
             return {
                 ...state,
                 fetchingClaimAdmins: true,
-                fetchedClaimAdmins: false,
+                fetchedClaimAdmins: null,
                 claimAdmins: null,
                 errorClaimAdmins: null,
             };
@@ -52,14 +52,14 @@ function reducer(
             return {
                 ...state,
                 fetchingClaimAdmins: false,
-                fetchedClaimAdmins: true,
-                claimAdmins: parseData(action.payload.data.claimAdmins),
+                fetchedClaimAdmins: action.meta,
+                claimAdmins: parseData(action.payload.data.claimAdmins || action.payload.data.claimAdminsStr),
                 errorClaimAdmins: formatGraphQLError(action.payload)
             };
         case 'CLAIM_CLAIM_ADMINS_ERR':
             return {
                 ...state,
-                fetchingClaimAdmins: false,
+                fetchingClaimAdmins: null,
                 errorClaimAdmins: formatServerError(action.payload)
             };
         case 'CLAIM_CLAIM_ATTACHMENTS_REQ':
