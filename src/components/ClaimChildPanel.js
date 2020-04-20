@@ -1,19 +1,24 @@
 import React, { Component, Fragment } from "react";
 import { connect } from "react-redux";
 import { injectIntl } from 'react-intl';
+import { withTheme, withStyles } from "@material-ui/core/styles";
 import {
     formatAmount, formatMessage, formatMessageWithValues, NumberInput, Table,
     PublishedComponent, AmountInput, TextInput, decodeId, withModulesManager
 } from "@openimis/fe-core";
-import { IconButton } from "@material-ui/core";
+import { IconButton, Paper } from "@material-ui/core";
 import DeleteIcon from "@material-ui/icons/Delete";
 import _ from "lodash";
 import { claimedAmount, approvedAmount } from "../helpers/amounts";
 
+const styles = theme => ({
+    paper: theme.paper.paper,
+});
+
 class ClaimChildPanel extends Component {
 
     state = {
-        data: []
+        data: [],
     }
 
     constructor(props) {
@@ -44,7 +49,7 @@ class ClaimChildPanel extends Component {
             if (!this.props.forReview) {
                 data.push({});
             }
-            this.setState({ data });
+            this.setState({ data, reset: this.state.reset + 1 });
         } else if (prevProps.reset !== this.props.reset ||
             (!!this.props.edited[`${this.props.type}s`] &&
                 !_.isEqual(prevProps.edited[`${this.props.type}s`], this.props.edited[`${this.props.type}s`])
@@ -77,12 +82,15 @@ class ClaimChildPanel extends Component {
 
     _price = (v) => {
         let id = decodeId(v.id);
-        if (this.props.pricelist[`${this.props.type}s`] &&
-            this.props.pricelist[`${this.props.type}s`][id]) {
-            return this.props.pricelist[`${this.props.type}s`][id]
+        if (!!this.props.edited.healthFacility &&
+            !!this.props.edited.healthFacility[`${this.props.type}sPricelist`] &&
+            !!this.props[`${this.props.type}sPricelists`][this.props.edited.healthFacility[`${this.props.type}sPricelist`].id][id]
+        ) {
+            return this.props[`${this.props.type}sPricelists`][this.props.edited.healthFacility[`${this.props.type}sPricelist`].id][id]
         }
         return v.price;
     }
+
     _onChangeItem = (idx, attr, v) => {
         let data = this._updateData(idx, attr, v);
         if (!v) {
@@ -126,7 +134,7 @@ class ClaimChildPanel extends Component {
     }
 
     render() {
-        const { intl, edited, type, picker, forReview, fetchingPricelist, readOnly = false } = this.props;
+        const { intl, classes, edited, type, picker, forReview, fetchingPricelist, readOnly = false } = this.props;
         if (!edited) return null;
         const totalClaimed = _.round(this.state.data.reduce(
             (sum, r) => sum + claimedAmount(r), 0),
@@ -243,22 +251,24 @@ class ClaimChildPanel extends Component {
             header += formatMessage(intl, "claim", `edit.${this.props.type}s.fetchingPricelist`)
         }
         return (
-            <Table
-                module="claim"
-                header={header}
-                preHeaders={preHeaders}
-                headers={headers}
-                itemFormatters={itemFormatters}
-                items={!fetchingPricelist ? this.state.data : []}
-            />
+            <Paper className={classes.paper}>
+                <Table
+                    module="claim"
+                    header={header}
+                    preHeaders={preHeaders}
+                    headers={headers}
+                    itemFormatters={itemFormatters}
+                    items={!fetchingPricelist ? this.state.data : []}
+                />
+            </Paper>
         )
     }
 }
 
 const mapStateToProps = (state, props) => ({
     fetchingPricelist: !!state.medical_pricelist && state.medical_pricelist.fetchingPricelist,
-    pricelist: !!state.medical_pricelist &&
-        state.medical_pricelist.pricelist ? state.medical_pricelist.pricelist : {},
+    servicesPricelists: !!state.medical_pricelist ? state.medical_pricelist.servicesPricelists : {},
+    itemsPricelists: !!state.medical_pricelist ? state.medical_pricelist.itemsPricelists : {},
 });
 
-export default withModulesManager(injectIntl(connect(mapStateToProps)(ClaimChildPanel)));
+export default withModulesManager(injectIntl(withTheme(withStyles(styles)(connect(mapStateToProps)(ClaimChildPanel)))));

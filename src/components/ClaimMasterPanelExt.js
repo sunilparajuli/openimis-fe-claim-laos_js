@@ -20,8 +20,20 @@ class ClaimMasterPanelExt extends Component {
         }
     }
 
+    componentDidUpdate(prevProps, prevState, snapshot) {
+        const { claim } = this.props;
+        if (
+            (!!claim && !!claim.insuree && !!claim.healthFacility) &&
+            (!prevProps.claim || !prevProps.claim.insuree || !prevProps.claim.healthFacility ||
+                prevProps.claim.insuree.chfId !== claim.insuree.chfId ||
+                prevProps.claim.healthFacility.chfId !== claim.healthFacility.chfId)
+        ) {
+            this.props.fetchLastClaimAt(claim);
+        }
+    }
+
     render() {
-        const { classes, fetchingLastClaimAt, errorLastClaimAt, fetchedLastClaimAt, lastClaimAt } = this.props;
+        const { classes, claim, fetchingLastClaimAt, errorLastClaimAt, fetchedLastClaimAt, lastClaimAt } = this.props;
         return (
             <Grid container>
                 <Grid item xs={6} className={classes.item}>
@@ -37,7 +49,10 @@ class ClaimMasterPanelExt extends Component {
                     <Divider />
                 </Grid>
                 <Grid item xs={6} className={classes.item}>
-                    <PublishedComponent id="policy.InsureePolicyEligibilitySummary" />
+                    <PublishedComponent
+                        id="policy.InsureePolicyEligibilitySummary"
+                        insuree={!!claim ? claim.insuree : null}
+                    />
                 </Grid>
                 <Grid item xs={6} className={classes.item}>
                     <ProgressOrError progress={fetchingLastClaimAt} error={errorLastClaimAt} />
@@ -79,7 +94,6 @@ class ClaimMasterPanelExt extends Component {
 }
 
 const mapStateToProps = state => ({
-    claim: state.claim.claim,
     fetchingLastClaimAt: state.claim.fetchingLastClaimAt,
     fetchedLastClaimAt: state.claim.fetchedLastClaimAt,
     lastClaimAt: state.claim.lastClaimAt,

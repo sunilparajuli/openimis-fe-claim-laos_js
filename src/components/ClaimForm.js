@@ -3,12 +3,14 @@ import { withTheme, withStyles } from "@material-ui/core/styles";
 import { injectIntl } from 'react-intl';
 import { connect } from "react-redux";
 import { bindActionCreators } from "redux";
+import CheckIcon from "@material-ui/icons/Check"
 import ReplayIcon from "@material-ui/icons/Replay"
 import PrintIcon from "@material-ui/icons/ListAlt";
 import AttachIcon from "@material-ui/icons/AttachFile";
 import {
     Contributions, ProgressOrError, Form, PublishedComponent,
-    withModulesManager, withHistory, journalize, toISODate
+    withModulesManager, withHistory, journalize, toISODate,
+    formatMessage, formatMessageWithValues,
 } from "@openimis/fe-core";
 import { fetchClaim, claimHealthFacilitySet, print, generate } from "../actions";
 import moment from "moment";
@@ -50,12 +52,15 @@ class ClaimForm extends Component {
         update: 0,
         claim_uuid: null,
         claim: this._newClaim(),
+        newClaim: true,
         printParam: null,
         attachmentsClaim: null,
+        forcedDirty: false,
     }
 
     constructor(props) {
         super(props);
+        this.canSaveClaimWithoutServiceNorItem = props.modulesManager.getConf("fe-claim", "canSaveClaimWithoutServiceNorItem", true);
         this.claimAttachments = props.modulesManager.getConf("fe-claim", "claimAttachments", true);
     }
 
@@ -71,6 +76,7 @@ class ClaimForm extends Component {
     }
 
     componentDidMount() {
+        document.title = formatMessageWithValues(this.props.intl, "claim", "claim.edit.page.title", { code: "" })
         if (!!this.props.claimHealthFacility) {
             this.props.claimHealthFacilitySet(this.props.claimHealthFacility)
         }
@@ -88,13 +94,17 @@ class ClaimForm extends Component {
     }
 
     componentDidUpdate(prevProps, prevState, snapshot) {
+        if (prevState.claim.code !== this.state.claim.code) {
+            document.title = formatMessageWithValues(this.props.intl, "claim", "claim.edit.page.title", { code: this.state.claim.code })
+        }
         if (prevProps.fetchedClaim !== this.props.fetchedClaim && !!this.props.fetchedClaim) {
             this.setState(
-                { claim: this.props.claim, claim_uuid: this.props.claim.uuid, lockNew: false },
+                { claim: this.props.claim, claim_uuid: this.props.claim.uuid, lockNew: false, newClaim: false },
                 this.props.claimHealthFacilitySet(this.props.claim.healthFacility)
             );
         } else if (prevProps.claim_uuid && !this.props.claim_uuid) {
-            this.setState({ claim: this._newClaim(), lockNew: false, claim_uuid: null });
+            document.title = formatMessageWithValues(this.props.intl, "claim", "claim.edit.page.title", { code: "" })
+            this.setState({ claim: this._newClaim(), newClaim: true, lockNew: false, claim_uuid: null });
         } else if (prevProps.submittingMutation && !this.props.submittingMutation) {
             this.props.journalize(this.props.mutation);
             this.setState({ reset: this.state.reset + 1 });
@@ -107,6 +117,7 @@ class ClaimForm extends Component {
         this.setState(
             {
                 claim: this._newClaim(),
+                newClaim: true,
                 lockNew: false,
                 reset: this.state.reset + 1,
             },
@@ -136,7 +147,8 @@ class ClaimForm extends Component {
         if (!!this.state.claim.dateTo && this.state.claim.dateFrom > this.state.claim.dateTo) return false;
         if (!this.state.claim.icd) return false;
         if (!forFeedback) {
-            if (!this.state.claim.items && !this.state.claim.services) return false;
+            if (!this.state.claim.items && !this.state.claim.services) return !!this.canSaveClaimWithoutServiceNorItem
+            //if there are items or services, they have to be complete
             let items = [];
             if (!!this.state.claim.items) {
                 items = [...this.state.claim.items];
@@ -153,7 +165,7 @@ class ClaimForm extends Component {
                     return false;
                 }
             }
-            if (!items.length && !services.length) return false;
+            if (!items.length && !services.length) return !!this.canSaveClaimWithoutServiceNorItem;
         }
         return true;
     }
@@ -168,10 +180,10 @@ class ClaimForm extends Component {
     }
 
     onEditedChanged = claim => {
-        this.setState({ claim })
+        this.setState({ claim, newClaim: false })
     }
 
-    save = (claim) => {
+    _save = (claim) => {
         this.setState(
             { lockNew: !claim.uuid }, // avoid duplicates
             e => this.props.save(claim))
@@ -184,13 +196,20 @@ class ClaimForm extends Component {
         )
     }
 
+    _deliverReview = (claim) => {
+        this.setState(
+            { lockNew: !claim.uuid }, // avoid duplicates submissions
+            e => this.props.deliverReview(claim))
+    }
+
     render() {
-        const { rights, fetchingClaim, fetchedClaim, errorClaim, add, back,
+        const { rights, fetchingClaim, fetchedClaim, errorClaim, add, save, back,
             forReview = false, forFeedback = false, } = this.props;
-        const { claim_uuid } = this.state;
-        let readOnly = this.state.lockNew ||
-            (!forReview && !forFeedback && this.state.claim.status !== 2) ||
-            ((forReview || forFeedback) && this.state.claim.status !== 4) ||
+        const { claim, claim_uuid, lockNew } = this.state;
+        let readOnly = lockNew ||
+            (!forReview && !forFeedback && claim.status !== 2) ||
+            (forReview && (claim.reviewStatus >= 8 || claim.status !== 4)) ||
+            (forFeedback && claim.status !== 4) ||
             !rights.filter(r => r === RIGHT_LOAD).length
         var actions = [{
             doIt: e => this.reload(claim_uuid),
@@ -204,9 +223,9 @@ class ClaimForm extends Component {
                 onlyIfNotDirty: true
             })
         }
-        if (!!claim_uuid && !!this.claimAttachments) {
+        if (!!this.claimAttachments && (!readOnly || claim.attachmentsCount > 0)) {
             actions.push({
-                doIt: e => this.setState({ attachmentsClaim: this.state.claim }),
+                doIt: e => this.setState({ attachmentsClaim: claim }),
                 icon: <AttachIcon />
             })
         }
@@ -215,13 +234,12 @@ class ClaimForm extends Component {
                 <ProgressOrError progress={fetchingClaim} error={errorClaim} />
                 {(!!fetchedClaim || !claim_uuid) && (
                     <Fragment>
-                        {!!claim_uuid && (
-                            <PublishedComponent id="claim.AttachmentsDialog"
-                                readOnly={!rights.includes(RIGHT_ADD) || readOnly}
-                                claim={this.state.attachmentsClaim}
-                                close={e => this.setState({ attachmentsClaim: null })}
-                            />
-                        )}
+                        <PublishedComponent id="claim.AttachmentsDialog"
+                            readOnly={!rights.includes(RIGHT_ADD) || readOnly}
+                            claim={this.state.attachmentsClaim}
+                            close={e => this.setState({ attachmentsClaim: null })}
+                            onUpdated={() => this.setState({ forcedDirty: true })}
+                        />
                         <Form
                             module="claim"
                             edited_id={claim_uuid}
@@ -231,14 +249,18 @@ class ClaimForm extends Component {
                             title="edit.title"
                             titleParams={{ code: this.state.claim.code }}
                             back={back}
-                            add={!!add ? this._add : null}
-                            save={!!this.props.save ? this.save : null}
-                            openDirty={forReview && !readOnly}
+                            forcedDirty={this.state.forcedDirty}
+                            add={!!add && !this.state.newClaim ? this._add : null}
+                            save={!!save ? this._save : null}
+                            fab={forReview && !readOnly && this.state.claim.reviewStatus < 8 && (<CheckIcon />)}
+                            fabAction={this._deliverReview}
+                            fabTooltip={formatMessage(this.props.intl, "claim", "claim.Review.deliverReview.fab.tooltip")}
                             canSave={e => this.canSave(forFeedback)}
                             reload={(claim_uuid || readOnly) && this.reload}
                             actions={actions}
                             readOnly={readOnly}
                             forReview={forReview}
+                            roReview={forReview && this.state.claim.reviewStatus >= 8}
                             forFeedback={forFeedback}
                             HeadPanel={ClaimMasterPanel}
                             Panels={!!forFeedback ?

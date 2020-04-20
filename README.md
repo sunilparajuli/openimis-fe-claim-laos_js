@@ -17,6 +17,9 @@ It is dedicated to be deployed as a module of [openimis-fe_js](https://github.co
 
 ## Available Contribution Points
 * `claim.MainMenu` ability to add entries within the main menu entry (known usage: openimis-fe-claim_batch)
+* `claim.Filter` ability to extend the ClaimFilter (inside the criteria form), used for HealthFacilities and Reviews screens
+* `claim.HealthFacilitiesFilter` ability to extend the ClaimFilter (inside the criteria form), only for the HealthFacilities screen
+* `claim.ReviewsFilter` ability to extend the ClaimFilter (inside the criteria form), only for the Reviews screen
 * `claim.Searcher` ability to extend the ClaimSearcher (between the criteria form and the results table)
 * `claim.ClaimForm` ability to extend the ClaimForm (entity displayed to add, edit, provide feedback and provide review)
 * `claim.MasterPanel` ability to extend the first section (paper) of the ClaimForm
@@ -76,8 +79,14 @@ None
 * `claimFilter.defaultPageSize`, pagination pre-selected page size options in Claim Searcher component (Default: `10`)
 * `claimFilter.highlightAmount`, amount triggering the primary highligh (default bold) for claims in claim searcher result. Default: `0`, menaing no highlight threshold
 * `claimFilter.highlightAltInsurees`, boolean to trigger the secondary highligh (default italic) for claims of the same insuree. Default: `true`
+* `claimForm.codeMaxLength`, the max size of a claim code (id), default 8;
 * `claimForm.fixedPricesAtEnter`, boolean to prevent user to adapt prices at claim entry (fixed to price list). Default: false (user can change the price)
 * `claimForm.fixedPricesAtReview`, boolean to prevent user to adapt prices at claim review (fixed to price list). Default: false (user can change the price)
 * `claimForm.showJustificationAtEnter`, boolean to display justification field(s) for items and services at claim entry. Default false;
 * `claimForm.showAdjustmentAtEnter`, boolean to display adjustment field at claim entry. Default false;
+* `claimForm.insureePicker`, the insuree picker to use when filling a claim. Default insuree.InsureeChfIdPicker (the exact chfid entry picker). Other pre-canned option (from insuree reference module): insuree.InsureePicker (dialog picker with search on chfid, last name and other names)
+* `canSaveClaimWithoutServiceNorItem`, wherever user can save a claim without service nor item, default: true
+* `canSubmitClaimWithZero`, wherever user can submit with 0 as claimed amount (probably a claim without service/item), default: false
 * `claimAttachments`, boolean to enable/disable claim attachments. Default true;
+* `ClaimAdminPicker.selectThreshold`: claim administrators suggestions count threshold under which the AutoSuggestion switch to a SelectInut (drop down list), default: 10
+* `ClaimOfficerPicker.selectThreshold`: claim officers suggestions count threshold under which the AutoSuggestion switch to a SelectInut (drop down list), default: 10

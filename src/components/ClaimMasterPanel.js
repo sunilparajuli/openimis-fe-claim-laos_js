@@ -5,7 +5,7 @@ import { injectIntl } from 'react-intl';
 import { bindActionCreators } from "redux";
 import {
     formatMessage, ControlledField, withModulesManager,
-    PublishedComponent, Contributions, AmountInput, TextInput,
+    FormPanel, PublishedComponent, Contributions, AmountInput, TextInput,
 } from "@openimis/fe-core";
 import { Grid } from "@material-ui/core";
 import _ from "lodash";
@@ -26,10 +26,9 @@ const styles = theme => ({
     item: theme.paper.item,
 });
 
-class ClaimMasterPanel extends Component {
+class ClaimMasterPanel extends FormPanel {
 
     state = {
-        data: {},
         claimCode: null,
         claimCodeError: null,
     }
@@ -39,31 +38,23 @@ class ClaimMasterPanel extends Component {
         this.codeMaxLength = props.modulesManager.getConf("fe-claim", "claimForm.codeMaxLength", 8);
         this.guaranteeIdMaxLength = props.modulesManager.getConf("fe-claim", "claimForm.guaranteeIdMaxLength", 50);
         this.showAdjustmentAtEnter = props.modulesManager.getConf("fe-claim", "claimForm.showAdjustmentAtEnter", false);
-    }
-
-    componentDidMount() {
-        this.setState({ data: this.props.edited });
+        this.insureePicker = props.modulesManager.getConf("fe-claim", "claimForm.insureePicker", "insuree.InsureeChfIdPicker");
     }
 
     componentDidUpdate(prevProps, prevState, snapshot) {
-        if ((prevProps.edited_id && !this.props.edited_id) ||
-            prevProps.reset !== this.props.reset
-        ) {
-            this.setState({ data: this.props.edited });
-        } else if (!prevProps.fetchingClaimCodeCount && this.props.fetchingClaimCodeCount) {
+        if (this._componentDidUpdate(prevProps, prevState, snapshot)) return;
+        if (!prevProps.fetchingClaimCodeCount && this.props.fetchingClaimCodeCount) {
             this.setState({ claimCodeError: null })
         } else if (!prevProps.fetchedClaimCodeCount && this.props.fetchedClaimCodeCount) {
             if (!!this.props.claimCodeCount) {
                 this.setState({ claimCodeError: formatMessage(this.props.intl, "claim", "edit.claimCodeExists") })
                 this.updateAttribute('codeError', true)
             } else {
-                this.updateAttributes([
-                    { attr: 'code', v: this.state.claimCode },
-                    { attr: 'codeError', v: null },
-                ])
+                this.updateAttributes({
+                    code: this.state.claimCode,
+                    codeError: null
+                })
             }
-        } else if (!_.isEqual(prevProps.edited, this.props.edited)) {
-            this.setState({ data: this.props.edited })
         }
     }
 
@@ -82,20 +73,8 @@ class ClaimMasterPanel extends Component {
         this.props.modulesManager.getConf("fe-claim", "debounceTime", 800)
     )
 
-
-    updateAttributes = updates => {
-        let data = { ...this.state.data };
-        updates.forEach(update => {
-            data[update.attr] = update.v;
-            data[update.attr + "_str"] = update.s;
-        });
-        this.props.onEditedChanged(data);
-    }
-
-    updateAttribute = (attr, v, s) => this.updateAttributes([{ attr, v, s }])
-
     render() {
-        const { intl, classes, edited, reset, readOnly = false, forReview, forFeedback } = this.props;
+        const { intl, classes, edited, reset, readOnly = false, forReview, roReview = false, forFeedback } = this.props;
         if (!edited) return null;
         let totalClaimed = 0;
         let totalApproved = 0;
@@ -130,26 +109,12 @@ class ClaimMasterPanel extends Component {
                 <ControlledField module="claim" id="Claim.insuree" field={
                     <Grid item xs={3} className={classes.item}>
                         <PublishedComponent
-                            id="insuree.InsureePicker"
+                            id={this.insureePicker}
                             value={edited.insuree}
                             reset={reset}
-                            onChange={(v, s) => this.updateAttribute("insuree", v, s)}
+                            onChange={(v, s) => this.updateAttribute("insuree", v)}
                             readOnly={ro}
                             required={true}
-                        />
-                    </Grid>
-                } />
-                <ControlledField module="claim" id="Claim.claimedDate" field={
-                    <Grid item xs={2} className={classes.item}>
-                        <PublishedComponent id="core.DatePicker"
-                            value={edited.dateClaimed}
-                            module="claim"
-                            label="claimedDate"
-                            reset={reset}
-                            onChange={d => this.updateAttribute("dateClaimed", d)}
-                            readOnly={ro}
-                            required={true}
-                            minDate={edited.dateFrom}
                         />
                     </Grid>
                 } />
@@ -177,6 +142,21 @@ class ClaimMasterPanel extends Component {
                             onChange={d => this.updateAttribute("dateTo", d)}
                             readOnly={ro}
                             minDate={edited.dateFrom}
+                            maxDate={edited.dateClaimed}
+                        />
+                    </Grid>
+                } />
+                <ControlledField module="claim" id="Claim.claimedDate" field={
+                    <Grid item xs={2} className={classes.item}>
+                        <PublishedComponent id="core.DatePicker"
+                            value={edited.dateClaimed}
+                            module="claim"
+                            label="claimedDate"
+                            reset={reset}
+                            onChange={d => this.updateAttribute("dateClaimed", d)}
+                            readOnly={ro}
+                            required={true}
+                            minDate={!!edited.dateTo ? edited.dateTo : edited.dateFrom}
                         />
                     </Grid>
                 } />
@@ -395,14 +375,14 @@ class ClaimMasterPanel extends Component {
                                         value={edited.adjustment}
                                         reset={reset}
                                         onChange={v => this.updateAttribute("adjustment", v)}
-                                        readOnly={!!forFeedback || ro}
+                                        readOnly={!!forFeedback || (ro && forReview && roReview)}
                                     />
                                 </Grid>
                             } />
                         }
                     </Fragment>
                 }
-                <Contributions contributionKey={CLAIM_MASTER_PANEL_CONTRIBUTION_KEY} />
+                <Contributions claim={edited} contributionKey={CLAIM_MASTER_PANEL_CONTRIBUTION_KEY} />
             </Grid>
         )
     }

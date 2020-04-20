@@ -7,18 +7,21 @@ import FilterIcon from "@material-ui/icons/FilterList";
 import FeedbackIcon from "@material-ui/icons/SpeakerNotesOutlined";
 import ReviewIcon from "@material-ui/icons/SupervisorAccount";
 import {
-    formatMessage, formatMessageWithValues, TextInput, AmountInput,
+    formatMessage, formatMessageWithValues, AmountInput, NumberInput,
     withHistory, historyPush, withModulesManager, PublishedComponent,
     journalize, coreAlert
 } from "@openimis/fe-core";
 import ClaimSearcher from "../components/ClaimSearcher";
 import {
+    selectHealthFacility,
     selectForFeedback, bypassFeedback, skipFeedback,
-    selectForReview, bypassReview, skipReview,
+    selectForReview, bypassReview, deliverReview, skipReview,
     process
 } from "../actions";
 import { RIGHT_UPDATE, RIGHT_FEEDBACK, RIGHT_CLAIMREVIEW, RIGHT_PROCESS } from "../constants";
 import { withTheme, withStyles } from "@material-ui/core/styles";
+
+const CLAIM_REVIEWS_FILTER_CONTRIBUTION_KEY = "claim.ReviewsFilter";
 
 const styles = theme => ({
     page: theme.page,
@@ -30,13 +33,16 @@ const styles = theme => ({
     }
 });
 
-class RawFixFilter extends Component {
+class RawRandomAndValueFilters extends Component {
     state = {
+        randomToggled: false,
         random: 0,
+        valueToggled: false,
         value: 0,
         variance: 0,
         filters: {},
     }
+
     componentDidMount() {
         this.setState(this.props.modulesManager.getConf(
             "fe-claim",
@@ -44,11 +50,13 @@ class RawFixFilter extends Component {
             { random: 5, value: 0, variance: 10 }
         ));
     }
+
     randomChange = (v) => {
         let filters = this.state.filters;
         delete (filters.random)
         this.setState({
             random: parseFloat(v),
+            randomToggled: false,
             filters
         })
     }
@@ -57,6 +65,7 @@ class RawFixFilter extends Component {
         delete (filters.value)
         this.setState({
             value: parseFloat(v),
+            valueToggled: false,
             filters
         })
     }
@@ -65,6 +74,7 @@ class RawFixFilter extends Component {
         delete (filters.value)
         this.setState({
             variance: parseFloat(v),
+            varianceToggled: false,
             filters
         })
     }
@@ -80,7 +90,7 @@ class RawFixFilter extends Component {
             return;
         }
         let rnd = Math.trunc(this.state.random * this.props.claimsPageInfo.totalCount / 100);
-        if (!filters.random && !rnd) {
+        if (!this.state.randomToggled && !rnd) {
             this.props.coreAlert(
                 formatMessage(this.props.intl, "claim", "ClaimFilter.randomFilter.zeroAlert.title"),
                 formatMessageWithValues(this.props.intl, "claim", "ClaimFilter.randomFilter.zeroAlert.message", {
@@ -90,39 +100,85 @@ class RawFixFilter extends Component {
             )
             return;
         }
-        if (!!filters.random) {
-            delete (filters.random);
+        if (!this.state.randomToggled) {
+            filters.random = [{
+                id: 'random',
+                value: rnd,
+            }]
         } else {
-            filters.random = [`random: ${rnd}`]
+            filters.random = [{
+                id: 'random',
+                value: null,
+            }]
         }
         this.setState(
-            { filters },
-            e => this.props.filtersChange(Object.values(this.state.filters).flat())
+            {
+                filters,
+                randomToggled: !this.state.randomToggled,
+            },
+            e => this.props.onChangeFilters(Object.values(this.state.filters).flat())
         )
     }
     toggleValueFilter = (e) => {
         let filters = this.state.filters;
-        if (!!filters.value) {
-            delete (filters.value);
+        if (!!this.state.valueToggled) {
+            filters.value = [
+                { id: 'value', value: null },
+                {
+                    id: 'claimedAbove',
+                    value: null,
+                }
+            ];
         } else {
-            let min = this.state.value;
-            let max = this.state.value;
-            if (this.state.variance !== 0) {
-                min = min - min * this.state.variance / 100;
-                max = max + max * this.state.variance / 100;
-            }
-            filters.value = [`claimed_Gte: ${min}`, `claimed_Lte: ${max}`]
+            filters.value = [
+                { id: 'value', value: this.state.value },
+                {
+                    id: 'claimedAbove',
+                    value: this.state.value,
+                    filter: `claimed_Gte: ${this.state.value}`
+                }]
         }
-        this.setState({ filters },
-            e => this.props.filtersChange(Object.values(this.state.filters).flat())
+        this.setState(
+            {
+                filters,
+                valueToggled: !this.state.valueToggled,
+            },
+            e => this.props.onChangeFilters(Object.values(this.state.filters).flat())
+        )
+    }
+    toggleVarianceFilter = (e) => {
+        let filters = this.state.filters;
+        if (!!this.state.varianceToggled) {
+            filters.value = [
+                { id: 'variance', value: null },
+                {
+                    id: 'diagnosisVariance',
+                    value: null,
+                }
+            ];
+        } else {
+            filters.value = [
+                { id: 'value', value: this.state.value },
+                {
+                    id: 'diagnosisVariance',
+                    value: this.state.variance,
+                    filter: `diagnosisVariance: ${this.state.variance}`
+                }]
+        }
+        this.setState(
+            {
+                filters,
+                varianceToggled: !this.state.varianceToggled,
+            },
+            e => this.props.onChangeFilters(Object.values(this.state.filters).flat())
         )
     }
     render() {
-        const { classes } = this.props;
+        const { classes } = this.props;        
         return (
             <Grid container justify="center" alignItems="center" direction="row">
                 <Grid item xs={3} className={classes.item}>
-                    <TextInput
+                    <NumberInput
                         module="claim" label="ClaimFilter.Reviews.random"
                         name="random"
                         value={this.state.random}
@@ -131,7 +187,7 @@ class RawFixFilter extends Component {
                         endAdornment={
                             <InputAdornment position="end">
                                 <IconButton
-                                    className={!!this.state.filters.random ? classes.toggledButton : null}
+                                    className={!!this.state.randomToggled ? classes.toggledButton : null}
                                     onClick={this.toggleRandomFilter}
                                     edge="end">
                                     <FilterIcon />
@@ -146,43 +202,48 @@ class RawFixFilter extends Component {
                         }}
                     />
                 </Grid>
-                <Grid item xs={2} className={classes.item} />
                 <Grid item xs={3} className={classes.item}>
-                    <Grid container diretcion="row">
-                        <Grid item xs={6}>
-                            <AmountInput
-                                module="claim" label="ClaimFilter.Reviews.value"
-                                value={this.state.value}
-                                onChange={this.valueChange}
-                            />
-                        </Grid>
-                        <Grid item xs={6}>
-                            <TextInput
-                                module="claim" label="ClaimFilter.Reviews.variance"
-                                value={this.state.variance}
-                                onChange={this.varianceChange}
-                                startAdornment={
-                                    <InputAdornment position="start">%</InputAdornment>
-                                }
-                                endAdornment={
-                                    <InputAdornment position="end">
-                                        <IconButton
-                                            className={!!this.state.filters.value ? classes.toggledButton : null}
-                                            onClick={this.toggleValueFilter}
-                                            edge="end">
-                                            <FilterIcon />
-                                        </IconButton>
-                                    </InputAdornment>
-                                }
-                                inputProps={{
-                                    step: 10,
-                                    min: 0,
-                                    max: 100,
-                                    type: "number",
-                                }}
-                            />
-                        </Grid>
-                    </Grid>
+                    <AmountInput
+                        module="claim" label="ClaimFilter.Reviews.value"
+                        value={this.state.value}
+                        endAdornment={
+                            <InputAdornment position="end">
+                                <IconButton
+                                    className={!!this.state.valueToggled ? classes.toggledButton : null}
+                                    onClick={this.toggleValueFilter}
+                                    edge="end">
+                                    <FilterIcon />
+                                </IconButton>
+                            </InputAdornment>
+                        }
+                        onChange={this.valueChange}
+                    />
+                </Grid>
+                <Grid item xs={3}>
+                    <NumberInput
+                        module="claim" label="ClaimFilter.Reviews.variance"
+                        value={this.state.variance}
+                        onChange={this.varianceChange}
+                        startAdornment={
+                            <InputAdornment position="start">%</InputAdornment>
+                        }
+                        endAdornment={
+                            <InputAdornment position="end">
+                                <IconButton
+                                    className={!!this.state.varianceToggled ? classes.toggledButton : null}
+                                    onClick={this.toggleVarianceFilter}
+                                    edge="end">
+                                    <FilterIcon />
+                                </IconButton>
+                            </InputAdornment>
+                        }
+                        inputProps={{
+                            step: 10,
+                            min: 0,
+                            max: 100,
+                            type: "number",
+                        }}
+                    />
                 </Grid>
             </Grid>
         )
@@ -201,15 +262,11 @@ const mapDispatchToFixFilterProps = dispatch => {
         dispatch);
 };
 
-const FixFilter = withModulesManager(injectIntl(withTheme(withStyles(styles)
-    (connect(mapStateToFixFilterProps, mapDispatchToFixFilterProps)(RawFixFilter))
+const RandomAndValueFilters = withModulesManager(injectIntl(withTheme(withStyles(styles)
+    (connect(mapStateToFixFilterProps, mapDispatchToFixFilterProps)(RawRandomAndValueFilters))
 )));
 
 class ReviewsPage extends Component {
-
-    state = {
-        forcedFilters: [],
-    }
 
     constructor(props) {
         super(props);
@@ -227,41 +284,16 @@ class ReviewsPage extends Component {
         }
     }
 
-    _filterOnUserHealthFacilityFullPath() {
-        let defaultFilters = { ...this.state.defaultFilters }
-        defaultFilters.healthFacility = {
-            "value": this.props.userHealthFacilityFullPath,
-            "filter": `healthFacility_Uuid: "${this.props.userHealthFacilityFullPath.uuid}"`
-        }
-        let district = this.props.userHealthFacilityFullPath.location;
-        defaultFilters.district = {
-            "value": district,
-            "filter": `healthFacility_Location_Uuid: "${district.uuid}"`
-        }
-        let region = district.parent;
-        defaultFilters.region = {
-            "value": region,
-            "filter": `healthFacility_Location_Parent_Uuid: "${region.uuid}"`
-        }
-        this.setState({ defaultFilters })
-    }
-
     componentDidMount() {
-        if (!!this.props.userHealthFacilityFullPath) {
-            this._filterOnUserHealthFacilityFullPath();
-        }
+        document.title = formatMessage(this.props.intl, "claim", "claim.reviews.page.title")
     }
 
     componentDidUpdate(prevProps, prevState, snapshot) {
         if (prevProps.submittingMutation && !this.props.submittingMutation) {
             this.props.journalize(this.props.mutation);
-        }
-        if (!_.isEqual(prevProps.userHealthFacilityFullPath, this.props.userHealthFacilityFullPath)) {
-            this._filterOnUserHealthFacilityFullPath();
+            this.setState({ reset: this.state.reset + 1 });
         }
     }
-
-    filtersChange = forcedFilters => this.setState({ forcedFilters })
 
     _labelMutation = (selection, labelOne, labelMultiple, action) => {
         if (selection.length === 1) {
@@ -339,7 +371,19 @@ class ReviewsPage extends Component {
             this.props.bypassReview);
     }
 
+    canMarkDeliveredReview = selection => !!selection && selection.length &&
+        selection.filter(s => s.reviewStatus === 4).length === selection.length &&
+        selection.filter(s => s.status === 4).length === selection.length
+
+    markDeliveredReview = selection => {
+        this._labelMutation(selection,
+            "DeliverClaimReview.mutationLabel",
+            "DeliverClaimsReview.mutationLabel",
+            this.props.deliverReview);
+    }
+
     canMarkSkippedReview = selection => !!selection && selection.length &&
+        selection.filter(s => s.reviewStatus === 4).length === selection.length &&
         selection.filter(s => s.status === 4).length === selection.length
 
     markSkippedReview = selection => {
@@ -388,7 +432,7 @@ class ReviewsPage extends Component {
                         { code: c.code }
                     ));
                 break;
-            default: console.log('Illegal new Feedback Status ' + v); // TODO: handle error
+            default: console.log('Illegal new Feedback Status ' + v);
         }
     }
     provideFeedback = c => historyPush(this.props.modulesManager, this.props.history, "claim.route.feedback", [c.uuid])
@@ -438,6 +482,15 @@ class ReviewsPage extends Component {
                         { code: c.code }
                     ));
                 break;
+            case 8:
+                this.props.deliverReview([c],
+                    formatMessageWithValues(
+                        this.props.intl,
+                        "claim",
+                        "DeliverClaimReview.mutationLabel",
+                        { code: c.code }
+                    ));
+                break;
             case 16:
                 this.props.bypassReview([c],
                     formatMessageWithValues(
@@ -447,10 +500,26 @@ class ReviewsPage extends Component {
                         { code: c.code }
                     ));
                 break;
-            default: console.log('Illegal new Feedback Status ' + v); // TODO: handle error
+            default: console.log('Illegal new Review Status ' + v);
         }
     }
-    review = c => historyPush(this.props.modulesManager, this.props.history, "claim.route.review", [c.uuid])
+    review = (c, newTab = false) => historyPush(this.props.modulesManager, this.props.history, "claim.route.review", [c.uuid], newTab)
+    reviewStatusFilter = (claim) => {
+        switch (claim.reviewStatus) {
+            case 1:
+                return [1, 8, 16];
+            case 2:
+                return [1, 2, 8, 16];
+            case 4:
+                return [1, 4];
+            case 8:
+                return [1, 2, 4, 8, 16];
+            case 16:
+                return [1, 2, 4, 8, 16];
+            default:
+                console.log("Illegal Review Status " + claim.reviewStatus);
+        }
+    }
     reviewColFormatter = c => (
         <Grid container justify="flex-end" alignItems="center">
             <Grid item>
@@ -460,8 +529,8 @@ class ReviewsPage extends Component {
                     name="reviewStatus"
                     value={c.reviewStatus}
                     withNull={false}
-                    filtered={[1, 8]}
-                    readOnly={!this.props.rights.includes(RIGHT_UPDATE) || c.status !== 4}
+                    filtered={this.reviewStatusFilter(c)}
+                    readOnly={!this.props.rights.includes(RIGHT_UPDATE) || c.status !== 4 || c.reviewStatus >= 8}
                     onChange={(v, s) => this.onChangeReviewStatus(c, v)}
                 />
             </Grid>
@@ -475,8 +544,8 @@ class ReviewsPage extends Component {
         </Grid>
     )
 
-    onDoubleClick = (c) => {
-        this.review(c)
+    onDoubleClick = (c, newTab = false) => {
+        this.review(c, newTab)
     }
 
     render() {
@@ -490,6 +559,7 @@ class ReviewsPage extends Component {
                 { label: "claimSummaries.markSkippedFeedback", enabled: this.canMarkSkippedFeedback, action: this.markSkippedFeedback },
                 { label: "claimSummaries.markSelectedForReview", enabled: this.canMarkSelectedForReview, action: this.markSelectedForReview },
                 { label: "claimSummaries.markBypassedReview", enabled: this.canMarkBypassedReview, action: this.markBypassedReview },
+                { label: "claimSummaries.markDeliveredReview", enabled: this.canMarkDeliveredReview, action: this.markDeliveredReview },
                 { label: "claimSummaries.markSkippedReview", enabled: this.canMarkSkippedReview, action: this.markSkippedReview },
             )
         }
@@ -500,12 +570,13 @@ class ReviewsPage extends Component {
             <div className={classes.page}>
                 <ClaimSearcher
                     defaultFilters={this.state.defaultFilters}
-                    forcedFilters={this.state.forcedFilters}
-                    fixFilter={<FixFilter filtersChange={this.filtersChange} />}
+                    cacheFiltersKey="claimReviewsPageFiltersCache"
+                    FilterExt={RandomAndValueFilters}
                     actions={actions}
                     onDoubleClick={rights.includes(RIGHT_UPDATE) ? this.onDoubleClick : null}
                     feedbackColFormatter={this.feedbackColFormatter}
                     reviewColFormatter={this.reviewColFormatter}
+                    filterPaneContributionsKey={CLAIM_REVIEWS_FILTER_CONTRIBUTION_KEY}
                 />
             </div>
         );
@@ -514,23 +585,29 @@ class ReviewsPage extends Component {
 
 const mapStateToProps = state => ({
     rights: !!state.core && !!state.core.user && !!state.core.user.i_user ? state.core.user.i_user.rights : [],
+    claimAdmin: state.claim.claimAdmin,
+    claimHealthFacility: state.claim.claimHealthFacility,
     userHealthFacilityFullPath: !!state.loc ? state.loc.userHealthFacilityFullPath : null,
     claimsPageInfo: state.claim.claimsPageInfo,
+    //props used from super.componentDidUpdate !!
     submittingMutation: state.claim.submittingMutation,
     mutation: state.claim.mutation,
+    //--    
 });
 
 const mapDispatchToProps = dispatch => {
     return bindActionCreators(
         {
+            selectHealthFacility,
+            journalize,
             selectForFeedback,
             bypassFeedback,
             skipFeedback,
             selectForReview,
             bypassReview,
+            deliverReview,
             skipReview,
             process,
-            journalize,
         },
         dispatch);
 };

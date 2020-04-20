@@ -16,6 +16,8 @@ import ClaimSearcher from "../components/ClaimSearcher";
 import { submit, del, selectHealthFacility } from "../actions";
 import { RIGHT_ADD, RIGHT_LOAD, RIGHT_SUBMIT, RIGHT_DELETE } from "../constants";
 
+const CLAIM_HF_FILTER_CONTRIBUTION_KEY = "claim.HealthFacilitiesFilter";
+
 const styles = theme => ({
     page: theme.page,
     fab: theme.fab
@@ -35,67 +37,26 @@ class HealthFacilitiesPage extends Component {
                 }
             }
         )
-
+        this.canSubmitClaimWithZero = props.modulesManager.getConf("fe-claim", "canSubmitClaimWithZero", false);
         this.state = {
             defaultFilters,
             confirmedAction: null,
         }
     }
 
-    _filterOnHealthFacility(hf) {
-        let defaultFilters = { ...this.state.defaultFilters }
-        if (!hf) {
-            delete(defaultFilters.healthFacility);
-            delete(defaultFilters.district);
-            delete(defaultFilters.region);
-            delete(defaultFilters.claimAdmin);
-        } else {
-            defaultFilters.healthFacility = {
-                "value": hf,
-                "filter": `healthFacility_Id: "${hf.id}"`
-            }
-            let district = hf.location;
-            defaultFilters.district = {
-                "value": district,
-                "filter": `healthFacility_Location_Id: "${district.id}"`
-            }
-            let region = district.parent;
-            defaultFilters.region = {
-                "value": region,
-                "filter": `healthFacility_Location_Parent_Id: "${region.id}"`
-            }
-            if (!!this.props.claimAdmin) {
-                defaultFilters.claimAdmin = {
-                    "value": this.props.claimAdmin,
-                    "filter": `admin_Uuid: "${this.props.claimAdmin.uuid}"`
-                }
-            }
-        }
-        this.setState({ defaultFilters })
-        this.props.selectHealthFacility(hf);
-    }
-
     componentDidMount() {
-        if (!!this.props.claimHealthFacility) {
-            this._filterOnHealthFacility(this.props.claimHealthFacility);
-        } else if (!!this.props.userHealthFacilityFullPath) {
-            this._filterOnHealthFacility(this.props.userHealthFacilityFullPath);
-        }
+        document.title = formatMessage(this.props.intl, "location", "location.healthFacilities.page.title")
     }
 
     componentDidUpdate(prevProps, prevState, snapshot) {
         if (prevProps.submittingMutation && !this.props.submittingMutation) {
             this.props.journalize(this.props.mutation);
-        } else if (prevProps.confirmed !== this.props.confirmed && !!this.props.confirmed && !!this.state.confirmedAction) {
-            this.state.confirmedAction();
-        } else if (!_.isEqual(prevProps.userHealthFacilityFullPath, this.props.userHealthFacilityFullPath)) {
-            this._filterOnHealthFacility(this.props.userHealthFacilityFullPath);
-        } else if (!_.isEqual(prevProps.claimHealthFacility, this.props.claimHealthFacility)) {
-            this._filterOnHealthFacility(this.props.claimHealthFacility);
+            this.setState({ reset: this.state.reset + 1 });
         }
     }
 
-    canSubmitSelected = (selection) => !!selection && selection.length && selection.filter(s => s.status === 2).length === selection.length
+    canSubmitSelected = (selection) => !!selection && selection.length &&
+        selection.filter(s => s.status === 2 && (!!this.canSubmitClaimWithZero || s.claimed > 0)).length === selection.length
 
     submitSelected = (selection) => {
         if (selection.length === 1) {
@@ -122,7 +83,8 @@ class HealthFacilitiesPage extends Component {
         }
     }
 
-    canDeleteSelected = (selection) => !!selection && selection.length && selection.filter(s => s.status === 2).length === selection.length
+    canDeleteSelected = (selection) => !!selection && selection.length &&
+        selection.filter(s => s.status === 2).length === selection.length
 
     deleteSelected = (selection) => {
         let confirm = null;
@@ -170,8 +132,8 @@ class HealthFacilitiesPage extends Component {
         )
     }
 
-    onDoubleClick = (c) => {
-        historyPush(this.props.modulesManager, this.props.history, "claim.route.claimEdit", [c.uuid])
+    onDoubleClick = (c, newTab = false) => {
+        historyPush(this.props.modulesManager, this.props.history, "claim.route.claimEdit", [c.uuid], newTab)
     }
 
     onAdd = () => {
@@ -198,9 +160,11 @@ class HealthFacilitiesPage extends Component {
             <div className={classes.page}>
                 <ClaimSearcher
                     defaultFilters={this.state.defaultFilters}
+                    cacheFiltersKey="claimHealthFacilitiesPageFiltersCache"
                     onDoubleClick={rights.includes(RIGHT_LOAD) ? this.onDoubleClick : null}
                     actions={actions}
                     processing={generatingPrint}
+                    filterPaneContributionsKey={CLAIM_HF_FILTER_CONTRIBUTION_KEY}
                 />
                 {!generatingPrint && rights.includes(RIGHT_ADD) &&
                     <Tooltip title={!this.canAdd() ? formatMessage(intl, "claim", "newClaim.adminAndHFRequired") : ""}>
@@ -218,23 +182,25 @@ class HealthFacilitiesPage extends Component {
 
 const mapStateToProps = state => ({
     rights: !!state.core && !!state.core.user && !!state.core.user.i_user ? state.core.user.i_user.rights : [],
-    confirmed: state.core.confirmed,
-    userHealthFacilityFullPath: !!state.loc ? state.loc.userHealthFacilityFullPath : null,
-    submittingMutation: state.claim.submittingMutation,
-    mutation: state.claim.mutation,
     claimAdmin: state.claim.claimAdmin,
     claimHealthFacility: state.claim.claimHealthFacility,
+    userHealthFacilityFullPath: !!state.loc ? state.loc.userHealthFacilityFullPath : null,
+    //props used from super.componentDidUpdate !!
+    submittingMutation: state.claim.submittingMutation,
+    mutation: state.claim.mutation,
+    confirmed: state.core.confirmed,
+    //--
 });
 
 
 const mapDispatchToProps = dispatch => {
     return bindActionCreators(
         {
+            selectHealthFacility,
+            journalize,
             coreConfirm,
             submit,
             del,
-            journalize,
-            selectHealthFacility,
         },
         dispatch);
 };

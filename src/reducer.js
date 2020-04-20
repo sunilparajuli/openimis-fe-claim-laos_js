@@ -6,7 +6,7 @@ import {
 function reducer(
     state = {
         fetchingClaimAdmins: false,
-        fetchedClaimAdmins: false,
+        fetchedClaimAdmins: null,
         errorClaimAdmins: null,
         claimAdmins: null,
         fetchingClaimAttachments: false,
@@ -44,7 +44,7 @@ function reducer(
             return {
                 ...state,
                 fetchingClaimAdmins: true,
-                fetchedClaimAdmins: false,
+                fetchedClaimAdmins: null,
                 claimAdmins: null,
                 errorClaimAdmins: null,
             };
@@ -52,14 +52,14 @@ function reducer(
             return {
                 ...state,
                 fetchingClaimAdmins: false,
-                fetchedClaimAdmins: true,
-                claimAdmins: parseData(action.payload.data.claimAdmins),
+                fetchedClaimAdmins: action.meta,
+                claimAdmins: parseData(action.payload.data.claimAdmins || action.payload.data.claimAdminsStr),
                 errorClaimAdmins: formatGraphQLError(action.payload)
             };
         case 'CLAIM_CLAIM_ADMINS_ERR':
             return {
                 ...state,
-                fetchingClaimAdmins: false,
+                fetchingClaimAdmins: null,
                 errorClaimAdmins: formatServerError(action.payload)
             };
         case 'CLAIM_CLAIM_ATTACHMENTS_REQ':
@@ -85,15 +85,43 @@ function reducer(
                 errorClaimAttachments: formatServerError(action.payload)
             };
         case 'CLAIM_CLAIM_ADMIN_SELECTED':
-            return {
-                ...state,
-                claimAdmin: action.payload,
+            var claimAdmin = action.payload;
+            var s = { ...state, claimAdmin }
+            if (claimAdmin) {
+                s.claimHealthFacility = claimAdmin.healthFacility
+                s.claimDistrict = s.claimHealthFacility.location
+                s.claimRegion = s.claimDistrict.parent
             }
+            return s
         case 'CLAIM_CLAIM_HEALTH_FACILITY_SELECTED':
-            return {
-                ...state,
-                claimHealthFacility: action.payload,
+            var claimHealthFacility = action.payload;
+            var s = { ...state, claimHealthFacility }
+            if (claimHealthFacility) {
+                s.claimDistrict = s.claimHealthFacility.location
+                s.claimRegion = s.claimDistrict.parent
+            } else {
+                delete (s.claimAdmin);
             }
+            return s
+        case 'CLAIM_CLAIM_DISTRICT_SELECTED':
+            var claimDistrict = action.payload;
+            var s = { ...state, claimDistrict }
+            if (claimDistrict) {
+                s.claimRegion = claimDistrict.parent
+            } else {
+                delete (s.claimHealthFacility);
+                delete (s.claimAdmin);
+            }
+            return s
+        case 'CLAIM_CLAIM_REGION_SELECTED':
+            var claimRegion = action.payload;
+            var s = { ...state, claimRegion }
+            if (!claimRegion) {
+                delete (s.claimDistrict);
+                delete (s.claimHealthFacility);
+                delete (s.claimAdmin);
+            }
+            return s
         case 'CLAIM_CLAIM_OFFICERS_REQ':
             return {
                 ...state,
@@ -155,7 +183,7 @@ function reducer(
                 fetchingClaim: false,
                 fetchedClaim: true,
                 claim: (!!claims && claims.length > 0) ? claims[0] : null,
-                errorClaims: formatGraphQLError(action.payload)
+                errorClaim: formatGraphQLError(action.payload)
             };
         case 'CLAIM_CLAIM_ERR':
             return {
@@ -233,18 +261,22 @@ function reducer(
             return dispatchMutationResp(state, "bypassClaimsReview", action);
         case 'CLAIM_SKIP_CLAIMS_REVIEW_RESP':
             return dispatchMutationResp(state, "skipClaimsReview", action);
-        case 'CLAIM_DELIVER_CLAIM_REVIEW_RESP':
-            return dispatchMutationResp(state, "deliverClaimReview", action);
+        case 'CLAIM_SAVE_CLAIM_REVIEW_RESP':
+            return dispatchMutationResp(state, "saveClaimReview", action);
+        case 'CLAIM_DELIVER_CLAIMS_REVIEW_RESP':
+            return dispatchMutationResp(state, "deliverClaimsReview", action);
         case 'CLAIM_PROCESS_CLAIMS_RESP':
             return dispatchMutationResp(state, "processClaims", action);
         case 'CLAIM_CREATE_CLAIM_ATTACHMENT_RESP':
             return dispatchMutationResp(state, "createClaimAttachment", action);
+        case 'CLAIM_UPDATE_CLAIM_ATTACHMENT_RESP':
+            return dispatchMutationResp(state, "updateClaimAttachment", action);
         case 'CLAIM_DELETE_CLAIM_ATTACHMENT_RESP':
             return dispatchMutationResp(state, "deleteClaimAttachment", action);
         case 'CORE_ALERT_CLEAR':
-                var s = { ...state };
-                delete (s.alert);
-                return s;            
+            var s = { ...state };
+            delete (s.alert);
+            return s;
         case 'CLAIM_PRINT':
             return {
                 ...state,
