@@ -37,7 +37,7 @@ class ClaimMasterPanel extends FormPanel {
         super(props);
         this.codeMaxLength = props.modulesManager.getConf("fe-claim", "claimForm.codeMaxLength", 8);
         this.guaranteeIdMaxLength = props.modulesManager.getConf("fe-claim", "claimForm.guaranteeIdMaxLength", 50);
-        this.showAdjustmentAtEnter = props.modulesManager.getConf("fe-claim", "claimForm.showAdjustmentAtEnter", true);
+        this.showAdjustmentAtEnter = props.modulesManager.getConf("fe-claim", "claimForm.showAdjustmentAtEnter", false);
         this.insureePicker = props.modulesManager.getConf("fe-claim", "claimForm.insureePicker", "insuree.InsureeChfIdPicker");
     }
 
