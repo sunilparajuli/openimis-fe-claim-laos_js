@@ -132,7 +132,7 @@ class ClaimFeedbackPanel extends Component {
                         <Grid container alignItems="center" justify="center">
                             <ControlledField module="claim" id="Feedback.date" field={
                                 <Grid item xs={6} className={classes.item}>
-                                    <PublishedComponent id="core.DatePicker"
+                                    <PublishedComponent pubRef="core.DatePicker"
                                         module="claim"
                                         label="Feedback.date"
                                         readOnly={readOnly}
@@ -144,7 +144,7 @@ class ClaimFeedbackPanel extends Component {
                             <ControlledField module="claim" id="Feedback.claimOfficer" field={
                                 <Grid item xs={6} className={classes.item}>
                                     <PublishedComponent
-                                        id="claim.ClaimOfficerPicker"
+                                        pubRef="claim.ClaimOfficerPicker"
                                         readOnly={readOnly}
                                         value={edited.feedback.officerId}
                                         onChange={(v, s) => this._onChange("officerId", !!v ? decodeId(v.id) : null)}

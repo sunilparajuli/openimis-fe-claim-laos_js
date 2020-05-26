@@ -50,7 +50,7 @@ class ClaimMasterPanelExt extends Component {
                 </Grid>
                 <Grid item xs={6} className={classes.item}>
                     <PublishedComponent
-                        id="policy.InsureePolicyEligibilitySummary"
+                        pubRef="policy.InsureePolicyEligibilitySummary"
                         insuree={!!claim ? claim.insuree : null}
                     />
                 </Grid>
@@ -70,7 +70,7 @@ class ClaimMasterPanelExt extends Component {
                                 />
                             </Grid>
                             <Grid xs={4} item className={classes.item}>
-                                <PublishedComponent id="core.DatePicker"
+                                <PublishedComponent pubRef="core.DatePicker"
                                     value={lastClaimAt.dateFrom}
                                     module="claim"
                                     label="ClaimMasterPanelExt.InsureeLastVisit.lastClaimAtFrom"
@@ -78,7 +78,7 @@ class ClaimMasterPanelExt extends Component {
                                 />
                             </Grid>
                             <Grid xs={4} item className={classes.item}>
-                                <PublishedComponent id="core.DatePicker"
+                                <PublishedComponent pubRef="core.DatePicker"
                                     value={lastClaimAt.dateTo}
                                     module="claim"
                                     label="ClaimMasterPanelExt.InsureeLastVisit.lastClaimAtTo"

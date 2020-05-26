@@ -44,7 +44,12 @@ class AttachmentsDialog extends Component {
             }
             this.setState({ claimAttachments, updatedAttachments: new Set() });
         } else if (!_.isEqual(prevProps.claim, this.props.claim) && !!this.props.claim && !!this.props.claim.uuid) {
-            this.setState({ open: true, claimUuid: this.props.claim.uuid, claimAttachments: readOnly ? [] : [{}], updatedAttachments: new Set() },
+            this.setState((state, props) => ({
+                open: true,
+                claimUuid: props.claim.uuid,
+                claimAttachments: readOnly ? [] : [{}],
+                updatedAttachments: new Set()
+            }),
                 e => {
                     if (!!this.props.claim && !!this.props.claim.uuid) {
                         this.props.fetchClaimAttachments(this.props.claim);
@@ -64,13 +69,13 @@ class AttachmentsDialog extends Component {
             } else if (!_.isEqual(_.last(claimAttachments), {})) {
                 claimAttachments.push({})
             }
-            this.setState(
-                {
+            this.setState((state) =>
+                ({
                     claimAttachments,
                     updatedAttachments: new Set(),
                     attachmentToDelete: null,
-                    reset: this.state.reset + 1
-                }
+                    reset: state.reset + 1
+                })
             )
             // called from ClaimForm!
             // this.props.journalize(this.props.mutation);
@@ -104,7 +109,7 @@ class AttachmentsDialog extends Component {
             claimAttachments.pop()
             this.props.claim.attachments = [...claimAttachments]
             claimAttachments.push({})
-            this.setState({ claimAttachments, reset: this.state.reset + 1 })
+            this.setState((state) => ({ claimAttachments, reset: state.reset + 1 }))
         }
     }
 
@@ -179,9 +184,11 @@ class AttachmentsDialog extends Component {
     }
 
     updateAttachment = (i, key, value) => {
-        this.state.claimAttachments[i][key] = value;
-        this.state.updatedAttachments.add(i)
-        this.setState({ reset: this.state.reset + 1 })
+        var state = { ...this.state };
+        state.claimAttachments[i][key] = value;
+        state.updatedAttachments.add(i);
+        state.reset = state.reset + 1;
+        this.setState({ ...state })
     }
 
     cannotUpdate = (a, i) => i < this.state.claimAttachments.length - 1 && !!this.state.claimUuid && !a.id
@@ -212,7 +219,7 @@ class AttachmentsDialog extends Component {
                 />),
             (a, i) => this.cannotUpdate(a, i) ? this.state.claimAttachments[i].date : (
                 <PublishedComponent
-                    id="core.DatePicker"
+                    pubRef="core.DatePicker"
                     onChange={v => this.updateAttachment(i, "date", v)}
                     value={this.state.claimAttachments[i].date || null}
                     reset={this.state.reset} />
