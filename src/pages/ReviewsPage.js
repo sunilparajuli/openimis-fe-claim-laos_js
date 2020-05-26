@@ -44,11 +44,12 @@ class RawRandomAndValueFilters extends Component {
     }
 
     componentDidMount() {
-        this.setState(this.props.modulesManager.getConf(
+        let state = this.props.modulesManager.getConf(
             "fe-claim",
             "claim.ReviewsPage.initState",
             { random: 5, value: 0, variance: 10 }
-        ));
+        )
+        this.setState({ ...state });
     }
 
     randomChange = (v) => {
@@ -111,11 +112,10 @@ class RawRandomAndValueFilters extends Component {
                 value: null,
             }]
         }
-        this.setState(
-            {
+        this.setState((state) => ({
                 filters,
-                randomToggled: !this.state.randomToggled,
-            },
+                randomToggled: !state.randomToggled,
+            }),
             e => this.props.onChangeFilters(Object.values(this.state.filters).flat())
         )
     }
@@ -138,11 +138,10 @@ class RawRandomAndValueFilters extends Component {
                     filter: `claimed_Gte: ${this.state.value}`
                 }]
         }
-        this.setState(
-            {
+        this.setState((state) => ({
                 filters,
-                valueToggled: !this.state.valueToggled,
-            },
+                valueToggled: !state.valueToggled,
+            }),
             e => this.props.onChangeFilters(Object.values(this.state.filters).flat())
         )
     }
@@ -165,16 +164,15 @@ class RawRandomAndValueFilters extends Component {
                     filter: `diagnosisVariance: ${this.state.variance}`
                 }]
         }
-        this.setState(
-            {
+        this.setState((state) => ({
                 filters,
-                varianceToggled: !this.state.varianceToggled,
-            },
+                varianceToggled: !state.varianceToggled,
+            }),
             e => this.props.onChangeFilters(Object.values(this.state.filters).flat())
         )
     }
     render() {
-        const { classes } = this.props;        
+        const { classes } = this.props;
         return (
             <Grid container justify="center" alignItems="center" direction="row">
                 <Grid item xs={3} className={classes.item}>
@@ -441,7 +439,7 @@ class ReviewsPage extends Component {
         <Grid container justify="flex-end" alignItems="center">
             <Grid item>
                 <PublishedComponent
-                    id="claim.FeedbackStatusPicker"
+                    pubRef="claim.FeedbackStatusPicker"
                     withLabel={false}
                     name="feedbackStatus"
                     withNull={false}
@@ -524,7 +522,7 @@ class ReviewsPage extends Component {
         <Grid container justify="flex-end" alignItems="center">
             <Grid item>
                 <PublishedComponent
-                    id="claim.ReviewStatusPicker"
+                    pubRef="claim.ReviewStatusPicker"
                     withLabel={false}
                     name="reviewStatus"
                     value={c.reviewStatus}

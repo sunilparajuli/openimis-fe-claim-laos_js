@@ -1,4 +1,4 @@
-import React, { Component, Fragment } from "react";
+import React, { Component } from "react";
 import { bindActionCreators } from "redux";
 import { connect } from "react-redux";
 import { injectIntl } from 'react-intl';
@@ -52,6 +52,8 @@ class HealthFacilitiesPage extends Component {
         if (prevProps.submittingMutation && !this.props.submittingMutation) {
             this.props.journalize(this.props.mutation);
             this.setState({ reset: this.state.reset + 1 });
+        } else if (!prevProps.confirmed && this.props.confirmed) {
+            this.state.confirmedAction();
         }
     }
 
@@ -185,11 +187,9 @@ const mapStateToProps = state => ({
     claimAdmin: state.claim.claimAdmin,
     claimHealthFacility: state.claim.claimHealthFacility,
     userHealthFacilityFullPath: !!state.loc ? state.loc.userHealthFacilityFullPath : null,
-    //props used from super.componentDidUpdate !!
     submittingMutation: state.claim.submittingMutation,
     mutation: state.claim.mutation,
     confirmed: state.core.confirmed,
-    //--
 });
 
 

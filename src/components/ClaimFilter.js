@@ -108,9 +108,9 @@ class Head extends Component {
             this._claimAdminFilter(null),
             this._claimBatchRunFilter(null)
         ]);
-        this.setState({
-            reset: this.state.reset + 1,
-        });
+        this.setState((state) => ({
+            reset: state.reset + 1,
+        }));
         this.props.selectRegion(v);
     }
 
@@ -136,9 +136,9 @@ class Head extends Component {
             this._claimAdminFilter(null),
             this._claimBatchRunFilter(null)
         ]);
-        this.setState({
+        this.setState((state) => ({
             reset: this.state.reset + 1,
-        });
+        }));
         this.props.selectHealthFacility(v);
     }
 
@@ -149,9 +149,9 @@ class Head extends Component {
             this._healthFacilityFilter(!!v ? v.healthFacility : this._filterValue('healthFacility')),
             this._claimAdminFilter(v),
         ]);
-        this.setState({
+        this.setState((state) => ({
             reset: this.state.reset + 1,
-        });
+        }));
         this.props.selectClaimAdmin(v);
     }
 
@@ -162,7 +162,7 @@ class Head extends Component {
                 <ControlledField module="claim" id="ClaimFilter.region" field={
                     <Grid item xs={2} className={classes.item}>
                         <PublishedComponent
-                            id="location.RegionPicker"
+                            pubRef="location.RegionPicker"
                             value={this._filterValue('region')}
                             withNull={true}
                             onChange={this._onChangeRegion}
@@ -172,7 +172,7 @@ class Head extends Component {
                 <ControlledField module="claim" id="ClaimFilter.district" field={
                     <Grid item xs={2} className={classes.item}>
                         <PublishedComponent
-                            id="location.DistrictPicker"
+                            pubRef="location.DistrictPicker"
                             value={this._filterValue('district')}
                             region={this._filterValue('region')}
                             withNull={true}
@@ -184,7 +184,7 @@ class Head extends Component {
                 <ControlledField module="claim" id="ClaimFilter.healthFacility" field={
                     <Grid item xs={3} className={classes.item}>
                         <PublishedComponent
-                            id="location.HealthFacilityPicker"
+                            pubRef="location.HealthFacilityPicker"
                             value={this._filterValue('healthFacility')}
                             region={this._filterValue('region')}
                             district={this._filterValue('district')}
@@ -196,7 +196,7 @@ class Head extends Component {
                 <ControlledField module="claim" id="ClaimFilter.claimAdmin" field={
                     <Grid item xs={2} className={classes.item}>
                         <PublishedComponent
-                            id="claim.ClaimAdminPicker"
+                            pubRef="claim.ClaimAdminPicker"
                             value={this._filterValue('admin')}
                             withNull={true}
                             hfFilter={this._filterValue('healthFacility')}
@@ -209,7 +209,7 @@ class Head extends Component {
                     <Grid item xs={3} className={classes.item}>
                         {!userHealthFacilityId && (
                             <PublishedComponent
-                                id="claim_batch.BatchRunPicker"
+                                pubRef="claim_batch.BatchRunPicker"
                                 value={!!filters['batchRun'] ? filters['batchRun']['value'] : null}
                                 withNull={true}
                                 scopeRegion={!!filters['region'] ? filters['region']['value'] : null}
@@ -249,7 +249,7 @@ class Details extends Component {
             <Grid container className={classes.form}>
                 <Grid item xs={1} className={classes.item}>
                     <PublishedComponent
-                        id="claim.ClaimStatusPicker"
+                        pubRef="claim.ClaimStatusPicker"
                         name="claimStatus"
                         value={(filters['claimStatus'] && filters['claimStatus']['value'])}
                         onChange={(v, s) => onChangeFilters([
@@ -263,7 +263,7 @@ class Details extends Component {
                 </Grid>
                 <Grid item xs={1} className={classes.item}>
                     <PublishedComponent
-                        id="claim.FeedbackStatusPicker"
+                        pubRef="claim.FeedbackStatusPicker"
                         name="feedbackStatus"
                         value={(filters['feedbackStatus'] && filters['feedbackStatus']['value'])}
                         onChange={(v, s) => onChangeFilters([
@@ -277,7 +277,7 @@ class Details extends Component {
                 </Grid>
                 <Grid item xs={1} className={classes.item}>
                     <PublishedComponent
-                        id="claim.ReviewStatusPicker"
+                        pubRef="claim.ReviewStatusPicker"
                         name="reviewStatus"
                         value={(filters['reviewStatus'] && filters['reviewStatus']['value'])}
                         onChange={(v, s) => onChangeFilters([
@@ -349,7 +349,7 @@ class Details extends Component {
                 <Grid item xs={3}>
                     <Grid container>
                         <Grid item xs={6} className={classes.item}>
-                            <PublishedComponent id="core.DatePicker"
+                            <PublishedComponent pubRef="core.DatePicker"
                                 value={(filters['visitDateFrom'] && filters['visitDateFrom']['value']) || null}
                                 module="claim"
                                 label="visitDateFrom"
@@ -363,7 +363,7 @@ class Details extends Component {
                             />
                         </Grid>
                         <Grid item xs={6} className={classes.item}>
-                            <PublishedComponent id="core.DatePicker"
+                            <PublishedComponent pubRef="core.DatePicker"
                                 value={(filters['visitDateTo'] && filters['visitDateTo']['value']) || null}
                                 module="claim"
                                 label="visitDateTo"
@@ -381,7 +381,7 @@ class Details extends Component {
                 <Grid item xs={3}>
                     <Grid container>
                         <Grid item xs={6} className={classes.item}>
-                            <PublishedComponent id="core.DatePicker"
+                            <PublishedComponent pubRef="core.DatePicker"
                                 value={(filters['claimDateFrom'] && filters['claimDateFrom']['value']) || null}
                                 module="claim"
                                 label="ClaimFilter.claimedDateFrom"
@@ -395,7 +395,7 @@ class Details extends Component {
                             />
                         </Grid>
                         <Grid item xs={6} className={classes.item}>
-                            <PublishedComponent id="core.DatePicker"
+                            <PublishedComponent pubRef="core.DatePicker"
                                 value={(filters['claimDateTo'] && filters['claimDateTo']['value']) || null}
                                 module="claim"
                                 label="ClaimFilter.claimedDateTo"
@@ -412,7 +412,7 @@ class Details extends Component {
                 </Grid>
                 <Grid item xs={3} className={classes.item}>
                     <PublishedComponent
-                        id="medical.DiagnosisPicker"
+                        pubRef="medical.DiagnosisPicker"
                         name="mainDiagnosis"
                         label={formatMessage(intl, "claim", "mainDiagnosis")}
                         value={(filters['mainDiagnosis'] && filters['mainDiagnosis']['value']) || null}
@@ -427,7 +427,7 @@ class Details extends Component {
                 </Grid>
                 <Grid item xs={3} className={classes.item}>
                     <PublishedComponent
-                        id="medical.VisitTypePicker"
+                        pubRef="medical.VisitTypePicker"
                         name="visitType"
                         value={(filters['visitType'] && filters['visitType']['value']) || null}
                         onChange={(v, s) => onChangeFilters([
