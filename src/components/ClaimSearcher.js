@@ -37,6 +37,7 @@ class ClaimSearcher extends Component {
         this.highlightAmount = parseInt(props.modulesManager.getConf("fe-claim", "claimFilter.highlightAmount", 0));
         this.highlightAltInsurees = props.modulesManager.getConf("fe-claim", "claimFilter.highlightAltInsurees", true);
         this.claimAttachments = props.modulesManager.getConf("fe-claim", "claimAttachments", true);
+        this.extFields = props.modulesManager.getConf("fe-claim", "extFields", []);
     }
 
     canSelectAll = (selection) => this.props.claims.map(s => s.id).filter(s => !selection.map(s => s.id).includes(s)).length
@@ -121,6 +122,9 @@ class ClaimSearcher extends Component {
         if (this.claimAttachments) {
             result.push('')
         }
+        this.extFields.forEach(f => {
+            result.push('')
+        })
         return result;
     }
 
@@ -138,6 +142,11 @@ class ClaimSearcher extends Component {
         ];
         if (this.claimAttachments) {
             result.push("claimSummaries.claimAttachments")
+        }
+        if (!!this.extFields && !!this.extFields.length) {
+            this.extFields.forEach(f => {
+                result.push(`claimSummaries.${f}`)
+            })
         }
         result.push("claimSummaries.openNewTab")
         return result;
@@ -159,6 +168,11 @@ class ClaimSearcher extends Component {
                 null
             )
         }
+        if (!!this.extFields && !!this.extFields.length) {
+            this.extFields.forEach(f => {
+                result.push(null)
+            })
+        }        
         return result;
     }
 
@@ -190,6 +204,11 @@ class ClaimSearcher extends Component {
                     <IconButton onClick={e => this.setState({ attachmentsClaim: c })} > <AttachIcon /></IconButton >
                 )
             )
+        }
+        if (!!this.extFields && !!this.extFields.length) {
+            this.extFields.forEach(f => {
+                result.push(c => !!c.jsonExt ? JSON.parse(c.jsonExt)[f] : "")
+            })
         }
         result.push(c => <IconButton onClick={e => this.props.onDoubleClick(c, true)} > <TabIcon /></IconButton >)
         return result;

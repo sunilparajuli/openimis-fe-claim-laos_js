@@ -382,7 +382,15 @@ class ClaimMasterPanel extends FormPanel {
                         }
                     </Fragment>
                 }
-                <Contributions claim={edited} contributionKey={CLAIM_MASTER_PANEL_CONTRIBUTION_KEY} />
+                <Contributions 
+                    claim={edited}
+                    readOnly={ro}
+                    updateAttribute={this.updateAttribute}
+                    updateAttributes={this.updateAttributes}
+                    updateExts={this.updateExts}
+                    updateExt={this.updateExt}
+                    contributionKey={CLAIM_MASTER_PANEL_CONTRIBUTION_KEY}
+                />
             </Grid>
         )
     }

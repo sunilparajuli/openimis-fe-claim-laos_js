@@ -1,6 +1,6 @@
 import {
   baseApiUrl, graphql, formatQuery, formatPageQuery, formatPageQueryWithCount,
-  formatMutation, decodeId, openBlob
+  formatMutation, decodeId, openBlob, formatJsonField
 } from "@openimis/fe-core";
 import _ from "lodash";
 import _uuid from "lodash-uuid";
@@ -142,7 +142,8 @@ export function downloadAttachment(attach) {
 }
 
 export function fetchClaimSummaries(mm, filters, withAttachmentsCount) {
-  var projections = ["uuid", "code", "dateClaimed", "feedbackStatus", "reviewStatus", "claimed", "approved", "status",
+  var projections = [
+    "uuid", "code", "jsonExt", "dateClaimed", "feedbackStatus", "reviewStatus", "claimed", "approved", "status",
     "clientMutationId",
     "healthFacility" + mm.getProjection("location.HealthFacilityPicker.projection"),
     "insuree" + mm.getProjection("insuree.InsureePicker.projection")]
@@ -197,6 +198,7 @@ export function formatClaimGQL(mm, claim) {
     ${!!claim.icd2 ? `icd2Id: ${decodeId(claim.icd2.id)}` : ""}
     ${!!claim.icd3 ? `icd3Id: ${decodeId(claim.icd3.id)}` : ""}
     ${!!claim.icd4 ? `icd4Id: ${decodeId(claim.icd4.id)}` : ""}
+    ${`jsonExt: ${formatJsonField(claim.ext)}`}
     feedbackStatus: ${mm.getRef("claim.CreateClaim.feedbackStatus")}
     reviewStatus: ${mm.getRef("claim.CreateClaim.reviewStatus")}
     dateClaimed: "${claim.dateClaimed}"
@@ -255,6 +257,7 @@ export function fetchClaim(mm, claimUuid, claimCode, forFeedback) {
     "icd2" + mm.getProjection("medical.DiagnosisPicker.projection"),
     "icd3" + mm.getProjection("medical.DiagnosisPicker.projection"),
     "icd4" + mm.getProjection("medical.DiagnosisPicker.projection"),
+    "jsonExt",
   ]
   if (!!forFeedback) {
     projections.push("feedback{id, careRendered, paymentAsked, drugPrescribed, drugReceived, asessment, feedbackDate, officerId}")
