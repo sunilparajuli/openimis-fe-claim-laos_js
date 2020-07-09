@@ -235,15 +235,6 @@ class ClaimChildPanel extends Component {
                 (i, idx) => this.formatRejectedReason(i, idx),
             );
         }
-        if (!forReview) {
-            preHeaders.push('');
-            headers.push(`edit.${type}s.delete`);
-            itemFormatters.push(
-                (i, idx) => idx === this.state.data.length - 1 || readOnly ?
-                    null :
-                    <IconButton onClick={e => this._onDelete(idx)}><DeleteIcon /></IconButton>
-            );
-        }
         let header = formatMessage(intl, "claim", `edit.${this.props.type}s.title`)
         if (fetchingPricelist) {
             header += formatMessage(intl, "claim", `edit.${this.props.type}s.fetchingPricelist`)
@@ -257,6 +248,7 @@ class ClaimChildPanel extends Component {
                     headers={headers}
                     itemFormatters={itemFormatters}
                     items={!fetchingPricelist ? this.state.data : []}
+                    onDelete={!forReview && !readOnly && this._onDelete}
                 />
             </Paper>
         )
