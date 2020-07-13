@@ -72,7 +72,7 @@ class ClaimForm extends Component {
         claim.dateClaimed = toISODate(moment().toDate());
         claim.dateFrom = toISODate(moment().toDate());
         claim.visitType = this.props.modulesManager.getConf("fe-claim", "newClaim.visitType", 'O');
-        claim.ext = {};
+        claim.jsonExt = {};
         return claim;
     }
 
@@ -100,7 +100,7 @@ class ClaimForm extends Component {
         }
         if (prevProps.fetchedClaim !== this.props.fetchedClaim && !!this.props.fetchedClaim) {
             var claim = this.props.claim;
-            claim.ext = !!claim.jsonExt ? JSON.parse(claim.jsonExt) : {};
+            claim.jsonExt = !!claim.jsonExt ? JSON.parse(claim.jsonExt) : {};
             this.setState(
                 { claim, claim_uuid: this.props.claim.uuid, lockNew: false, newClaim: false },
                 this.props.claimHealthFacilitySet(this.props.claim.healthFacility)
