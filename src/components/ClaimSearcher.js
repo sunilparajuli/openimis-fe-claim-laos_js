@@ -172,7 +172,7 @@ class ClaimSearcher extends Component {
             this.extFields.forEach(f => {
                 result.push(null)
             })
-        }        
+        }
         return result;
     }
 
@@ -260,6 +260,7 @@ class ClaimSearcher extends Component {
                     rowLocked={this.rowLocked}
                     rowHighlighted={this.rowHighlighted}
                     rowHighlightedAlt={this.rowHighlightedAlt}
+                    withSelection="multiple"
                     selectionMessage={"claimSummaries.selection.count"}
                     preHeaders={this.preHeaders}
                     headers={this.headers}
