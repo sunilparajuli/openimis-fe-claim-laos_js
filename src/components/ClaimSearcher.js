@@ -265,7 +265,6 @@ class ClaimSearcher extends Component {
                     preHeaders={this.preHeaders}
                     headers={this.headers}
                     itemFormatters={this.itemFormatters}
-                    headerActions={this.headerActions}
                     actions={actions}
                     aligns={this.aligns}
                     sorts={this.sorts}
