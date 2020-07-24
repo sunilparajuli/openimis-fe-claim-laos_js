@@ -116,7 +116,7 @@ class ClaimSearcher extends Component {
                         }}
                     />
                 </Typography>,
-                , '', ''
+                '', ''
             ]
             : ['\u200b', '', '', '', '', '', '', '', '', ''] //fixing pre headers row height!
         if (this.claimAttachments) {
