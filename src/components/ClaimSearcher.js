@@ -5,7 +5,7 @@ import { injectIntl } from 'react-intl';
 import _ from "lodash";
 import { withTheme, withStyles } from "@material-ui/core/styles";
 import {
-    IconButton, Typography,
+    IconButton, Typography, Tooltip
 } from "@material-ui/core";
 import AttachIcon from "@material-ui/icons/AttachFile";
 import TabIcon from "@material-ui/icons/Tab";
@@ -210,7 +210,11 @@ class ClaimSearcher extends Component {
                 result.push(c => !!c.jsonExt ? JSON.parse(c.jsonExt)[f] : "")
             })
         }
-        result.push(c => <IconButton onClick={e => this.props.onDoubleClick(c, true)} > <TabIcon /></IconButton >)
+        result.push(c => (
+            <Tooltip title={formatMessage(this.props.intl, "claim", "openNewTabButton.tooltip")}>
+                <IconButton onClick={e => this.props.onDoubleClick(c, true)} > <TabIcon /></IconButton >
+            </Tooltip>
+        ))
         return result;
     }
     rowLocked = (selection, claim) => !!claim.clientMutationId

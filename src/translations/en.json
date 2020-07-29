@@ -35,6 +35,7 @@
     "claim.valuated": "Adjusted",
     "claim.feedbackButton.tooltip": "Deliver Feedback",
     "claim.reviewButton.tooltip": "Deliver Review",
+    "claim.openNewTabButton.tooltip": "Open in new tab",
     "claim.ClaimFilter.claimedDateFrom": "Claimed From",
     "claim.ClaimFilter.claimedDateTo": "Claimed To",
     "claim.ClaimFilter.claimedAbove": "Claimed More Than",
