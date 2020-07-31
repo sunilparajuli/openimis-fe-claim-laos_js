@@ -49,7 +49,6 @@ class ClaimForm extends Component {
     state = {
         lockNew: false,
         reset: 0,
-        update: 0,
         claim_uuid: null,
         claim: this._newClaim(),
         newClaim: true,
@@ -72,7 +71,7 @@ class ClaimForm extends Component {
         claim.dateClaimed = toISODate(moment().toDate());
         claim.dateFrom = toISODate(moment().toDate());
         claim.visitType = this.props.modulesManager.getConf("fe-claim", "newClaim.visitType", 'O');
-        claim.ext = {};
+        claim.jsonExt = {};
         return claim;
     }
 
@@ -100,9 +99,9 @@ class ClaimForm extends Component {
         }
         if (prevProps.fetchedClaim !== this.props.fetchedClaim && !!this.props.fetchedClaim) {
             var claim = this.props.claim;
-            claim.ext = !!claim.jsonExt ? JSON.parse(claim.jsonExt) : {};
+            claim.jsonExt = !!claim.jsonExt ? JSON.parse(claim.jsonExt) : {};
             this.setState(
-                (state, props) => ({ claim: props.claim, claim_uuid: props.claim.uuid, lockNew: false, newClaim: false }),
+                { claim, claim_uuid: claim.uuid, lockNew: false, newClaim: false },
                 this.props.claimHealthFacilitySet(this.props.claim.healthFacility)
             );
         } else if (prevProps.claim_uuid && !this.props.claim_uuid) {
@@ -249,7 +248,6 @@ class ClaimForm extends Component {
                             edited_id={claim_uuid}
                             edited={this.state.claim}
                             reset={this.state.reset}
-                            update={this.state.update}
                             title="edit.title"
                             titleParams={{ code: this.state.claim.code }}
                             back={back}
