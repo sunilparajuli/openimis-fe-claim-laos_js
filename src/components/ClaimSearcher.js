@@ -53,7 +53,7 @@ class ClaimSearcher extends Component {
     rowIdentifier = (r) => r.uuid
 
     forcedFilters() {
-        return !this.props.forcedFilters ? [] : [...this.props.forcedFilters.filter(f => !f.id === 'random')];
+        return !this.props.forcedFilters ? [] : [...this.props.forcedFilters.filter(f => f.id !== 'random')];
     }
 
     filtersToQueryParams = (state) => {
@@ -185,11 +185,11 @@ class ClaimSearcher extends Component {
             c => c.code,
             c => <PublishedComponent
                 readOnly={true}
-                id="location.HealthFacilityPicker" withLabel={false} value={c.healthFacility}
+                pubRef="location.HealthFacilityPicker" withLabel={false} value={c.healthFacility}
             />,
             c => <PublishedComponent
                 readOnly={true}
-                id="insuree.InsureePicker" withLabel={false} value={c.insuree}
+                pubRef="insuree.InsureePicker" withLabel={false} value={c.insuree}
             />,
             c => formatDateFromISO(this.props.modulesManager, this.props.intl, c.dateClaimed),
             c => this.feedbackColFormatter(c),
@@ -232,7 +232,7 @@ class ClaimSearcher extends Component {
         }
         return (
             <Fragment>
-                <PublishedComponent id="claim.AttachmentsDialog"
+                <PublishedComponent pubRef="claim.AttachmentsDialog"
                     readOnly={true}
                     claim={this.state.attachmentsClaim}
                     close={e => this.setState({ attachmentsClaim: null })} />

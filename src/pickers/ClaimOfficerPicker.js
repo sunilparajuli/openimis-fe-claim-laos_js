@@ -5,7 +5,6 @@ import { withTheme, withStyles } from "@material-ui/core/styles";
 import { injectIntl } from 'react-intl';
 import { fetchClaimOfficers } from "../actions";
 import { formatMessage, AutoSuggestion, ProgressOrError, withModulesManager, decodeId } from "@openimis/fe-core";
-import { FormControl } from "@material-ui/core";
 
 const styles = theme => ({
     label: {
