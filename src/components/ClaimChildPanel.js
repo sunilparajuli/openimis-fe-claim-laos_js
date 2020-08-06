@@ -3,8 +3,8 @@ import { connect } from "react-redux";
 import { injectIntl } from 'react-intl';
 import { withTheme, withStyles } from "@material-ui/core/styles";
 import {
-    formatAmount, formatMessage, formatMessageWithValues, NumberInput, Table,
-    PublishedComponent, AmountInput, TextInput, decodeId, withModulesManager
+    formatAmount, formatMessage, formatMessageWithValues, decodeId, withModulesManager, 
+    NumberInput, Table, PublishedComponent, AmountInput, TextInput, Error
 } from "@openimis/fe-core";
 import { IconButton, Paper } from "@material-ui/core";
 import DeleteIcon from "@material-ui/icons/Delete";
@@ -81,14 +81,8 @@ class ClaimChildPanel extends Component {
     }
 
     _price = (v) => {
-        let id = decodeId(v.id);
-        if (!!this.props.edited.healthFacility &&
-            !!this.props.edited.healthFacility[`${this.props.type}sPricelist`] &&
-            !!this.props[`${this.props.type}sPricelists`][this.props.edited.healthFacility[`${this.props.type}sPricelist`].id][id]
-        ) {
-            return this.props[`${this.props.type}sPricelists`][this.props.edited.healthFacility[`${this.props.type}sPricelist`].id][id]
-        }
-        return v.price;
+        let id = decodeId(v.id)
+        return this.props[`${this.props.type}sPricelists`][this.props.edited.healthFacility[`${this.props.type}sPricelist`].id][id] || v.price;
     }
 
     _onChangeItem = (idx, attr, v) => {
@@ -136,6 +130,16 @@ class ClaimChildPanel extends Component {
     render() {
         const { intl, classes, edited, type, picker, forReview, fetchingPricelist, readOnly = false } = this.props;
         if (!edited) return null;
+        if (
+            !this.props.edited.healthFacility ||
+            !this.props.edited.healthFacility[`${this.props.type}sPricelist`] ||
+            !this.props.edited.healthFacility[`${this.props.type}sPricelist`].id) {
+            return (
+                <Paper className={classes.paper}>
+                    <Error error={{ message: formatMessage(intl, "claim", `${this.props.type}sPricelist.missing`) }} />
+                </Paper>
+            )
+        }
         const totalClaimed = _.round(this.state.data.reduce(
             (sum, r) => sum + claimedAmount(r), 0),
             2
@@ -161,6 +165,7 @@ class ClaimChildPanel extends Component {
             (i, idx) => <PublishedComponent
                 readOnly={!!forReview || readOnly}
                 id={picker} withLabel={false} value={i[type]}
+                filteredOnPriceList={edited.healthFacility[`${this.props.type}sPricelist`].id}
                 refDate={edited.dateClaimed}
                 onChange={v => this._onChangeItem(idx, type, v)}
             />,
