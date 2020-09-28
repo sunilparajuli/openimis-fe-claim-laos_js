@@ -117,11 +117,11 @@ class ClaimForm extends Component {
 
     _add = () => {
         this.setState((state) => ({
-                claim: this._newClaim(),
-                newClaim: true,
-                lockNew: false,
-                reset: state.reset + 1,
-            }),
+            claim: this._newClaim(),
+            newClaim: true,
+            lockNew: false,
+            reset: state.reset + 1,
+        }),
             e => {
                 this.props.add();
                 this.forceUpdate();
@@ -214,11 +214,14 @@ class ClaimForm extends Component {
             (forReview && (claim.reviewStatus >= 8 || claim.status !== 4)) ||
             (forFeedback && claim.status !== 4) ||
             !rights.filter(r => r === RIGHT_LOAD).length
-        var actions = [{
-            doIt: e => this.reload(claim_uuid),
-            icon: <ReplayIcon />,
-            onlyIfDirty: !readOnly
-        }]
+        var actions = []
+        if (!!claim_uuid) {
+            actions.push({
+                doIt: e => this.reload(claim_uuid),
+                icon: <ReplayIcon />,
+                onlyIfDirty: !readOnly
+            })
+        }
         if (!!claim_uuid && rights.includes(RIGHT_PRINT)) {
             actions.push({
                 doIt: e => this.print(claim_uuid),
