@@ -5,6 +5,7 @@
     "claim.menu.reviews": "Reviews",
     "claim.reviews.page.title": "Reviews",
     "claim.newClaim.adminAndHFRequired": "Please select Health Facility and Claim Administrator first",
+    "claim.newClaim.tooltip": "Create new claim",
     "claim.ClaimAdminPicker.label": "Claim Administrator",
     "claim.ClaimAdminPicker.null": "Any",
     "claim.ClaimOfficerPicker.label": "Enrollment Officer",
