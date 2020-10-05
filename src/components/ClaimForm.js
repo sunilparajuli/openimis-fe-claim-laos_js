@@ -49,7 +49,6 @@ class ClaimForm extends Component {
     state = {
         lockNew: false,
         reset: 0,
-        update: 0,
         claim_uuid: null,
         claim: this._newClaim(),
         newClaim: true,
@@ -102,7 +101,7 @@ class ClaimForm extends Component {
             var claim = this.props.claim;
             claim.jsonExt = !!claim.jsonExt ? JSON.parse(claim.jsonExt) : {};
             this.setState(
-                (state, props) => ({ claim: props.claim, claim_uuid: props.claim.uuid, lockNew: false, newClaim: false }),
+                { claim, claim_uuid: claim.uuid, lockNew: false, newClaim: false },
                 this.props.claimHealthFacilitySet(this.props.claim.healthFacility)
             );
         } else if (prevProps.claim_uuid && !this.props.claim_uuid) {
@@ -118,11 +117,11 @@ class ClaimForm extends Component {
 
     _add = () => {
         this.setState((state) => ({
-                claim: this._newClaim(),
-                newClaim: true,
-                lockNew: false,
-                reset: state.reset + 1,
-            }),
+            claim: this._newClaim(),
+            newClaim: true,
+            lockNew: false,
+            reset: state.reset + 1,
+        }),
             e => {
                 this.props.add();
                 this.forceUpdate();
@@ -215,11 +214,14 @@ class ClaimForm extends Component {
             (forReview && (claim.reviewStatus >= 8 || claim.status !== 4)) ||
             (forFeedback && claim.status !== 4) ||
             !rights.filter(r => r === RIGHT_LOAD).length
-        var actions = [{
-            doIt: e => this.reload(claim_uuid),
-            icon: <ReplayIcon />,
-            onlyIfDirty: !readOnly
-        }]
+        var actions = []
+        if (!!claim_uuid) {
+            actions.push({
+                doIt: e => this.reload(claim_uuid),
+                icon: <ReplayIcon />,
+                onlyIfDirty: !readOnly
+            })
+        }
         if (!!claim_uuid && rights.includes(RIGHT_PRINT)) {
             actions.push({
                 doIt: e => this.print(claim_uuid),
@@ -249,7 +251,6 @@ class ClaimForm extends Component {
                             edited_id={claim_uuid}
                             edited={this.state.claim}
                             reset={this.state.reset}
-                            update={this.state.update}
                             title="edit.title"
                             titleParams={{ code: this.state.claim.code }}
                             back={back}

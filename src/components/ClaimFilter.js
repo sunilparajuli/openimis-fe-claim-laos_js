@@ -256,7 +256,7 @@ class Details extends Component {
                             {
                                 id: 'claimStatus',
                                 value: v,
-                                filter: `status: ${v}`
+                                filter: !!v ? `status: ${v}` : null
                             }
                         ])}
                     />
@@ -270,7 +270,7 @@ class Details extends Component {
                             {
                                 id: 'feedbackStatus',
                                 value: v,
-                                filter: `feedbackStatus: ${v}`
+                                filter: !!v ? `feedbackStatus: ${v}` : null
                             }
                         ])}
                     />
@@ -284,7 +284,7 @@ class Details extends Component {
                             {
                                 id: 'reviewStatus',
                                 value: v,
-                                filter: `reviewStatus: ${v}`
+                                filter: !!v ? `reviewStatus: ${v}` : null
                             }
                         ])}
                     />
@@ -298,7 +298,7 @@ class Details extends Component {
                             {
                                 id: 'claimNo',
                                 value: v,
-                                filter: `code_Icontains: "${v}"`
+                                filter: !!v ? `code_Icontains: "${v}"` : null
                             }
                         ])}
                     />
@@ -312,7 +312,7 @@ class Details extends Component {
                             {
                                 id: 'chfId',
                                 value: v,
-                                filter: `insuree_ChfId: "${v}"`
+                                filter: !!v ? `insuree_ChfId: "${v}"` : null
                             }
                         ])}
                     />
@@ -326,7 +326,7 @@ class Details extends Component {
                             {
                                 id: 'claimedAbove',
                                 value: (!v ? null : v),
-                                filter: `claimed_Gte: ${v}`
+                                filter: !!v ? `claimed_Gte: ${v}` : null
                             }
                         ])}
                     />
@@ -341,7 +341,7 @@ class Details extends Component {
                             {
                                 id: 'claimedUnder',
                                 value: (!v ? null : v),
-                                filter: `claimed_Lte: ${v}`
+                                filter: !!v ? `claimed_Lte: ${v}` : null
                             }
                         ])}
                     />
@@ -357,7 +357,7 @@ class Details extends Component {
                                     {
                                         id: 'visitDateFrom',
                                         value: d,
-                                        filter: `dateFrom: "${d}"`
+                                        filter: !!d ? `dateFrom: "${d}"` : null
                                     }
                                 ])}
                             />
@@ -371,7 +371,7 @@ class Details extends Component {
                                     {
                                         id: 'visitDateTo',
                                         value: d,
-                                        filter: `dateTo: "${d}"`
+                                        filter: !!d ? `dateTo: "${d}"` : null
                                     }
                                 ])}
                             />
@@ -389,7 +389,7 @@ class Details extends Component {
                                     {
                                         id: 'claimDateFrom',
                                         value: d,
-                                        filter: `dateClaimed_Gte: "${d}"`
+                                        filter: !!d ? `dateClaimed_Gte: "${d}"` : null
                                     }
                                 ])}
                             />
@@ -403,7 +403,7 @@ class Details extends Component {
                                     {
                                         id: 'claimDateTo',
                                         value: d,
-                                        filter: `dateClaimed_Lte: "${d}"`
+                                        filter: !!d ? `dateClaimed_Lte: "${d}"` : d
                                     }
                                 ])}
                             />
@@ -420,7 +420,7 @@ class Details extends Component {
                             {
                                 id: 'mainDiagnosis',
                                 value: v,
-                                filter: `icd_Id: "${!!v && v.id}"`
+                                filter: !!v ? `icd_Id: "${!!v && v.id}"` : null
                             }
                         ])}
                     />
@@ -434,7 +434,7 @@ class Details extends Component {
                             {
                                 id: 'visitType',
                                 value: v,
-                                filter: `visitType: "${v}"`
+                                filter: !!v ? `visitType: "${v}"` : null
                             }
                         ])}
                     />

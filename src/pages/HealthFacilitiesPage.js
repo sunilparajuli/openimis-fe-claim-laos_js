@@ -169,7 +169,9 @@ class HealthFacilitiesPage extends Component {
                     filterPaneContributionsKey={CLAIM_HF_FILTER_CONTRIBUTION_KEY}
                 />
                 {!generatingPrint && rights.includes(RIGHT_ADD) &&
-                    <Tooltip title={!this.canAdd() ? formatMessage(intl, "claim", "newClaim.adminAndHFRequired") : ""}>
+                    <Tooltip title={!this.canAdd() ?
+                        formatMessage(intl, "claim", "newClaim.adminAndHFRequired") :
+                        formatMessage(intl, "claim", "newClaim.tooltip")}>
                         <div className={classes.fab}>
                             <Fab color="primary" disabled={!this.canAdd()} onClick={this.onAdd}>
                                 <AddIcon />
