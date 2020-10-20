@@ -155,8 +155,8 @@ class ClaimSearcher extends Component {
     sorts = () => {
         var result = [
             ['code', true],
-            ['healthFacility__code', true],
-            ['insuree__last_name', true],
+            [this.props.modulesManager.getRef("location.HealthFacilityPicker.sort"), true],
+            [this.props.modulesManager.getRef("insuree.InsureePicker.sort"), true],
             ['dateClaimed', false],
             null,
             null,
