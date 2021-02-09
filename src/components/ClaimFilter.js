@@ -228,6 +228,8 @@ class Head extends Component {
 const mapStateToProps = state => ({
     userHealthFacilityId: state.core.user.i_user.health_facility_id,
     claimFilter: state.claim.claimFilter,
+    servicesPricelists: !!state.medical_pricelist ? state.medical_pricelist.servicesPricelists : {},
+    itemsPricelists: !!state.medical_pricelist ? state.medical_pricelist.itemsPricelists : {},
 });
 
 const mapDispatchToProps = dispatch => {
@@ -409,6 +411,34 @@ class Details extends Component {
                             />
                         </Grid>
                     </Grid>
+                </Grid>
+                <Grid item xs={3} className={classes.item}>
+                    <PublishedComponent pubRef="medical.ServicePicker"
+                        value={(filters['medicalService'] && filters['medicalService']['value']) || null}
+                        name="medicalService"
+                        label= {formatMessage(intl, "claim", "medicalService")}
+                        onChange={(v, s) => onChangeFilters([
+                            {
+                                id: 'medicalService',
+                                value: v,
+                                filter: !!v ? `services: ["${!!v && v.code}"]` : null
+                            }
+                        ])}
+                    />
+                </Grid>
+                <Grid item xs={3} className={classes.item}>
+                    <PublishedComponent pubRef="medical.ItemPicker"
+                        value={(filters['medicalItem'] && filters['medicalItem']['value']) || null}                       
+                        name="medicalItem"
+                        label= {formatMessage(intl, "claim", "medicalItem")}
+                        onChange={(v, s) => onChangeFilters([
+                            {
+                                id: 'medicalItem',
+                                value: v,
+                                filter: !!v ? `items: ["${!!v && v.code}"]` : null
+                            }
+                        ])}
+                    />
                 </Grid>
                 <Grid item xs={3} className={classes.item}>
                     <PublishedComponent
