@@ -154,25 +154,12 @@ function reducer(
                 errorClaims: null,
             };
         case 'CLAIM_CLAIM_SEARCHER_RESP':
-            var claims = parseData(action.payload.data.claims);
-            var temp = []
-            claims.map(item => {                  
-                var findItem = temp.find(x => x.uuid === item.uuid);
-                if (!findItem)
-                    temp.push(item);
-            });
-
-            claims = temp;
-            
-            var claimsPageInfo = pageInfo(action.payload.data.claims)
-            claimsPageInfo['totalCount'] = claims.length
-            
             return {
                 ...state,
                 fetchingClaims: false,
                 fetchedClaims: true,
-                claims: claims,
-                claimsPageInfo: claimsPageInfo,
+                claims: parseData(action.payload.data.claims),
+                claimsPageInfo: pageInfo(action.payload.data.claims),
                 errorClaims: formatGraphQLError(action.payload)
             };
         case 'CLAIM_CLAIM_SEARCHER_ERR':

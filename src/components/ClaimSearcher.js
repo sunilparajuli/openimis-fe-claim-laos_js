@@ -285,6 +285,8 @@ const mapStateToProps = state => ({
     fetchingClaims: state.claim.fetchingClaims,
     fetchedClaims: state.claim.fetchedClaims,
     errorClaims: state.claim.errorClaims,
+    servicesPricelists: !!state.medical_pricelist ? state.medical_pricelist.servicesPricelists : {},
+    itemsPricelists: !!state.medical_pricelist ? state.medical_pricelist.itemsPricelists : {},
 });
 
 
