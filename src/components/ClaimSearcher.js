@@ -207,7 +207,7 @@ class ClaimSearcher extends Component {
         }
         if (!!this.extFields && !!this.extFields.length) {
             this.extFields.forEach(f => {
-                result.push(c => !!c.jsonExt ? JSON.parse(c.jsonExt)[f] : "")
+                result.push(c => !!c.jsonExt ? String(_.get(JSON.parse(c.jsonExt), f, "-")) : "")
             })
         }
         result.push(c => (
