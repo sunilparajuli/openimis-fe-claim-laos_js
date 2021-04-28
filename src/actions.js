@@ -5,6 +5,7 @@ import {
 import _ from "lodash";
 import _uuid from "lodash-uuid";
 
+
 export function fetchClaimAdmins(mm, hf, str, prev) {
   var filters = [];
   if (!!hf) {
@@ -297,6 +298,44 @@ export function submit(claims, clientMutationLabel, clientMutationDetails = null
   let mutation = formatMutation("submitClaims", claimUuids, clientMutationLabel, clientMutationDetails);
   var requestedDateTime = new Date();
   claims.forEach(c => c.clientMutationId = mutation.clientMutationId);
+  return graphql(
+    mutation.payload,
+    ['CLAIM_MUTATION_REQ', 'CLAIM_SUBMIT_CLAIMS_RESP', 'CLAIM_MUTATION_ERR'],
+    {
+      clientMutationId: mutation.clientMutationId,
+      clientMutationLabel,
+      clientMutationDetails: !!clientMutationDetails ? JSON.stringify(clientMutationDetails) : null,
+      requestedDateTime
+    }
+  )
+}
+
+export function submitAll(filters, clientMutationLabel, clientMutationDetails = null) {
+  filters = Object
+        .fromEntries(
+            Object
+            .keys(filters)
+            .filter(f => !!filters[f]['filter'])
+            .map(f => filters[f]['filter'].split(": "))
+            .map(f => [f[0], JSON.parse(f[1])])
+        )
+  
+  var projections = ["uuid"]
+  const claimFilters = formatPageQueryWithCount(
+    "claims",
+    filters,
+    projections
+  );
+  
+  let mutationParam = `additionalFilters: "${
+                              JSON.stringify(filters)
+                                .replaceAll("\\\"", "")
+                                .replaceAll("\"", "\\\"")
+                              }"`
+
+  let mutation = formatMutation("submitClaims", mutationParam, clientMutationLabel, clientMutationDetails);
+
+  var requestedDateTime = new Date();
   return graphql(
     mutation.payload,
     ['CLAIM_MUTATION_REQ', 'CLAIM_SUBMIT_CLAIMS_RESP', 'CLAIM_MUTATION_ERR'],

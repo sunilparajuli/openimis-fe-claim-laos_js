@@ -13,10 +13,11 @@ import {
 } from "@openimis/fe-core";
 import ClaimSearcher from "../components/ClaimSearcher";
 
-import { submit, del, selectHealthFacility } from "../actions";
+import { submit, del, selectHealthFacility, submitAll } from "../actions";
 import { RIGHT_ADD, RIGHT_LOAD, RIGHT_SUBMIT, RIGHT_DELETE } from "../constants";
 
 const CLAIM_HF_FILTER_CONTRIBUTION_KEY = "claim.HealthFacilitiesFilter";
+const CLAIM_SEARCHER_ACTION_CONTRIBUTION_KEY = "claim.SelectionAction";
 
 const styles = theme => ({
     page: theme.page,
@@ -60,6 +61,8 @@ class HealthFacilitiesPage extends Component {
     canSubmitSelected = (selection) => !!selection && selection.length &&
         selection.filter(s => s.status === 2 && (!!this.canSubmitClaimWithZero || s.claimed > 0)).length === selection.length
 
+    canSubmitAll = (selection) => !selection || selection.length == 0
+
     submitSelected = (selection) => {
         if (selection.length === 1) {
             this.props.submit(
@@ -81,6 +84,28 @@ class HealthFacilitiesPage extends Component {
                     { count: selection.length }
                 ),
                 selection.map(c => c.code)
+            );
+        }
+    }
+
+    
+    filtersToQueryParams = (filters) => {
+    }
+
+    submitAll = (selection) => {
+        let filters = this.props.selectedFilters
+
+        console.log("Filters: ", filters)
+        console.log("Params clean:", filters)
+        if (selection.length === 0) {
+            this.props.submitAll(
+                filters,
+                formatMessageWithValues(
+                    this.props.intl,
+                    "claim",
+                    "SubmitAllClaims.mutationLabel",
+                    { "claims": "All" }
+                )
             );
         }
     }
@@ -153,6 +178,7 @@ class HealthFacilitiesPage extends Component {
         if (!rights.filter(r => r >= RIGHT_ADD && r <= RIGHT_SUBMIT).length) return null;
         let actions = [];
         if (rights.includes(RIGHT_SUBMIT)) {
+            actions.push({ label: "claimSummaries.submitAll", enabled: this.canSubmitAll, action: this.submitAll });
             actions.push({ label: "claimSummaries.submitSelected", enabled: this.canSubmitSelected, action: this.submitSelected });
         }
         if (rights.includes(RIGHT_DELETE)) {
@@ -167,6 +193,7 @@ class HealthFacilitiesPage extends Component {
                     actions={actions}
                     processing={generatingPrint}
                     filterPaneContributionsKey={CLAIM_HF_FILTER_CONTRIBUTION_KEY}
+                    actionsContributionKey={CLAIM_SEARCHER_ACTION_CONTRIBUTION_KEY}
                 />
                 {!generatingPrint && rights.includes(RIGHT_ADD) &&
                     <Tooltip title={!this.canAdd() ?
@@ -192,6 +219,8 @@ const mapStateToProps = state => ({
     submittingMutation: state.claim.submittingMutation,
     mutation: state.claim.mutation,
     confirmed: state.core.confirmed,
+    filtersCache: state.core.filtersCache,
+    selectedFilters: state.core.filtersCache.claimHealthFacilitiesPageFiltersCache,
 });
 
 
@@ -202,6 +231,7 @@ const mapDispatchToProps = dispatch => {
             journalize,
             coreConfirm,
             submit,
+            submitAll,
             del,
         },
         dispatch);

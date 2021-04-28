@@ -227,7 +227,8 @@ class ClaimSearcher extends Component {
     render() {
         const { intl,
             claims, claimsPageInfo, fetchingClaims, fetchedClaims, errorClaims,
-            FilterExt, filterPaneContributionsKey, actions, defaultFilters, cacheFiltersKey, onDoubleClick
+            FilterExt, filterPaneContributionsKey, actions, defaultFilters, cacheFiltersKey, onDoubleClick,
+            actionsContributionKey
         } = this.props;
 
         let count = !!this.state.random && this.state.random.value
@@ -273,6 +274,7 @@ class ClaimSearcher extends Component {
                     aligns={this.aligns}
                     sorts={this.sorts}
                     onDoubleClick={onDoubleClick}
+                    actionsContributionKey={actionsContributionKey}
                 />
             </Fragment>
         )

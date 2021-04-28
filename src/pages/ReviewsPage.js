@@ -22,9 +22,8 @@ import { RIGHT_UPDATE, RIGHT_FEEDBACK, RIGHT_CLAIMREVIEW, RIGHT_PROCESS } from "
 import { withTheme, withStyles } from "@material-ui/core/styles";
 
 const CLAIM_REVIEWS_FILTER_CONTRIBUTION_KEY = "claim.ReviewsFilter";
-const SELECTED_CLAIMS_PROCESSING_CONTRIBUTION_KEY = "claim.ReviewSelectionAction";
+const CLAIM_REVIEWS_ACTION_CONTRIBUTION_KEY = "claim.ReviewSelectionAction";
 
-const additional_actions = [];
 
 const styles = theme => ({
     page: theme.page,
@@ -576,21 +575,6 @@ class ReviewsPage extends Component {
             actions.push({ label: "claimSummaries.processSelected", enabled: this.canProcessSelected, action: this.processSelected });
         }
         
-        let action_contributions = this.props.modulesManager.getContribs(SELECTED_CLAIMS_PROCESSING_CONTRIBUTION_KEY);
-
-        action_contributions.forEach(extra_action => {
-            let new_action = {
-                label: extra_action.label, 
-                enabled: extra_action.enabled, 
-                action: this.buildExtraAction(
-                    extra_action.single_selection_action_label, 
-                    extra_action.multiple_selection_action_label,
-                    extra_action.action
-                )
-            }
-            actions.push(new_action)
-            additional_actions.push(new_action.action)
-        })
         
         //actions.push(...extra_action);
         
@@ -605,10 +589,12 @@ class ReviewsPage extends Component {
                     feedbackColFormatter={this.feedbackColFormatter}
                     reviewColFormatter={this.reviewColFormatter}
                     filterPaneContributionsKey={CLAIM_REVIEWS_FILTER_CONTRIBUTION_KEY}
+                    actionsContributionKey={CLAIM_REVIEWS_ACTION_CONTRIBUTION_KEY}
                 />
             </div>
         );
     }
+
 }
 
 const mapStateToProps = state => ({
@@ -620,7 +606,6 @@ const mapStateToProps = state => ({
     //props used from super.componentDidUpdate !!
     submittingMutation: state.claim.submittingMutation,
     mutation: state.claim.mutation,
-    generatingReport: state.claim_ai_quality.generatingReport
     //--    
 });
 
@@ -636,8 +621,7 @@ const mapDispatchToProps = dispatch => {
             bypassReview,
             deliverReview,
             skipReview,
-            process,
-            ...additional_actions           
+            process 
         },
         dispatch);
 };
