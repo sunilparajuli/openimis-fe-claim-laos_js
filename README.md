@@ -24,6 +24,8 @@ It is dedicated to be deployed as a module of [openimis-fe_js](https://github.co
 * `claim.ClaimForm` ability to extend the ClaimForm (entity displayed to add, edit, provide feedback and provide review)
 * `claim.MasterPanel` ability to extend the first section (paper) of the ClaimForm
 * `claim.ClaimFeedback` ability to extend the ClaimFeedbackPanel (i.e. feedback form)
+* `claim.SelectionAction` ability to extend the ClaimSearcher action menu 
+* `claim.ReviewSelectionAction` ability to extend the ClaimReviewSearcher action menu
 
 ## Published Components
 * `claim.ClaimAdminPicker`, suggestion-based picker bound to `claimAdmins` GraphQL query, caching all entries at first mount

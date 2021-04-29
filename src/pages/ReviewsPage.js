@@ -22,6 +22,8 @@ import { RIGHT_UPDATE, RIGHT_FEEDBACK, RIGHT_CLAIMREVIEW, RIGHT_PROCESS } from "
 import { withTheme, withStyles } from "@material-ui/core/styles";
 
 const CLAIM_REVIEWS_FILTER_CONTRIBUTION_KEY = "claim.ReviewsFilter";
+const CLAIM_REVIEWS_ACTION_CONTRIBUTION_KEY = "claim.ReviewSelectionAction";
+
 
 const styles = theme => ({
     page: theme.page,
@@ -400,6 +402,14 @@ class ReviewsPage extends Component {
             this.props.process);
     }
 
+    buildExtraAction = (one_label, many_label, action) => {
+        let f =  selection => this._labelMutation(selection,
+            one_label,
+            many_label,
+            action);
+        return f
+    }
+
     onChangeFeedbackStatus = (c, v) => {
         c.feedbackStatus = v;
         switch (v) {
@@ -564,6 +574,10 @@ class ReviewsPage extends Component {
         if (rights.includes(RIGHT_PROCESS)) {
             actions.push({ label: "claimSummaries.processSelected", enabled: this.canProcessSelected, action: this.processSelected });
         }
+        
+        
+        //actions.push(...extra_action);
+        
         return (
             <div className={classes.page}>
                 <ClaimSearcher
@@ -575,10 +589,12 @@ class ReviewsPage extends Component {
                     feedbackColFormatter={this.feedbackColFormatter}
                     reviewColFormatter={this.reviewColFormatter}
                     filterPaneContributionsKey={CLAIM_REVIEWS_FILTER_CONTRIBUTION_KEY}
+                    actionsContributionKey={CLAIM_REVIEWS_ACTION_CONTRIBUTION_KEY}
                 />
             </div>
         );
     }
+
 }
 
 const mapStateToProps = state => ({
@@ -605,10 +621,11 @@ const mapDispatchToProps = dispatch => {
             bypassReview,
             deliverReview,
             skipReview,
-            process,
+            process 
         },
         dispatch);
 };
+
 
 export default injectIntl(withHistory(connect(mapStateToProps, mapDispatchToProps)(
     withTheme(withStyles(styles)(ReviewsPage))
