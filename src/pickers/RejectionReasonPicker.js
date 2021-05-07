@@ -1,5 +1,5 @@
 import React, { Component } from "react";
-import { SelectInput, TextInput } from "@openimis/fe-core";
+import { SelectInput } from "@openimis/fe-core";
 import { injectIntl } from "react-intl";
 import { formatMessage } from "@openimis/fe-core";
 

@@ -22,6 +22,8 @@ import { RIGHT_UPDATE, RIGHT_FEEDBACK, RIGHT_CLAIMREVIEW, RIGHT_PROCESS } from "
 import { withTheme, withStyles } from "@material-ui/core/styles";
 
 const CLAIM_REVIEWS_FILTER_CONTRIBUTION_KEY = "claim.ReviewsFilter";
+const CLAIM_REVIEWS_ACTION_CONTRIBUTION_KEY = "claim.ReviewSelectionAction";
+
 
 const styles = theme => ({
     page: theme.page,
@@ -44,11 +46,12 @@ class RawRandomAndValueFilters extends Component {
     }
 
     componentDidMount() {
-        this.setState(this.props.modulesManager.getConf(
+        let state = this.props.modulesManager.getConf(
             "fe-claim",
             "claim.ReviewsPage.initState",
             { random: 5, value: 0, variance: 10 }
-        ));
+        )
+        this.setState({ ...state });
     }
 
     randomChange = (v) => {
@@ -111,11 +114,10 @@ class RawRandomAndValueFilters extends Component {
                 value: null,
             }]
         }
-        this.setState(
-            {
+        this.setState((state) => ({
                 filters,
-                randomToggled: !this.state.randomToggled,
-            },
+                randomToggled: !state.randomToggled,
+            }),
             e => this.props.onChangeFilters(Object.values(this.state.filters).flat())
         )
     }
@@ -138,11 +140,10 @@ class RawRandomAndValueFilters extends Component {
                     filter: `claimed_Gte: ${this.state.value}`
                 }]
         }
-        this.setState(
-            {
+        this.setState((state) => ({
                 filters,
-                valueToggled: !this.state.valueToggled,
-            },
+                valueToggled: !state.valueToggled,
+            }),
             e => this.props.onChangeFilters(Object.values(this.state.filters).flat())
         )
     }
@@ -165,16 +166,15 @@ class RawRandomAndValueFilters extends Component {
                     filter: `diagnosisVariance: ${this.state.variance}`
                 }]
         }
-        this.setState(
-            {
+        this.setState((state) => ({
                 filters,
-                varianceToggled: !this.state.varianceToggled,
-            },
+                varianceToggled: !state.varianceToggled,
+            }),
             e => this.props.onChangeFilters(Object.values(this.state.filters).flat())
         )
     }
     render() {
-        const { classes } = this.props;        
+        const { classes } = this.props;
         return (
             <Grid container justify="center" alignItems="center" direction="row">
                 <Grid item xs={3} className={classes.item}>
@@ -402,6 +402,14 @@ class ReviewsPage extends Component {
             this.props.process);
     }
 
+    buildExtraAction = (one_label, many_label, action) => {
+        let f =  selection => this._labelMutation(selection,
+            one_label,
+            many_label,
+            action);
+        return f
+    }
+
     onChangeFeedbackStatus = (c, v) => {
         c.feedbackStatus = v;
         switch (v) {
@@ -441,7 +449,7 @@ class ReviewsPage extends Component {
         <Grid container justify="flex-end" alignItems="center">
             <Grid item>
                 <PublishedComponent
-                    id="claim.FeedbackStatusPicker"
+                    pubRef="claim.FeedbackStatusPicker"
                     withLabel={false}
                     name="feedbackStatus"
                     withNull={false}
@@ -524,7 +532,7 @@ class ReviewsPage extends Component {
         <Grid container justify="flex-end" alignItems="center">
             <Grid item>
                 <PublishedComponent
-                    id="claim.ReviewStatusPicker"
+                    pubRef="claim.ReviewStatusPicker"
                     withLabel={false}
                     name="reviewStatus"
                     value={c.reviewStatus}
@@ -566,6 +574,10 @@ class ReviewsPage extends Component {
         if (rights.includes(RIGHT_PROCESS)) {
             actions.push({ label: "claimSummaries.processSelected", enabled: this.canProcessSelected, action: this.processSelected });
         }
+        
+        
+        //actions.push(...extra_action);
+        
         return (
             <div className={classes.page}>
                 <ClaimSearcher
@@ -577,10 +589,12 @@ class ReviewsPage extends Component {
                     feedbackColFormatter={this.feedbackColFormatter}
                     reviewColFormatter={this.reviewColFormatter}
                     filterPaneContributionsKey={CLAIM_REVIEWS_FILTER_CONTRIBUTION_KEY}
+                    actionsContributionKey={CLAIM_REVIEWS_ACTION_CONTRIBUTION_KEY}
                 />
             </div>
         );
     }
+
 }
 
 const mapStateToProps = state => ({
@@ -607,10 +621,11 @@ const mapDispatchToProps = dispatch => {
             bypassReview,
             deliverReview,
             skipReview,
-            process,
+            process 
         },
         dispatch);
 };
+
 
 export default injectIntl(withHistory(connect(mapStateToProps, mapDispatchToProps)(
     withTheme(withStyles(styles)(ReviewsPage))

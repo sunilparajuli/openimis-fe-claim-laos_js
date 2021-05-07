@@ -1,4 +1,4 @@
-import React, { Component, Fragment } from "react";
+import React, { Fragment } from "react";
 import { withTheme, withStyles } from "@material-ui/core/styles";
 import { connect } from "react-redux";
 import { injectIntl } from 'react-intl';
@@ -74,7 +74,7 @@ class ClaimMasterPanel extends FormPanel {
     )
 
     render() {
-        const { intl, classes, edited, reset, readOnly = false, forReview, roReview = false, forFeedback } = this.props;
+        const { intl, classes, edited, reset, readOnly = false, forReview, forFeedback } = this.props;
         if (!edited) return null;
         let totalClaimed = 0;
         let totalApproved = 0;
@@ -98,7 +98,7 @@ class ClaimMasterPanel extends FormPanel {
                 <ControlledField module="claim" id="Claim.healthFacility" field={
                     <Grid item xs={3} className={classes.item}>
                         <PublishedComponent
-                            id="location.HealthFacilityPicker"
+                            pubRef="location.HealthFacilityPicker"
                             value={edited.healthFacility}
                             reset={reset}
                             readOnly={true}
@@ -109,7 +109,7 @@ class ClaimMasterPanel extends FormPanel {
                 <ControlledField module="claim" id="Claim.insuree" field={
                     <Grid item xs={3} className={classes.item}>
                         <PublishedComponent
-                            id={this.insureePicker}
+                            pubRef={this.insureePicker}
                             value={edited.insuree}
                             reset={reset}
                             onChange={(v, s) => this.updateAttribute("insuree", v)}
@@ -120,7 +120,7 @@ class ClaimMasterPanel extends FormPanel {
                 } />
                 <ControlledField module="claim" id="Claim.visitDateFrom" field={
                     <Grid item xs={2} className={classes.item}>
-                        <PublishedComponent id="core.DatePicker"
+                        <PublishedComponent pubRef="core.DatePicker"
                             value={edited.dateFrom}
                             module="claim"
                             label="visitDateFrom"
@@ -134,7 +134,7 @@ class ClaimMasterPanel extends FormPanel {
                 } />
                 <ControlledField module="claim" id="Claim.visitDateTo" field={
                     <Grid item xs={2} className={classes.item}>
-                        <PublishedComponent id="core.DatePicker"
+                        <PublishedComponent pubRef="core.DatePicker"
                             value={edited.dateTo}
                             module="claim"
                             label="visitDateTo"
@@ -148,7 +148,7 @@ class ClaimMasterPanel extends FormPanel {
                 } />
                 <ControlledField module="claim" id="Claim.claimedDate" field={
                     <Grid item xs={2} className={classes.item}>
-                        <PublishedComponent id="core.DatePicker"
+                        <PublishedComponent pubRef="core.DatePicker"
                             value={edited.dateClaimed}
                             module="claim"
                             label="claimedDate"
@@ -163,7 +163,7 @@ class ClaimMasterPanel extends FormPanel {
                 <ControlledField module="claim" id="Claim.visitType" field={
                     <Grid item xs={forFeedback || forReview ? 2 : 3} className={classes.item}>
                         <PublishedComponent
-                            id="medical.VisitTypePicker"
+                            pubRef="medical.VisitTypePicker"
                             name="visitType"
                             withNull={false}
                             value={edited.visitType}
@@ -178,7 +178,7 @@ class ClaimMasterPanel extends FormPanel {
                     <ControlledField module="claim" id="Claim.mainDiagnosis" field={
                         <Grid item xs={3} className={classes.item}>
                             <PublishedComponent
-                                id="medical.DiagnosisPicker"
+                                pubRef="medical.DiagnosisPicker"
                                 name="mainDiagnosis"
                                 label={formatMessage(intl, "claim", "mainDiagnosis")}
                                 value={edited.icd}
@@ -291,7 +291,7 @@ class ClaimMasterPanel extends FormPanel {
                         <ControlledField module="claim" id="Claim.secDiagnosis1" field={
                             <Grid item xs={3} className={classes.item}>
                                 <PublishedComponent
-                                    id="medical.DiagnosisPicker"
+                                    pubRef="medical.DiagnosisPicker"
                                     name="secDiagnosis1"
                                     label={formatMessage(intl, "claim", "secDiagnosis1")}
                                     value={edited.icd1}
@@ -304,7 +304,7 @@ class ClaimMasterPanel extends FormPanel {
                         <ControlledField module="claim" id="Claim.secDiagnosis2" field={
                             <Grid item xs={3} className={classes.item}>
                                 <PublishedComponent
-                                    id="medical.DiagnosisPicker"
+                                    pubRef="medical.DiagnosisPicker"
                                     name="secDiagnosis2"
                                     label={formatMessage(intl, "claim", "secDiagnosis2")}
                                     value={edited.icd2}
@@ -317,7 +317,7 @@ class ClaimMasterPanel extends FormPanel {
                         <ControlledField module="claim" id="Claim.secDiagnosis3" field={
                             <Grid item xs={3} className={classes.item}>
                                 <PublishedComponent
-                                    id="medical.DiagnosisPicker"
+                                    pubRef="medical.DiagnosisPicker"
                                     name="secDiagnosis3"
                                     label={formatMessage(intl, "claim", "secDiagnosis3")}
                                     value={edited.icd3}
@@ -330,7 +330,7 @@ class ClaimMasterPanel extends FormPanel {
                         <ControlledField module="claim" id="Claim.secDiagnosis4" field={
                             <Grid item xs={3} className={classes.item}>
                                 <PublishedComponent
-                                    id="medical.DiagnosisPicker"
+                                    pubRef="medical.DiagnosisPicker"
                                     name="secDiagnosis4"
                                     label={formatMessage(intl, "claim", "secDiagnosis4")}
                                     value={edited.icd4}
@@ -375,7 +375,7 @@ class ClaimMasterPanel extends FormPanel {
                                         value={edited.adjustment}
                                         reset={reset}
                                         onChange={v => this.updateAttribute("adjustment", v)}
-                                        readOnly={!!forFeedback || (ro && forReview && roReview)}
+                                        readOnly={readOnly || edited.reviewStatus >= 8}
                                     />
                                 </Grid>
                             } />
@@ -392,7 +392,7 @@ class ClaimMasterPanel extends FormPanel {
                     contributionKey={CLAIM_MASTER_PANEL_CONTRIBUTION_KEY}
                 />
             </Grid>
-        )
+        );
     }
 }
 

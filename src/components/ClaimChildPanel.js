@@ -1,4 +1,4 @@
-import React, { Component, Fragment } from "react";
+import React, { Component } from "react";
 import { connect } from "react-redux";
 import { injectIntl } from 'react-intl';
 import { withTheme, withStyles } from "@material-ui/core/styles";
@@ -60,9 +60,9 @@ class ClaimChildPanel extends Component {
         }
     }
 
-    _updateData = (idx, attr, v) => {
+    _updateData = (idx, updates) => {
         const data = [...this.state.data];
-        data[idx][attr] = v;
+        updates.forEach(update => data[idx][update.attr] = update.v);
         if (!this.props.forReview && data.length === (idx + 1)) {
             data.push({});
         }
@@ -76,7 +76,7 @@ class ClaimChildPanel extends Component {
     }
 
     _onChange = (idx, attr, v) => {
-        let data = this._updateData(idx, attr, v);
+        let data = this._updateData(idx, [{ attr, v }]);
         this._onEditedChanged(data);
     }
 
@@ -86,7 +86,7 @@ class ClaimChildPanel extends Component {
     }
 
     _onChangeItem = (idx, attr, v) => {
-        let data = this._updateData(idx, attr, v);
+        let data = this._updateData(idx, [{ attr, v }]);
         if (!v) {
             data[idx].priceAsked = null;
             data[idx].qtyProvided = null
@@ -109,7 +109,7 @@ class ClaimChildPanel extends Component {
         if (i.status === 1) return null;
         return <PublishedComponent
             readOnly={true}
-            id="claim.RejectionReasonPicker"
+            pubRef="claim.RejectionReasonPicker"
             withLabel={false}
             value={i.rejectionReason || null}
             compact={true}
@@ -118,12 +118,10 @@ class ClaimChildPanel extends Component {
     }
 
     _onChangeApproval = (idx, attr, v) => {
-        let data = this._updateData(idx, attr, v);
-        if (v === 2) {
-            data = this._updateData(idx, 'rejectionReason', -1);
-        } else {
-            data = this._updateData(idx, 'rejectionReason', null);
-        }
+        let data = this._updateData(idx, [
+            { attr, v },
+            { attr: 'rejectionReason', v: v === 2 ? -1 : null }
+        ]);
         this._onEditedChanged(data);
     }
 
@@ -164,7 +162,7 @@ class ClaimChildPanel extends Component {
         let itemFormatters = [
             (i, idx) => <PublishedComponent
                 readOnly={!!forReview || readOnly}
-                id={picker} withLabel={false} value={i[type]}
+                pubRef={picker} withLabel={false} value={i[type]}
                 filteredOnPriceList={edited.healthFacility[`${this.props.type}sPricelist`].id}
                 refDate={edited.dateClaimed}
                 onChange={v => this._onChangeItem(idx, type, v)}
@@ -233,22 +231,13 @@ class ClaimChildPanel extends Component {
             itemFormatters.push(
                 (i, idx) => <PublishedComponent
                     readOnly={readOnly}
-                    id="claim.ApprovalStatusPicker"
+                    pubRef="claim.ApprovalStatusPicker"
                     withNull={false}
                     withLabel={false}
                     value={i.status}
                     onChange={v => this._onChangeApproval(idx, 'status', v)}
                 />,
                 (i, idx) => this.formatRejectedReason(i, idx),
-            );
-        }
-        if (!forReview) {
-            preHeaders.push('');
-            headers.push(`edit.${type}s.delete`);
-            itemFormatters.push(
-                (i, idx) => idx === this.state.data.length - 1 || readOnly ?
-                    null :
-                    <IconButton onClick={e => this._onDelete(idx)}><DeleteIcon /></IconButton>
             );
         }
         let header = formatMessage(intl, "claim", `edit.${this.props.type}s.title`)
@@ -264,6 +253,7 @@ class ClaimChildPanel extends Component {
                     headers={headers}
                     itemFormatters={itemFormatters}
                     items={!fetchingPricelist ? this.state.data : []}
+                    onDelete={!forReview && !readOnly && this._onDelete}
                 />
             </Paper>
         )

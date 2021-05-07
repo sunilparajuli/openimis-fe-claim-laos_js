@@ -5,7 +5,7 @@ import { injectIntl } from 'react-intl';
 import _ from "lodash";
 import { withTheme, withStyles } from "@material-ui/core/styles";
 import {
-    IconButton, Typography,
+    IconButton, Typography, Tooltip
 } from "@material-ui/core";
 import AttachIcon from "@material-ui/icons/AttachFile";
 import TabIcon from "@material-ui/icons/Tab";
@@ -53,7 +53,7 @@ class ClaimSearcher extends Component {
     rowIdentifier = (r) => r.uuid
 
     forcedFilters() {
-        return !this.props.forcedFilters ? [] : [...this.props.forcedFilters.filter(f => !f.id === 'random')];
+        return !this.props.forcedFilters ? [] : [...this.props.forcedFilters.filter(f => f.id !== 'random')];
     }
 
     filtersToQueryParams = (state) => {
@@ -116,7 +116,7 @@ class ClaimSearcher extends Component {
                         }}
                     />
                 </Typography>,
-                , '', ''
+                '', ''
             ]
             : ['\u200b', '', '', '', '', '', '', '', '', ''] //fixing pre headers row height!
         if (this.claimAttachments) {
@@ -155,8 +155,8 @@ class ClaimSearcher extends Component {
     sorts = () => {
         var result = [
             ['code', true],
-            ['healthFacility__code', true],
-            ['insuree__last_name', true],
+            [this.props.modulesManager.getRef("location.HealthFacilityPicker.sort"), true],
+            [this.props.modulesManager.getRef("insuree.InsureePicker.sort"), true],
             ['dateClaimed', false],
             null,
             null,
@@ -172,7 +172,7 @@ class ClaimSearcher extends Component {
             this.extFields.forEach(f => {
                 result.push(null)
             })
-        }        
+        }
         return result;
     }
 
@@ -185,11 +185,11 @@ class ClaimSearcher extends Component {
             c => c.code,
             c => <PublishedComponent
                 readOnly={true}
-                id="location.HealthFacilityPicker" withLabel={false} value={c.healthFacility}
+                pubRef="location.HealthFacilityPicker" withLabel={false} value={c.healthFacility}
             />,
             c => <PublishedComponent
                 readOnly={true}
-                id="insuree.InsureePicker" withLabel={false} value={c.insuree}
+                pubRef="insuree.InsureePicker" withLabel={false} value={c.insuree}
             />,
             c => formatDateFromISO(this.props.modulesManager, this.props.intl, c.dateClaimed),
             c => this.feedbackColFormatter(c),
@@ -207,10 +207,14 @@ class ClaimSearcher extends Component {
         }
         if (!!this.extFields && !!this.extFields.length) {
             this.extFields.forEach(f => {
-                result.push(c => !!c.jsonExt ? JSON.parse(c.jsonExt)[f] : "")
+                result.push(c => !!c.jsonExt ? String(_.get(JSON.parse(c.jsonExt), f, "-")) : "")
             })
         }
-        result.push(c => <IconButton onClick={e => this.props.onDoubleClick(c, true)} > <TabIcon /></IconButton >)
+        result.push(c => (
+            <Tooltip title={formatMessage(this.props.intl, "claim", "openNewTabButton.tooltip")}>
+                <IconButton onClick={e => this.props.onDoubleClick(c, true)} > <TabIcon /></IconButton >
+            </Tooltip>
+        ))
         return result;
     }
     rowLocked = (selection, claim) => !!claim.clientMutationId
@@ -223,7 +227,8 @@ class ClaimSearcher extends Component {
     render() {
         const { intl,
             claims, claimsPageInfo, fetchingClaims, fetchedClaims, errorClaims,
-            FilterExt, filterPaneContributionsKey, actions, defaultFilters, cacheFiltersKey, onDoubleClick
+            FilterExt, filterPaneContributionsKey, actions, defaultFilters, cacheFiltersKey, onDoubleClick,
+            actionsContributionKey
         } = this.props;
 
         let count = !!this.state.random && this.state.random.value
@@ -232,7 +237,7 @@ class ClaimSearcher extends Component {
         }
         return (
             <Fragment>
-                <PublishedComponent id="claim.AttachmentsDialog"
+                <PublishedComponent pubRef="claim.AttachmentsDialog"
                     readOnly={true}
                     claim={this.state.attachmentsClaim}
                     close={e => this.setState({ attachmentsClaim: null })} />
@@ -260,15 +265,16 @@ class ClaimSearcher extends Component {
                     rowLocked={this.rowLocked}
                     rowHighlighted={this.rowHighlighted}
                     rowHighlightedAlt={this.rowHighlightedAlt}
+                    withSelection="multiple"
                     selectionMessage={"claimSummaries.selection.count"}
                     preHeaders={this.preHeaders}
                     headers={this.headers}
                     itemFormatters={this.itemFormatters}
-                    headerActions={this.headerActions}
                     actions={actions}
                     aligns={this.aligns}
                     sorts={this.sorts}
                     onDoubleClick={onDoubleClick}
+                    actionsContributionKey={actionsContributionKey}
                 />
             </Fragment>
         )
@@ -281,6 +287,8 @@ const mapStateToProps = state => ({
     fetchingClaims: state.claim.fetchingClaims,
     fetchedClaims: state.claim.fetchedClaims,
     errorClaims: state.claim.errorClaims,
+    servicesPricelists: !!state.medical_pricelist ? state.medical_pricelist.servicesPricelists : {},
+    itemsPricelists: !!state.medical_pricelist ? state.medical_pricelist.itemsPricelists : {},
 });
 
 

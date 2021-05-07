@@ -49,7 +49,6 @@ class ClaimForm extends Component {
     state = {
         lockNew: false,
         reset: 0,
-        update: 0,
         claim_uuid: null,
         claim: this._newClaim(),
         newClaim: true,
@@ -83,7 +82,7 @@ class ClaimForm extends Component {
         }
         if (this.props.claim_uuid) {
             this.setState(
-                { claim_uuid: this.props.claim_uuid },
+                (state, props) => ({ claim_uuid: props.claim_uuid }),
                 e => this.props.fetchClaim(
                     this.props.modulesManager,
                     this.props.claim_uuid,
@@ -102,7 +101,7 @@ class ClaimForm extends Component {
             var claim = this.props.claim;
             claim.jsonExt = !!claim.jsonExt ? JSON.parse(claim.jsonExt) : {};
             this.setState(
-                { claim, claim_uuid: this.props.claim.uuid, lockNew: false, newClaim: false },
+                { claim, claim_uuid: claim.uuid, lockNew: false, newClaim: false },
                 this.props.claimHealthFacilitySet(this.props.claim.healthFacility)
             );
         } else if (prevProps.claim_uuid && !this.props.claim_uuid) {
@@ -117,13 +116,12 @@ class ClaimForm extends Component {
     }
 
     _add = () => {
-        this.setState(
-            {
-                claim: this._newClaim(),
-                newClaim: true,
-                lockNew: false,
-                reset: this.state.reset + 1,
-            },
+        this.setState((state) => ({
+            claim: this._newClaim(),
+            newClaim: true,
+            lockNew: false,
+            reset: state.reset + 1,
+        }),
             e => {
                 this.props.add();
                 this.forceUpdate();
@@ -150,7 +148,9 @@ class ClaimForm extends Component {
         if (!!this.state.claim.dateTo && this.state.claim.dateFrom > this.state.claim.dateTo) return false;
         if (!this.state.claim.icd) return false;
         if (!forFeedback) {
-            if (!this.state.claim.items && !this.state.claim.services) return !!this.canSaveClaimWithoutServiceNorItem
+            if (!this.state.claim.items && !this.state.claim.services) {
+                return !!this.canSaveClaimWithoutServiceNorItem;
+            }
             //if there are items or services, they have to be complete
             let items = [];
             if (!!this.state.claim.items) {
@@ -214,11 +214,14 @@ class ClaimForm extends Component {
             (forReview && (claim.reviewStatus >= 8 || claim.status !== 4)) ||
             (forFeedback && claim.status !== 4) ||
             !rights.filter(r => r === RIGHT_LOAD).length
-        var actions = [{
-            doIt: e => this.reload(claim_uuid),
-            icon: <ReplayIcon />,
-            onlyIfDirty: !readOnly
-        }]
+        var actions = []
+        if (!!claim_uuid) {
+            actions.push({
+                doIt: e => this.reload(claim_uuid),
+                icon: <ReplayIcon />,
+                onlyIfDirty: !readOnly
+            })
+        }
         if (!!claim_uuid && rights.includes(RIGHT_PRINT)) {
             actions.push({
                 doIt: e => this.print(claim_uuid),
@@ -237,7 +240,7 @@ class ClaimForm extends Component {
                 <ProgressOrError progress={fetchingClaim} error={errorClaim} />
                 {(!!fetchedClaim || !claim_uuid) && (
                     <Fragment>
-                        <PublishedComponent id="claim.AttachmentsDialog"
+                        <PublishedComponent pubRef="claim.AttachmentsDialog"
                             readOnly={!rights.includes(RIGHT_ADD) || readOnly}
                             claim={this.state.attachmentsClaim}
                             close={e => this.setState({ attachmentsClaim: null })}
@@ -248,7 +251,6 @@ class ClaimForm extends Component {
                             edited_id={claim_uuid}
                             edited={this.state.claim}
                             reset={this.state.reset}
-                            update={this.state.update}
                             title="edit.title"
                             titleParams={{ code: this.state.claim.code }}
                             back={back}
@@ -263,7 +265,6 @@ class ClaimForm extends Component {
                             actions={actions}
                             readOnly={readOnly}
                             forReview={forReview}
-                            roReview={forReview && this.state.claim.reviewStatus >= 8}
                             forFeedback={forFeedback}
                             HeadPanel={ClaimMasterPanel}
                             Panels={!!forFeedback ?

@@ -1,9 +1,10 @@
 import {
   baseApiUrl, graphql, formatQuery, formatPageQuery, formatPageQueryWithCount,
-  formatMutation, decodeId, openBlob, formatJsonField
+  formatMutation, decodeId, openBlob, formatJsonField, formatGQLString
 } from "@openimis/fe-core";
 import _ from "lodash";
 import _uuid from "lodash-uuid";
+
 
 export function fetchClaimAdmins(mm, hf, str, prev) {
   var filters = [];
@@ -78,11 +79,11 @@ export function formatAttachment(attach) {
   return `
     ${!!attach.id ? `id: "${decodeId(attach.id)}"` : ""}
     ${!!attach.claimUuid ? `claimUuid: "${attach.claimUuid}"` : ""}
-    ${!!attach.type ? `type: "${attach.type}"` : ""}
-    ${!!attach.title ? `title: "${attach.title}"` : ""}
+    ${!!attach.type ? `type: "${formatGQLString(attach.type)}"` : ""}
+    ${!!attach.title ? `title: "${formatGQLString(attach.title)}"` : ""}
     ${!!attach.date ? `date: "${attach.date}"` : ""}
     ${!!attach.mime ? `mime: "${attach.mime}"` : ""}
-    ${!!attach.filename ? `filename: "${attach.filename}"` : ""}
+    ${!!attach.filename ? `filename: "${formatGQLString(attach.filename)}"` : ""}
     ${!!attach.document ? `document: "${attach.document}"` : ""}
   `
 }
@@ -164,8 +165,8 @@ export function formatDetail(type, detail) {
     ${detail.priceAsked !== null ? `priceAsked: "${_.round(detail.priceAsked, 2).toFixed(2)}"` : ''}
     ${detail.qtyProvided !== null ? `qtyProvided: "${_.round(detail.qtyProvided, 2).toFixed(2)}"` : ''}
     status: 1
-    ${detail.explanation !== undefined && detail.explanation !== null ? `explanation: "${detail.explanation}"` : ''}
-    ${detail.justification !== undefined && detail.justification !== null ? `justification: "${detail.justification}"` : ''}
+    ${detail.explanation !== undefined && detail.explanation !== null ? `explanation: "${formatGQLString(detail.explanation)}"` : ''}
+    ${detail.justification !== undefined && detail.justification !== null ? `justification: "${formatGQLString(detail.justification)}"` : ''}
   }`
 }
 
@@ -205,8 +206,8 @@ export function formatClaimGQL(mm, claim) {
     healthFacilityId: ${decodeId(claim.healthFacility.id)}
     visitType: "${claim.visitType}"
     ${!!claim.guaranteeId ? `guaranteeId: "${claim.guaranteeId}"` : ""}
-    ${!!claim.explanation ? `explanation: "${claim.explanation}"` : ""}
-    ${!!claim.adjustment ? `adjustment: "${claim.adjustment}"` : ""}
+    ${!!claim.explanation ? `explanation: "${formatGQLString(claim.explanation)}"` : ""}
+    ${!!claim.adjustment ? `adjustment: "${formatGQLString(claim.adjustment)}"` : ""}
     ${formatDetails("service", claim.services)}
     ${formatDetails("item", claim.items)}
     ${!!claim.attachments && !!claim.attachments.length ? `attachments: ${formatAttachments(mm, claim.attachments)}` : ""}
@@ -297,6 +298,44 @@ export function submit(claims, clientMutationLabel, clientMutationDetails = null
   let mutation = formatMutation("submitClaims", claimUuids, clientMutationLabel, clientMutationDetails);
   var requestedDateTime = new Date();
   claims.forEach(c => c.clientMutationId = mutation.clientMutationId);
+  return graphql(
+    mutation.payload,
+    ['CLAIM_MUTATION_REQ', 'CLAIM_SUBMIT_CLAIMS_RESP', 'CLAIM_MUTATION_ERR'],
+    {
+      clientMutationId: mutation.clientMutationId,
+      clientMutationLabel,
+      clientMutationDetails: !!clientMutationDetails ? JSON.stringify(clientMutationDetails) : null,
+      requestedDateTime
+    }
+  )
+}
+
+export function submitAll(filters, clientMutationLabel, clientMutationDetails = null) {
+  filters = Object
+        .fromEntries(
+            Object
+            .keys(filters)
+            .filter(f => !!filters[f]['filter'])
+            .map(f => filters[f]['filter'].split(": "))
+            .map(f => [f[0], JSON.parse(f[1])])
+        )
+  
+  var projections = ["uuid"]
+  const claimFilters = formatPageQueryWithCount(
+    "claims",
+    filters,
+    projections
+  );
+  
+  let mutationParam = `additionalFilters: "${
+                              JSON.stringify(filters)
+                                .replaceAll("\\\"", "")
+                                .replaceAll("\"", "\\\"")
+                              }"`
+
+  let mutation = formatMutation("submitClaims", mutationParam, clientMutationLabel, clientMutationDetails);
+
+  var requestedDateTime = new Date();
   return graphql(
     mutation.payload,
     ['CLAIM_MUTATION_REQ', 'CLAIM_SUBMIT_CLAIMS_RESP', 'CLAIM_MUTATION_ERR'],
@@ -454,7 +493,7 @@ export function formatReviewDetail(type, detail) {
     ${type}Id: ${decodeId(detail[type].id)}
     ${detail.qtyApproved !== null ? `qtyApproved: "${_.round(detail.qtyApproved, 2).toFixed(2)}"` : ''}
     ${detail.priceApproved !== null ? `priceApproved: "${_.round(detail.priceApproved, 2).toFixed(2)}"` : ''}
-    ${detail.justification !== null ? `justification: "${detail.justification}"` : ''}
+    ${detail.justification !== null ? `justification: "${formatGQLString(detail.justification)}"` : ''}
     status: ${detail.status}
     ${detail.rejectionReason !== null ? `rejectionReason: ${detail.rejectionReason}` : ''}
   }`
@@ -471,7 +510,7 @@ export function formatReviewDetails(type, details) {
 export function saveReview(claim, clientMutationLabel) {
   let reviewGQL = `
     claimUuid: "${claim.uuid}"
-    ${!!claim.adjustment ? `adjustment: "${claim.adjustment}"` : ""}
+    ${!!claim.adjustment ? `adjustment: "${formatGQLString(claim.adjustment)}"` : ""}
     ${formatReviewDetails("service", claim.services)}
     ${formatReviewDetails("item", claim.items)}
   `

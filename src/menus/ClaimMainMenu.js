@@ -2,7 +2,7 @@ import React, { Component } from "react";
 import { injectIntl } from 'react-intl';
 import { connect } from "react-redux";
 import { Keyboard, ScreenShare, Assignment } from "@material-ui/icons";
-import { formatMessage, MainMenuContribution } from "@openimis/fe-core";
+import { formatMessage, MainMenuContribution, withModulesManager } from "@openimis/fe-core";
 import { RIGHT_ADD, RIGHT_SUBMIT, RIGHT_CLAIMREVIEW, RIGHT_PROCESS } from "../constants";
 const CLAIM_MAIN_MENU_CONTRIBUTION_KEY = "claim.MainMenu";
 
@@ -40,4 +40,4 @@ class ClaimMainMenu extends Component {
 const mapStateToProps = state => ({
   rights: !!state.core && !!state.core.user && !!state.core.user.i_user ? state.core.user.i_user.rights : [],
 });
-export default injectIntl(connect(mapStateToProps)(ClaimMainMenu));
+export default withModulesManager(injectIntl(connect(mapStateToProps)(ClaimMainMenu)));
