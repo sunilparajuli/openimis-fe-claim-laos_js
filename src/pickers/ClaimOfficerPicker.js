@@ -53,7 +53,6 @@ class ClaimOfficerPicker extends Component {
                         module="claim"
                         items={claimOfficers}
                         label={!!withLabel && (label || formatMessage(intl, "claim", "ClaimOfficerPicker.label"))}
-                        getSuggestions={this.claimOfficers}
                         getSuggestionValue={this.formatSuggestion}
                         onSuggestionSelected={this.onSuggestionSelected}
                         value={v}
