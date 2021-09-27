@@ -163,8 +163,8 @@ class ClaimChildPanel extends Component {
             (i, idx) => <PublishedComponent
                 readOnly={!!forReview || readOnly}
                 pubRef={picker} withLabel={false} value={i[type]}
-                filteredOnPriceList={edited.healthFacility[`${this.props.type}sPricelist`].id}
-                refDate={edited.dateClaimed}
+                pricelistUuid={edited.healthFacility[`${this.props.type}sPricelist`].uuid}
+                date={edited.dateClaimed}
                 onChange={v => this._onChangeItem(idx, type, v)}
             />,
             (i, idx) => <NumberInput
