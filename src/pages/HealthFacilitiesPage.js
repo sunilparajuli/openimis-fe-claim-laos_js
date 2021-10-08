@@ -9,7 +9,7 @@ import AddIcon from "@material-ui/icons/Add";
 import {
     withHistory, historyPush, withModulesManager,
     formatMessage, formatMessageWithValues,
-    journalize, coreConfirm
+    journalize, coreConfirm, Helmet,
 } from "@openimis/fe-core";
 import ClaimSearcher from "../components/ClaimSearcher";
 
@@ -43,10 +43,6 @@ class HealthFacilitiesPage extends Component {
             defaultFilters,
             confirmedAction: null,
         }
-    }
-
-    componentDidMount() {
-        document.title = formatMessage(this.props.intl, "location", "location.healthFacilities.page.title")
     }
 
     componentDidUpdate(prevProps, prevState, snapshot) {
@@ -186,6 +182,7 @@ class HealthFacilitiesPage extends Component {
         }
         return (
             <div className={classes.page}>
+                <Helmet title={formatMessage(this.props.intl, "location", "location.healthFacilities.page.title")} />
                 <ClaimSearcher
                     defaultFilters={this.state.defaultFilters}
                     cacheFiltersKey="claimHealthFacilitiesPageFiltersCache"
