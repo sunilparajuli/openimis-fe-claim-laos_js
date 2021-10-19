@@ -9,7 +9,7 @@ import ReviewIcon from "@material-ui/icons/SupervisorAccount";
 import {
     formatMessage, formatMessageWithValues, AmountInput, NumberInput,
     withHistory, historyPush, withModulesManager, PublishedComponent,
-    journalize, coreAlert
+    journalize, coreAlert, Helmet,
 } from "@openimis/fe-core";
 import ClaimSearcher from "../components/ClaimSearcher";
 import {
@@ -282,10 +282,6 @@ class ReviewsPage extends Component {
                 }
             )
         }
-    }
-
-    componentDidMount() {
-        document.title = formatMessage(this.props.intl, "claim", "claim.reviews.page.title")
     }
 
     componentDidUpdate(prevProps, prevState, snapshot) {
@@ -580,6 +576,7 @@ class ReviewsPage extends Component {
         
         return (
             <div className={classes.page}>
+                <Helmet title={formatMessage(this.props.intl, "claim", "claim.reviews.page.title")} />
                 <ClaimSearcher
                     defaultFilters={this.state.defaultFilters}
                     cacheFiltersKey="claimReviewsPageFiltersCache"
