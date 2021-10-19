@@ -265,12 +265,10 @@ export function fetchClaim(mm, claimUuid, claimCode, forFeedback) {
   } else {
     projections.push(
       "services{" +
-      "id, qtyProvided, priceAsked, qtyApproved, priceApproved, priceValuated, explanation, justification, rejectionReason, status, service" +
-      mm.getProjection("medical.ServicePicker.projection") +
+      "id, code, name, price, qtyProvided, priceAsked, qtyApproved, priceApproved, priceValuated, explanation, justification, rejectionReason, status, service" +
       "}",
       "items{" +
-      "id, qtyProvided, priceAsked, qtyApproved, priceApproved, priceValuated, explanation, justification, rejectionReason, status, item" +
-      mm.getProjection("medical.ItemPicker.projection") +
+      "id, code, name, price, qtyProvided, priceAsked, qtyApproved, priceApproved, priceValuated, explanation, justification, rejectionReason, status, item" +
       "}",
     )
   }
