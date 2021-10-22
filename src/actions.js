@@ -265,12 +265,12 @@ export function fetchClaim(mm, claimUuid, claimCode, forFeedback) {
   } else {
     projections.push(
       "services{" +
-      "id, code, name, price, qtyProvided, priceAsked, qtyApproved, priceApproved, priceValuated, explanation, justification, rejectionReason, status, service" +
-      "}",
+        "id, service {id code name price} qtyProvided, priceAsked, qtyApproved, priceApproved, priceValuated, explanation, justification, rejectionReason, status" +
+        "}",
       "items{" +
-      "id, code, name, price, qtyProvided, priceAsked, qtyApproved, priceApproved, priceValuated, explanation, justification, rejectionReason, status, item" +
-      "}",
-    )
+        "id, item {id code name price} qtyProvided, priceAsked, qtyApproved, priceApproved, priceValuated, explanation, justification, rejectionReason, status" +
+        "}"
+    );
   }
   const payload = formatPageQuery("claims",
     [filter],
