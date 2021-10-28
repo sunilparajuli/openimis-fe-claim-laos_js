@@ -3,66 +3,46 @@ import { injectIntl } from "react-intl";
 import { connect } from "react-redux";
 import { bindActionCreators } from "redux";
 import { withTheme, withStyles } from "@material-ui/core/styles";
-import {
-  withModulesManager,
-  withHistory,
-  formatMessageWithValues,
-  historyPush,
-  journalize
-} from "@openimis/fe-core";
+import { withModulesManager, withHistory, formatMessageWithValues, historyPush, journalize } from "@openimis/fe-core";
 import ClaimForm from "../components/ClaimForm";
 import { saveReview, deliverReview } from "../actions";
 import _ from "lodash";
 
-const styles = theme => ({
-  page: theme.page
+const styles = (theme) => ({
+  page: theme.page,
 });
 
 class ReviewPage extends Component {
   state = {
-    close: false
+    close: false,
   };
 
   componentDidUpdate(prevProps, prevState, snapshot) {
     if (prevProps.submittingMutation && !this.props.submittingMutation) {
       if (this.state.close) {
-        historyPush(
-          this.props.modulesManager,
-          this.props.history,
-          "claim.route.reviews"
-        );
+        historyPush(this.props.modulesManager, this.props.history, "claim.route.reviews");
       }
     }
   }
 
-  save = claim => {
+  save = (claim) => {
     if (!!claim && (!!claim.items || !!claim.services)) {
-      this.setState({ close: false }, e =>
+      this.setState({ close: false }, (e) =>
         this.props.saveReview(
           claim,
-          formatMessageWithValues(
-            this.props.intl,
-            "claim",
-            "SaveClaimReview.mutationLabel",
-            { code: claim.code }
-          )
-        )
+          formatMessageWithValues(this.props.intl, "claim", "SaveClaimReview.mutationLabel", { code: claim.code }),
+        ),
       );
     }
   };
 
-  deliverReview = claim => {
+  deliverReview = (claim) => {
     if (!!claim && (!!claim.items || !!claim.services)) {
-      this.setState({ close: true }, e =>
+      this.setState({ close: true }, (e) =>
         this.props.deliverReview(
           [claim],
-          formatMessageWithValues(
-            this.props.intl,
-            "claim",
-            "DeliverClaimReview.mutationLabel",
-            { code: claim.code }
-          )
-        )
+          formatMessageWithValues(this.props.intl, "claim", "DeliverClaimReview.mutationLabel", { code: claim.code }),
+        ),
       );
     }
   };
@@ -73,9 +53,7 @@ class ReviewPage extends Component {
       <div className={classes.page}>
         <ClaimForm
           claim_uuid={claim_uuid}
-          back={e =>
-            historyPush(modulesManager, history, "claim.route.reviews")
-          }
+          back={(e) => historyPush(modulesManager, history, "claim.route.reviews")}
           save={this.save}
           deliverReview={this.deliverReview}
           forReview={true}
@@ -88,21 +66,15 @@ class ReviewPage extends Component {
 const mapStateToProps = (state, props) => ({
   claim_uuid: props.match.params.claim_uuid,
   submittingMutation: state.claim.submittingMutation,
-  mutation: state.claim.mutation
+  mutation: state.claim.mutation,
 });
 
-const mapDispatchToProps = dispatch => {
-  return bindActionCreators(
-    { deliverReview, saveReview, journalize },
-    dispatch
-  );
+const mapDispatchToProps = (dispatch) => {
+  return bindActionCreators({ deliverReview, saveReview, journalize }, dispatch);
 };
 
 export default withHistory(
   withModulesManager(
-    connect(
-      mapStateToProps,
-      mapDispatchToProps
-    )(injectIntl(withTheme(withStyles(styles)(ReviewPage))))
-  )
+    connect(mapStateToProps, mapDispatchToProps)(injectIntl(withTheme(withStyles(styles)(ReviewPage)))),
+  ),
 );
