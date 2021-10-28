@@ -13,7 +13,6 @@ import RejectionReasonPicker from "./pickers/RejectionReasonPicker";
 import FeedbackStatusPicker from "./pickers/FeedbackStatusPicker";
 import ClaimMasterPanelExt from "./components/ClaimMasterPanelExt";
 import AttachmentsDialog from "./components/AttachmentsDialog";
-import ClaimAlertForwarder from "./components/ClaimAlertForwarder";
 import messages_en from "./translations/en.json";
 import reducer from "./reducer";
 
@@ -24,8 +23,8 @@ const ROUTE_CLAIM_REVIEW = "claim/review";
 const ROUTE_CLAIM_FEEDBACK = "claim/feedback";
 
 const DEFAULT_CONFIG = {
-  "translations": [{ key: 'en', messages: messages_en }],
-  "reducers": [{ key: 'claim', reducer }],
+  "translations": [{ key: "en", messages: messages_en }],
+  "reducers": [{ key: "claim", reducer }],
   "refs": [
     { key: "claim.route.healthFacilities", ref: ROUTE_HEALTH_FACILITIES },
     { key: "claim.route.claimEdit", ref: ROUTE_CLAIM_EDIT },
@@ -35,8 +34,14 @@ const DEFAULT_CONFIG = {
     { key: "claim.ClaimAdminPicker", ref: ClaimAdminPicker },
     {
       key: "claim.ClaimAdminPicker.projection",
-      ref: ["id", "uuid", "code", "lastName", "otherNames",
-        "healthFacility{id, uuid, code, name, level, servicesPricelist{id, uuid}, itemsPricelist{id, uuid}, location{id, uuid, code, name, parent{id, uuid, code, name}}}"]
+      ref: [
+        "id",
+        "uuid",
+        "code",
+        "lastName",
+        "otherNames",
+        "healthFacility{id, uuid, code, name, level, servicesPricelist{id, uuid}, itemsPricelist{id, uuid}, location{id, uuid, code, name, parent{id, uuid, code, name}}}",
+      ],
     },
     { key: "claim.ClaimOfficerPicker", ref: ClaimOfficerPicker },
     { key: "claim.ClaimOfficerPicker.projection", ref: ["id", "uuid", "code", "lastName", "otherNames"] },
@@ -53,7 +58,7 @@ const DEFAULT_CONFIG = {
     { key: "claim.CreateClaim.feedbackStatus", ref: 1 },
     { key: "claim.CreateClaim.reviewStatus", ref: 1 },
     { key: "claim.ClaimMasterPanelExt", ref: ClaimMasterPanelExt },
-    { key: "claim.AttachmentsDialog", ref: AttachmentsDialog},
+    { key: "claim.AttachmentsDialog", ref: AttachmentsDialog },
   ],
   "core.Router": [
     { path: ROUTE_HEALTH_FACILITIES, component: HealthFacilitiesPage },
@@ -63,10 +68,9 @@ const DEFAULT_CONFIG = {
     { path: ROUTE_CLAIM_FEEDBACK + "/:claim_uuid", component: FeedbackPage },
   ],
   "core.MainMenu": [ClaimMainMenu],
-  "core.Boot": [ClaimAlertForwarder],
   "claim.MasterPanel": [ClaimMasterPanelExt],
-}
+};
 
 export const ClaimModule = (cfg) => {
   return { ...DEFAULT_CONFIG, ...cfg };
-}
+};

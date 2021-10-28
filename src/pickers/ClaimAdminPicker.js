@@ -1,124 +1,80 @@
-import React, { Component, Fragment } from "react";
-import { connect } from "react-redux";
-import { bindActionCreators } from "redux";
-import { withTheme, withStyles } from "@material-ui/core/styles";
-import { injectIntl } from 'react-intl';
+import React, { useState } from "react";
+import { useModulesManager, useTranslations, Autocomplete, useGraphqlQuery } from "@openimis/fe-core";
 import _debounce from "lodash/debounce";
-import _ from "lodash";
-import { fetchClaimAdmins } from "../actions";
-import { formatMessage, AutoSuggestion, ProgressOrError, withModulesManager } from "@openimis/fe-core";
 
-const styles = theme => ({
-    label: {
-        color: theme.palette.primary.main
-    }
-});
+const ClaimAdminPicker = (props) => {
+  const {
+    onChange,
+    readOnly,
+    required,
+    withLabel = true,
+    withPlaceholder,
+    value,
+    label,
+    filterOptions,
+    filterSelectedOptions,
+    placeholder,
+    multiple,
+    extraFragment,
+    hfFilter,
+  } = props;
 
-class ClaimAdminPicker extends Component {
-    constructor(props) {
-        super(props);
-        this.selectThreshold = props.modulesManager.getConf("fe-claim", "ClaimAdminPicker.selectThreshold", 10);
-    }
-
-    componentDidMount() {
-        if (!!this.props.readOnly) return;
-
-        if (!!this.props.userHealthFacilityFullPath) {
-            this.props.fetchClaimAdmins(
-                this.props.modulesManager,
-                this.props.userHealthFacilityFullPath,
-                null,
-                this.props.fetchedClaimAdmins
-            )
+  const modulesManager = useModulesManager();
+  const { formatMessage } = useTranslations("claim", modulesManager);
+  const [searchString, setSearchString] = useState("");
+  const { isLoading, data, error } = useGraphqlQuery(
+    `
+      query ClaimAdminPicker ($search: String, $hf: String) {
+          claimAdmins(search: $search, first: 20, healthFacility_Uuid: $hf) {
+              edges {
+                  node {
+                      id
+                      uuid
+                      code
+                      lastName
+                      otherNames
+                      healthFacility {
+                          id uuid code name level 
+                          location {
+                              id
+                              uuid
+                              code
+                              name
+                              parent {
+                                code name id uuid
+                              }
+                          }
+                      }
+                      ${extraFragment ?? ""}
+                    }
+                }
+            }
         }
-    }
+        `,
+    { hf: hfFilter?.uuid, search: searchString },
+    { skip: true },
+  );
 
-    componentDidUpdate(prevProps, prevState, snapshot) {
-        if (!!this.props.readOnly) return;
-
-        // check we are not currently fetching the new admin list
-        if (!_.isEqual(prevProps.fetchedClaimAdmins, this.props.fetchedClaimAdmins)) return;
-
-        if (!_.isEqual(prevProps.userHealthFacilityFullPath, this.props.userHealthFacilityFullPath)) {
-            !this.props.fetchingClaimAdmins && this.props.fetchClaimAdmins(
-                this.props.modulesManager,
-                this.props.userHealthFacilityFullPath,
-                null,
-                this.props.fetchedClaimAdmins
-            )
-        } else if (!_.isEqual(prevProps.hfFilter, this.props.hfFilter) &&
-            !_.isEqual(this.props.hfFilter, this.props.userHealthFacilityFullPath)) {
-            !this.props.fetchingClaimAdmins && this.props.fetchClaimAdmins(
-                this.props.modulesManager,
-                this.props.hfFilter,
-                null,
-                this.props.fetchedClaimAdmins
-            )
-        }
-    }
-
-    formatSuggestion = a => !a ? "" : `${a.code} ${a.lastName} ${a.otherNames || ""}`;
-
-    onSuggestionSelected = v => this.props.onChange(v, this.formatSuggestion(v));
-
-    getSuggestions = (str) => !!str &&
-        str.length >= this.props.modulesManager.getConf("fe-claim", "claimAdminsMinCharLookup", 2) &&
-        this.props.fetchClaimAdmins(
-            this.props.modulesManager,
-            this.props.userHealthFacilityFullPath,
-            str,
-            this.props.fetchedClaimAdmins
-        )
-
-    debouncedGetSuggestion = _.debounce(
-        this.getSuggestions,
-        this.props.modulesManager.getConf("fe-claim", "debounceTime", 800)
-    )
-
-    render() {
-        const {
-            intl, value,
-            reset, readOnly = false, required = false,
-            claimAdmins, fetchingClaimAdmins, errorClaimAdmins,
-            withNull = false, nullLabel = null,
-            withLabel = true, label,
-        } = this.props;
-        return (
-            <Fragment>
-                <ProgressOrError progress={fetchingClaimAdmins} error={errorClaimAdmins} />
-                {!fetchingClaimAdmins && !errorClaimAdmins && (
-                    <AutoSuggestion
-                        module="claim"
-                        items={claimAdmins}
-                        label={!!withLabel && (label || formatMessage(intl, "claim", "ClaimAdminPicker.label"))}
-                        getSuggestions={this.debouncedGetSuggestion}
-                        renderSuggestion={a => <span>{this.formatSuggestion(a)}</span>}
-                        getSuggestionValue={this.formatSuggestion}
-                        onSuggestionSelected={this.onSuggestionSelected}
-                        value={value}
-                        reset={reset}
-                        readOnly={readOnly}
-                        required={required}
-                        selectThreshold={this.selectThreshold}
-                        withNull={withNull}
-                        nullLabel={nullLabel || formatMessage(intl, "claim", "claim.ClaimAdminPicker.null")}
-                    />
-                )}
-            </Fragment>
-        )
-    }
-}
-
-const mapStateToProps = state => ({
-    userHealthFacilityFullPath: !!state.loc ? state.loc.userHealthFacilityFullPath : null,
-    claimAdmins: state.claim.claimAdmins,
-    fetchedClaimAdmins: state.claim.fetchedClaimAdmins,
-});
-
-const mapDispatchToProps = dispatch => {
-    return bindActionCreators({ fetchClaimAdmins }, dispatch);
+  return (
+    <Autocomplete
+      multiple={multiple}
+      required={required}
+      placeholder={placeholder ?? formatMessage("ClaimAdminPicker.placeholder")}
+      label={label ?? formatMessage("ClaimAdminPicker.label")}
+      error={error}
+      withLabel={withLabel}
+      withPlaceholder={withPlaceholder}
+      readOnly={readOnly}
+      options={data?.claimAdmins?.edges.map((edge) => edge.node) ?? []}
+      isLoading={isLoading}
+      value={value}
+      getOptionLabel={(option) => `${option.code} ${option.lastName} ${option.otherNames}`}
+      onChange={(option) => onChange(option, option ? `${option.code} ${option.lastName} ${option.otherNames}` : null)}
+      filterOptions={filterOptions}
+      filterSelectedOptions={filterSelectedOptions}
+      onInputChange={setSearchString}
+    />
+  );
 };
 
-export default withModulesManager(
-    connect(mapStateToProps, mapDispatchToProps)(injectIntl(withTheme(withStyles(styles)(ClaimAdminPicker))))
-);
+export default ClaimAdminPicker;
