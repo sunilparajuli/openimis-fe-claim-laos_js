@@ -410,8 +410,8 @@ class ClaimMasterPanel extends FormPanel {
               <ClaimAdminPicker
                 value={edited.admin}
                 onChange={(v, s) => this.updateAttribute("admin", v)}
-                readOnly={true}
-                required={true}
+                readOnly
+                required
               />
             </Grid>
           }

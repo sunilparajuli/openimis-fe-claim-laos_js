@@ -93,7 +93,7 @@ class ClaimForm extends Component {
     if (this.props.claim_uuid) {
       this.setState(
         (state, props) => ({ claim_uuid: props.claim_uuid }),
-        (e) => this.props.fetchClaim(this.props.modulesManager, this.props.claim_uuid, null, this.props.forFeedback),
+        (e) => this.props.fetchClaim(this.props.modulesManager, this.props.claim_uuid, this.props.forFeedback),
       );
     }
   }

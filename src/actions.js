@@ -13,25 +13,6 @@ import {
 import _ from "lodash";
 import _uuid from "lodash-uuid";
 
-export function fetchClaimAdmins(mm, hf, str, prev) {
-  var filters = [];
-  if (!!hf) {
-    filters.push(`healthFacility_Uuid: "${hf.uuid}"`);
-  }
-  if (!!str) {
-    filters.push(`str: "${str}"`);
-  }
-  if (_.isEqual(filters, prev)) {
-    return (dispatch) => {};
-  }
-  const payload = formatPageQuery(
-    !str ? "claimAdmins" : "claimAdminsStr",
-    filters,
-    mm.getRef("claim.ClaimAdminPicker.projection"),
-  );
-  return graphql(payload, "CLAIM_CLAIM_ADMINS", filters);
-}
-
 export function selectClaimAdmin(admin) {
   return (dispatch) => {
     dispatch({ type: "CLAIM_CLAIM_ADMIN_SELECTED", payload: admin });
@@ -61,17 +42,8 @@ export function validateClaimCode(code) {
   return graphql(payload, "CLAIM_CLAIM_CODE_COUNT");
 }
 
-export function fetchClaimOfficers(mm) {
-  const payload = formatPageQuery("claimOfficers", null, mm.getRef("claim.ClaimOfficerPicker.projection"));
-  return graphql(payload, "CLAIM_CLAIM_OFFICERS");
-}
-
 export function fetchClaimAttachments(claim) {
-  const payload = formatPageQuery(
-    "claimAttachments",
-    [`claim_Uuid: "${claim.uuid}"`],
-    ["id", "type", "title", "date", "filename", "mime"],
-  );
+  const payload = formatPageQuery("claimAttachments", [`claim_Uuid: "${claim.uuid}"`]);
   return graphql(payload, "CLAIM_CLAIM_ATTACHMENTS");
 }
 
@@ -141,8 +113,7 @@ export function fetchClaimSummaries(mm, filters, withAttachmentsCount) {
     "claimed",
     "approved",
     "status",
-    "clientMutationId",
-    "healthFacility" + mm.getProjection("location.HealthFacilityPicker.projection"),
+    "healthFacility { id uuid name code }",
     "insuree" + mm.getProjection("insuree.InsureePicker.projection"),
   ];
   if (withAttachmentsCount) {
@@ -245,8 +216,7 @@ export function updateClaim(mm, claim, clientMutationLabel) {
   });
 }
 
-export function fetchClaim(mm, claimUuid, claimCode, forFeedback) {
-  let filter = !!claimUuid ? `uuid: "${claimUuid}"` : `code: "${claimCode}"`;
+export function fetchClaim(mm, claimUuid, forFeedback) {
   let projections = [
     "uuid",
     "code",
@@ -288,7 +258,7 @@ export function fetchClaim(mm, claimUuid, claimCode, forFeedback) {
         "}",
     );
   }
-  const payload = formatPageQuery("claims", [filter], projections);
+  const payload = formatQuery("claim", [`uuid: "${claimUuid}"`], projections);
   return graphql(payload, "CLAIM_CLAIM");
 }
 

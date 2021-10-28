@@ -10,18 +10,10 @@ import {
 
 function reducer(
   state = {
-    fetchingClaimAdmins: false,
-    fetchedClaimAdmins: null,
-    errorClaimAdmins: null,
-    claimAdmins: null,
     fetchingClaimAttachments: false,
     fetchedClaimAttachments: false,
     errorClaimAttachments: null,
     claimAttachments: null,
-    fetchingClaimOfficers: false,
-    fetchedClaimOfficers: false,
-    errorClaimOfficers: null,
-    claimOfficers: null,
     fetchingClaims: false,
     fetchedClaims: false,
     errorClaims: null,
@@ -45,28 +37,6 @@ function reducer(
   action,
 ) {
   switch (action.type) {
-    case "CLAIM_CLAIM_ADMINS_REQ":
-      return {
-        ...state,
-        fetchingClaimAdmins: true,
-        fetchedClaimAdmins: null,
-        claimAdmins: null,
-        errorClaimAdmins: null,
-      };
-    case "CLAIM_CLAIM_ADMINS_RESP":
-      return {
-        ...state,
-        fetchingClaimAdmins: false,
-        fetchedClaimAdmins: action.meta,
-        claimAdmins: parseData(action.payload.data.claimAdmins || action.payload.data.claimAdminsStr),
-        errorClaimAdmins: formatGraphQLError(action.payload),
-      };
-    case "CLAIM_CLAIM_ADMINS_ERR":
-      return {
-        ...state,
-        fetchingClaimAdmins: null,
-        errorClaimAdmins: formatServerError(action.payload),
-      };
     case "CLAIM_CLAIM_ATTACHMENTS_REQ":
       return {
         ...state,
@@ -127,28 +97,6 @@ function reducer(
         delete s.claimAdmin;
       }
       return s;
-    case "CLAIM_CLAIM_OFFICERS_REQ":
-      return {
-        ...state,
-        fetchingClaimOfficers: true,
-        fetchedClaimOfficers: false,
-        claimOfficers: null,
-        errorClaimOfficers: null,
-      };
-    case "CLAIM_CLAIM_OFFICERS_RESP":
-      return {
-        ...state,
-        fetchingClaimOfficers: false,
-        fetchedClaimOfficers: true,
-        claimOfficers: parseData(action.payload.data.claimOfficers),
-        errorClaimOfficers: formatGraphQLError(action.payload),
-      };
-    case "CLAIM_CLAIM_OFFICERS_ERR":
-      return {
-        ...state,
-        fetchingClaimOfficers: false,
-        errorClaimOfficers: formatServerError(action.payload),
-      };
     case "CLAIM_CLAIM_SEARCHER_REQ":
       return {
         ...state,
@@ -182,12 +130,11 @@ function reducer(
         errorClaim: null,
       };
     case "CLAIM_CLAIM_RESP":
-      var claims = parseData(action.payload.data.claims);
       return {
         ...state,
         fetchingClaim: false,
         fetchedClaim: true,
-        claim: !!claims && claims.length > 0 ? claims[0] : null,
+        claim: action.payload.data.claim,
         errorClaim: formatGraphQLError(action.payload),
       };
     case "CLAIM_CLAIM_ERR":

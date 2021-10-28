@@ -15,8 +15,7 @@ import {
   TextInput,
   Error,
 } from "@openimis/fe-core";
-import { IconButton, Paper } from "@material-ui/core";
-import DeleteIcon from "@material-ui/icons/Delete";
+import { Paper } from "@material-ui/core";
 import _ from "lodash";
 import { claimedAmount, approvedAmount } from "../helpers/amounts";
 
@@ -147,11 +146,7 @@ class ClaimChildPanel extends Component {
   render() {
     const { intl, classes, edited, type, picker, forReview, fetchingPricelist, readOnly = false } = this.props;
     if (!edited) return null;
-    if (
-      !this.props.edited.healthFacility ||
-      !this.props.edited.healthFacility[`${this.props.type}sPricelist`] ||
-      !this.props.edited.healthFacility[`${this.props.type}sPricelist`].id
-    ) {
+    if (!this.props.edited.healthFacility || !this.props.edited.healthFacility[`${this.props.type}sPricelist`]?.id) {
       return (
         <Paper className={classes.paper}>
           <Error error={{ message: formatMessage(intl, "claim", `${this.props.type}sPricelist.missing`) }} />

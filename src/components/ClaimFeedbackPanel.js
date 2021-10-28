@@ -156,7 +156,6 @@ class ClaimFeedbackPanel extends Component {
                       readOnly={readOnly}
                       value={edited.feedback.officerId}
                       onChange={(v, s) => this._onChange("officerId", !!v ? decodeId(v.id) : null)}
-                      withNull={false}
                     />
                   </Grid>
                 }
