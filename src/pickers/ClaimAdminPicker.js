@@ -34,7 +34,8 @@ const ClaimAdminPicker = (props) => {
                       lastName
                       otherNames
                       healthFacility {
-                          id uuid code name level 
+                          id uuid code name level
+                          servicesPricelist{id, uuid}, itemsPricelist{id, uuid}
                           location {
                               id
                               uuid
