@@ -15,7 +15,7 @@ import {
   TextInput,
   Error,
 } from "@openimis/fe-core";
-import { Paper } from "@material-ui/core";
+import { Paper, Box } from "@material-ui/core";
 import _ from "lodash";
 import { claimedAmount, approvedAmount } from "../helpers/amounts";
 
@@ -180,15 +180,18 @@ class ClaimChildPanel extends Component {
 
     let itemFormatters = [
       (i, idx) => (
-        <PublishedComponent
-          readOnly={!!forReview || readOnly}
-          pubRef={picker}
-          withLabel={false}
-          value={i[type]}
-          pricelistUuid={edited.healthFacility[`${this.props.type}sPricelist`].uuid}
-          date={edited.dateClaimed}
-          onChange={(v) => this._onChangeItem(idx, type, v)}
-        />
+        <Box minWidth={400}>
+          <PublishedComponent
+            readOnly={!!forReview || readOnly}
+            pubRef={picker}
+            withLabel={false}
+            value={i[type]}
+            fullWidth
+            pricelistUuid={edited.healthFacility[`${this.props.type}sPricelist`].uuid}
+            date={edited.dateClaimed}
+            onChange={(v) => this._onChangeItem(idx, type, v)}
+          />
+        </Box>
       ),
       (i, idx) => (
         <NumberInput
