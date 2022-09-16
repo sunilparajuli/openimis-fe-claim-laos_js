@@ -468,7 +468,7 @@ class Details extends Component {
                 pubRef="core.DatePicker"
                 value={(filters["dateProcessedFrom"] && filters["dateProcessedFrom"]["value"]) || null}
                 module="claim"
-                label="processedDateFrom"
+                label="ClaimFilter.processedDateFrom"
                 onChange={(d) =>
                   onChangeFilters([
                     {
@@ -485,7 +485,7 @@ class Details extends Component {
                 pubRef="core.DatePicker"
                 value={(filters["processedDateTo"] && filters["processedDateTo"]["value"]) || null}
                 module="claim"
-                label="processedDateTo"
+                label="ClaimFilter.processedDateTo"
                 onChange={(d) =>
                   onChangeFilters([
                     {
