@@ -275,6 +275,9 @@ class ClaimSearcher extends Component {
     if (!count) {
       count = claimsPageInfo.totalCount;
     }
+
+    count = count.toString().replace(/\B(?=(\d{3})+(?!\d))/g, ",");
+
     return (
       <Fragment>
         <PublishedComponent
