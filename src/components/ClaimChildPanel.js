@@ -226,6 +226,7 @@ class ClaimChildPanel extends Component {
             })
           : "",
       );
+
       headers.push(`edit.${type}s.appQuantity`);
       itemFormatters.push((i, idx) => (
         <NumberInput
@@ -244,6 +245,15 @@ class ClaimChildPanel extends Component {
           />
         ));
       }
+
+      headers.push(`edit.${type}s.pricevaluated`);
+      itemFormatters.push((i, idx) => (
+        <AmountInput
+          readOnly={true}
+          value={i.priceValuated}
+          onChange={(v) => this._onChange(idx, "priceValuated", v)}
+        />
+      ));
     }
 
     if (this.showJustificationAtEnter || edited.status !== 2) {
