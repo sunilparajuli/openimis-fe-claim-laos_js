@@ -226,5 +226,7 @@
   "claim.medicalService": "Medical Service",
   "claim.ClaimFilter.processedDateFrom": "Processed From",
   "claim.ClaimFilter.processedDateTo": "Processed To",
-  "claim.claimSummaries.processedDate": "Processed On"
+  "claim.claimSummaries.processedDate": "Processed On",
+  "claim.edit.items.pricevaluated": "Valuated",
+  "claim.edit.services.pricevaluated": "Valuated"
 }
