@@ -82,6 +82,28 @@ class ClaimMasterPanel extends FormPanel {
     this.props.modulesManager.getConf("fe-claim", "debounceTime", 800),
   );
 
+  computePriceAdjusted() {
+    let totalServices = 0;
+    let totalItems = 0;
+    if (this.props.edited.services) {
+      totalServices = this.props.edited.services.reduce(
+        (total, currentItem) =>
+          total + (!isNaN(parseFloat(currentItem.priceAdjusted)) ? parseFloat(currentItem.priceAdjusted) : 0),
+        0,
+      );
+    }
+
+    if (this.props.edited.items) {
+      totalItems = this.props.edited.items.reduce(
+        (total, currentItem) =>
+          total + (!isNaN(parseFloat(currentItem.priceAdjusted)) ? parseFloat(currentItem.priceAdjusted) : 0),
+        0,
+      );
+    }
+
+    return totalServices + totalItems;
+  }
+
   render() {
     const { intl, classes, edited, reset, readOnly = false, forReview, forFeedback } = this.props;
     if (!edited) return null;
@@ -324,7 +346,7 @@ class ClaimMasterPanel extends FormPanel {
               id="Claim.valuated"
               field={
                 <Grid item xs={1} className={classes.item}>
-                  <AmountInput value={edited.valuated || null} module="claim" label="valuated" readOnly={true} />
+                  <AmountInput value={this.computePriceAdjusted()} module="claim" label="valuated" readOnly={true} />
                 </Grid>
               }
             />
