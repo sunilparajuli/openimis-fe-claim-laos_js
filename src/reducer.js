@@ -226,10 +226,27 @@ function reducer(
           error: formatGraphQLError(action.payload),
         },
       };
-    case "CLAIM_HEALTH_FACILITIES":
+    case "CLAIM_HEALTH_FACILITIES_REQ":
       return {
         ...state,
-        availablehealthFacilities: parseData(action.payload.data.healthFacilities)
+        isFetching: true,
+        isFetched: false,
+        availablehealthFacilities: null,
+        error: null,
+      };
+    case "CLAIM_HEALTH_FACILITIES_RESP":
+      return {
+        ...state,
+        isFetching: false,
+        isFetched: true,
+        availablehealthFacilities: parseData(action.payload.data.healthFacilities),
+        error: formatGraphQLError(action.payload),
+      };
+    case "CLAIM_HEALTH_FACILITIES_ERR":
+      return {
+        ...state,
+        isFetching: false,
+        error: formatServerError(action.payload),
       };
     case "CLAIM_MUTATION_REQ":
       return dispatchMutationReq(state, action);

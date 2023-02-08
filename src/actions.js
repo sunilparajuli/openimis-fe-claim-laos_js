@@ -324,7 +324,6 @@ export function fetchaAvailableHealthFacilities(mm, variables){
     `,
     variables,
     "CLAIM_HEALTH_FACILITIES",
-    { skip: true },
   )
 }
 
