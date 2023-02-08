@@ -33,6 +33,7 @@ function reducer(
     fetchedClaimCodeCount: false,
     claimCodeCount: null,
     errorClaimCodeCount: null,
+    availablehealthFacilities: [],
     claimOfficers: {
       items: [],
       isFetching: false,
@@ -224,6 +225,11 @@ function reducer(
           isFetched: false,
           error: formatGraphQLError(action.payload),
         },
+      };
+    case "CLAIM_HEALTH_FACILITIES":
+      return {
+        ...state,
+        availablehealthFacilities: parseData(action.payload.data.healthFacilities)
       };
     case "CLAIM_MUTATION_REQ":
       return dispatchMutationReq(state, action);

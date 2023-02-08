@@ -307,6 +307,27 @@ export function fetchClaimOfficers(mm, extraFragment, variables) {
   )
 }
 
+export function fetchaAvailableHealthFacilities(mm, variables){
+  return graphqlWithVariables(
+    `
+    query HealthFacilityPicker ($str: String, $region: String, $district: [String], $level: String) {
+      healthFacilities: healthFacilitiesStr(first: 20, str: $str, regionUuid: $region, districtsUuids: $district, level: $level) {
+        edges {
+          node {
+            uuid
+            code
+            location {uuid, parent { uuid }}
+          }
+        }
+      }
+    }
+    `,
+    variables,
+    "CLAIM_HEALTH_FACILITIES",
+    { skip: true },
+  )
+}
+
 export function submit(claims, clientMutationLabel, clientMutationDetails = null) {
   let claimUuids = `uuids: ["${claims.map((c) => c.uuid).join('","')}"]`;
   let mutation = formatMutation("submitClaims", claimUuids, clientMutationLabel, clientMutationDetails);

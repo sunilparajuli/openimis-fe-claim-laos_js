@@ -1,6 +1,9 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
+import { useDispatch, useSelector } from "react-redux";
 import { useModulesManager, useTranslations, Autocomplete, useGraphqlQuery } from "@openimis/fe-core";
 import _debounce from "lodash/debounce";
+import { fetchaAvailableHealthFacilities } from "../actions";
+
 
 const ClaimAdminPicker = (props) => {
   const {
@@ -56,6 +59,16 @@ const ClaimAdminPicker = (props) => {
     { hf: hfFilter?.uuid, search: searchString, user_health_facility: userHealthFacilityId },
     { skip: true },
   );
+
+  const dispatch = useDispatch();
+  const [variables, setVariables] = useState({});
+  const options = useSelector((state) => state.claim.availableHealthFacilities? state.claim.availableHealthFacilities: []);
+//   useEffect(async () => {
+//     await dispatch(
+//       fetchaAvailableHealthFacilities(modulesManager, variables),
+//    );
+//  }, []);
+ dispatch(fetchaAvailableHealthFacilities(modulesManager, variables));
 
   return (
     <Autocomplete
