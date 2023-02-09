@@ -219,6 +219,8 @@ class Head extends Component {
                 userHealthFacilityId={userHealthFacilityId || this._filterValue("healthFacility")?.uuid}
                 reset={this.state.reset}
                 onChange={this._onChangeClaimAdmin}
+                region={this._filterValue("region")}
+                district={this._filterValue("district")}
               />
             </Grid>
           }
