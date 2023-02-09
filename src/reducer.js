@@ -34,6 +34,12 @@ function reducer(
     claimCodeCount: null,
     errorClaimCodeCount: null,
     availablehealthFacilities: [],
+    healthFacilities: {
+      availableHealthFacilities: [],
+      isFetching: false,
+      isFetched: false,
+      error: null,
+    },
     claimOfficers: {
       items: [],
       isFetching: false,
@@ -229,25 +235,31 @@ function reducer(
     case "CLAIM_HEALTH_FACILITIES_REQ":
       return {
         ...state,
-        isFetching: true,
-        isFetched: false,
-        availablehealthFacilities: null,
-        error: null,
+        healthFacilities: {
+          availableHealthFacilities: null,
+          isFetching: true,
+          isFetched: false,
+          error: null,
+        },
       };
     case "CLAIM_HEALTH_FACILITIES_RESP":
       return {
         ...state,
-        isFetching: false,
-        isFetched: true,
-        availablehealthFacilities: parseData(action.payload.data.healthFacilities),
-        error: formatGraphQLError(action.payload),
+        healthFacilities: {
+          availableHealthFacilities: parseData(action.payload.data.healthFacilities),
+          isFetching: false,
+          isFetched: true,
+          error: formatGraphQLError(action.payload),
+        },
       };
     case "CLAIM_HEALTH_FACILITIES_ERR":
       return {
         ...state,
-        isFetching: false,
-        error: formatServerError(action.payload),
-      };
+        healthFacilities: {
+          isFetching: false,
+          error: formatServerError(action.payload),
+        },
+    };
     case "CLAIM_MUTATION_REQ":
       return dispatchMutationReq(state, action);
     case "CLAIM_MUTATION_ERR":

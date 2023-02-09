@@ -26,10 +26,9 @@ const ClaimAdminPicker = (props) => {
   const modulesManager = useModulesManager();
   const { formatMessage } = useTranslations("claim", modulesManager);
   const [searchString, setSearchString] = useState("");
-
   const dispatch = useDispatch();
   const [variables, setVariables] = useState({});
-  const options = useSelector((state) => state.claim?.availablehealthFacilities);
+  const options = useSelector((state) => state.claim?.healthFacilities.availableHealthFacilities);
   const region = useSelector((state) => state.core.filtersCache.claimHealthFacilitiesPageFiltersCache?.region?.value?.uuid);
   const district = useSelector((state) => state.core.filtersCache.claimHealthFacilitiesPageFiltersCache?.district?.value?.uuid);
 
@@ -41,9 +40,7 @@ const ClaimAdminPicker = (props) => {
     dispatch(fetchaAvailableHealthFacilities(modulesManager, variables));
   }, [variables]);
 
-  let result = options?.map(a => a.uuid);
-  console.log(result);
-  // console.log("varaibles", variables);
+  let availablehealthFacilities = options?.map(healthfacility => healthfacility.uuid);
 
   const { isLoading, data, error } = useGraphqlQuery(
     `
@@ -75,12 +72,9 @@ const ClaimAdminPicker = (props) => {
             }
         }
         `,
-    { hf: hfFilter?.uuid, search: searchString, user_health_facility: result },
+    { hf: hfFilter?.uuid, search: searchString, user_health_facility: userHealthFacilityId || availablehealthFacilities },
     { skip: true },
   );
-
-
-
 
   return (
     <Autocomplete
