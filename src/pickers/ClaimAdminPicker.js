@@ -27,20 +27,11 @@ const ClaimAdminPicker = (props) => {
   const { formatMessage } = useTranslations("claim", modulesManager);
   const [searchString, setSearchString] = useState("");
 
-  // 1# start location
-  // const userHealthFacility = useSelector((state) => state.loc.userHealthFacilityFullPath);
-  // let pickedDistrictsUuids = [];
-  // Array.isArray(district) ? pickedDistrictsUuids = district?.map((district) => district?.uuid) : pickedDistrictsUuids.push(district?.uuid);
-  // console.log("pickedDistrictsUuids: ", pickedDistrictsUuids);
-  // 1# end
-
   const dispatch = useDispatch();
   const [variables, setVariables] = useState({});
   const options = useSelector((state) => state.claim?.availablehealthFacilities);
   const region = useSelector((state) => state.core.filtersCache.claimHealthFacilitiesPageFiltersCache?.region?.value?.uuid);
   const district = useSelector((state) => state.core.filtersCache.claimHealthFacilitiesPageFiltersCache?.district?.value?.uuid);
-  // to add flag from location and district
-  // const claim = useSelector((state) => state.claim?.isFetched);
 
   useEffect(() => {
     setVariables({ region: props?.region?.uuid, district: [props?.district?.uuid] });
@@ -84,7 +75,7 @@ const ClaimAdminPicker = (props) => {
             }
         }
         `,
-    { hf: hfFilter?.uuid, search: searchString, user_health_facility: userHealthFacilityId },
+    { hf: hfFilter?.uuid, search: searchString, user_health_facility: result },
     { skip: true },
   );
 
