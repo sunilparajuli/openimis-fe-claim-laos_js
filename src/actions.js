@@ -38,9 +38,34 @@ export function selectRegion(region) {
   };
 }
 
-export function validateClaimCode(code) {
-  const payload = formatQuery("claims", [`code: "${code}"`], ["totalCount"]);
-  return graphql(payload, "CLAIM_CLAIM_CODE_COUNT");
+export function claimCodeValidationCheck(mm, variables) {
+  return graphqlWithVariables(
+    `
+    query ($claimCode: String!) {
+      isValid: validateClaimCode(claimCode: $claimCode)
+ }
+    `,
+    variables,
+    `CLAIM_CODE_FIELDS_VALIDATION`,
+  );
+}
+
+export function claimCodeValidationClear() {
+  return (dispatch) => {
+    dispatch({ type: `CLAIM_CODE_FIELDS_VALIDATION_CLEAR` });
+  };
+}
+
+export function claimCodeSetValid() {
+  return (dispatch) => {
+    dispatch({ type: `CLAIM_CODE_FIELDS_VALIDATION_SET_VALID` });
+  };
+}
+
+export function clearClaim() {
+  return (dispatch) => {
+    dispatch({ type: `CLAIM_CLAIM_CLEAR` });
+  };
 }
 
 export function fetchClaimAttachments(claim) {
