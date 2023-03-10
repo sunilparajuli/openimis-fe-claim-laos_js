@@ -247,6 +247,27 @@ class ClaimForm extends Component {
         icon: <AttachIcon />,
       });
     }
+
+    const editingProps = {
+              edited_id: claim_uuid,
+              edited: this.state.claim,
+              reset: this.state.reset,
+              back: back,
+              forcedDirty: this.state.forcedDirty,
+              add: !!add && !this.state.newClaim ? this._add : null,
+              save: !!save ? this._save : null,
+              fab: forReview && !readOnly && this.state.claim.reviewStatus < 8 && <CheckIcon />,
+              fabAction: this._deliverReview,
+              fabTooltip: formatMessage(this.props.intl, "claim", "claim.Review.deliverReview.fab.tooltip"),
+              canSave: (e) => this.canSave(forFeedback),
+              reload: (claim_uuid || readOnly) && this.reload,
+              actions: actions,
+              readOnly: readOnly,
+              forReview: forReview,
+              forFeedback: forFeedback,
+              onEditedChanged: this.onEditedChanged,
+    };
+
     return (
       <Fragment>
         <Helmet
@@ -266,29 +287,13 @@ class ClaimForm extends Component {
             />
             <Form
               module="claim"
-              edited_id={claim_uuid}
-              edited={this.state.claim}
-              reset={this.state.reset}
               title="edit.title"
               titleParams={{ code: this.state.claim.code }}
-              back={back}
-              forcedDirty={this.state.forcedDirty}
-              add={!!add && !this.state.newClaim ? this._add : null}
-              save={!!save ? this._save : null}
-              fab={forReview && !readOnly && this.state.claim.reviewStatus < 8 && <CheckIcon />}
-              fabAction={this._deliverReview}
-              fabTooltip={formatMessage(this.props.intl, "claim", "claim.Review.deliverReview.fab.tooltip")}
-              canSave={(e) => this.canSave(forFeedback)}
-              reload={(claim_uuid || readOnly) && this.reload}
-              actions={actions}
-              readOnly={readOnly}
-              forReview={forReview}
-              forFeedback={forFeedback}
               HeadPanel={ClaimMasterPanel}
               Panels={!!forFeedback ? [ClaimFeedbackPanel] : [ClaimServicesPanel, ClaimItemsPanel]}
-              onEditedChanged={this.onEditedChanged}
+              {...editingProps}
             />
-            <Contributions contributionKey={CLAIM_FORM_CONTRIBUTION_KEY} />
+            <Contributions contributionKey={CLAIM_FORM_CONTRIBUTION_KEY} {...editingProps}/>
           </Fragment>
         )}
       </Fragment>
