@@ -30,6 +30,20 @@ import ClaimFeedbackPanel from "./ClaimFeedbackPanel";
 
 import { RIGHT_ADD, RIGHT_LOAD, RIGHT_PRINT } from "../constants";
 
+function ClaimFormGetUrlParameter(sParam) {
+  var sPageURL = decodeURIComponent(window.location.search.substring(1)),
+      sURLVariables = sPageURL.split('&'),
+      sParameterName,
+      i;
+  for (i = 0; i < sURLVariables.length; i++) {
+      sParameterName = sURLVariables[i].split('=');
+
+      if (sParameterName[0] === sParam) {
+          return sParameterName[1] === undefined ? true : sParameterName[1];
+      }
+  }
+}
+
 const CLAIM_FORM_CONTRIBUTION_KEY = "claim.ClaimForm";
 
 const styles = (theme) => ({
@@ -55,10 +69,12 @@ class ClaimForm extends Component {
   state = {
     lockNew: false,
     reset: 0,
+    update: 0,
     claim_uuid: null,
     claim: this._newClaim(),
     newClaim: true,
     printParam: null,
+    isAttachmentsClaimSet: false,
     attachmentsClaim: null,
     forcedDirty: false,
   };
@@ -86,6 +102,7 @@ class ClaimForm extends Component {
   }
 
   componentDidMount() {
+    document.title = formatMessageWithValues(this.props.intl, "claim", "claim.edit.page.title", { code: "" }) //Nepal
     if (!!this.props.claimHealthFacility) {
       this.props.claimHealthFacilitySet(this.props.claimHealthFacility);
       localStorage.setItem('claimHealthFacility', JSON.stringify(this.props.claimHealthFacility));
@@ -120,6 +137,9 @@ class ClaimForm extends Component {
       this.setState({ reset: this.state.reset + 1 });
     } else if (!prevProps.generating && !!this.props.generating) {
       this.props.generate(this.state.printParam);
+    }
+    if (prevState.claim.code !== this.state.claim.code) {
+      document.title = formatMessageWithValues(this.props.intl, "claim", "claim.edit.page.title", { code: this.state.claim.code })
     }
   }
 
@@ -178,6 +198,23 @@ class ClaimForm extends Component {
         if (services.length && services.filter((s) => !this.canSaveDetail(s, "service")).length) {
           return false;
         }
+        if (prevProps.fetchedClaim !== this.props.fetchedClaim && !!this.props.fetchedClaim) {
+              var claim = this.props.claim;
+              claim.jsonExt = !!claim.jsonExt ? JSON.parse(claim.jsonExt) : {};
+              
+              this.setState(
+                  { claim, claim_uuid: this.props.claim.uuid, lockNew: false, newClaim: false },
+                  this.props.claimHealthFacilitySet(this.props.claim.healthFacility)
+              );
+          } else if (prevProps.claim_uuid && !this.props.claim_uuid) {
+              document.title = formatMessageWithValues(this.props.intl, "claim", "claim.edit.page.title", { code: "" })
+              this.setState({ claim: this._newClaim(), newClaim: true, lockNew: false, claim_uuid: null });
+          } else if (prevProps.submittingMutation && !this.props.submittingMutation) {
+              this.props.journalize(this.props.mutation);
+              this.setState({ reset: this.state.reset + 1 });
+          } else if (!prevProps.generating && !!this.props.generating) {
+              this.props.generate(this.state.printParam)
+            }
       }
       if (!items.length && !services.length) return !!this.canSaveClaimWithoutServiceNorItem;
     }
@@ -255,6 +292,15 @@ class ClaimForm extends Component {
         icon: <AttachIcon />,
       });
     }
+    if (!!this.claimAttachments && (!readOnly || claim.attachmentsCount > 0) && !this.state.isAttachmentsClaimSet ) {
+      if( ClaimFormGetUrlParameter('open_attachment')){
+          this.setState({ isAttachmentsClaimSet: true });
+          this.setState({ attachmentsClaim: claim });
+
+        
+      }
+                            
+    }
 
     const editingProps = {
               edited_id: claim_uuid,
@@ -292,6 +338,7 @@ class ClaimForm extends Component {
               claim={this.state.attachmentsClaim}
               close={(e) => this.setState({ attachmentsClaim: null })}
               onUpdated={() => this.setState({ forcedDirty: true })}
+              forReview={forReview}
             />
             <Form
               module="claim"
