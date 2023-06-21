@@ -211,7 +211,7 @@ export function formatClaimGQL(mm, claim) {
     feedbackStatus: ${mm.getRef("claim.CreateClaim.feedbackStatus")}
     reviewStatus: ${mm.getRef("claim.CreateClaim.reviewStatus")}
     dateClaimed: "${claim.dateClaimed}"
-    referFromId: ${decodeId(claim.referHF.id)}
+    ${claim.visitType==='R' ? `referFromId` : `referToId`}: ${decodeId(claim.referHF.id)}
     healthFacilityId: ${decodeId(claim.healthFacility.id)}
     visitType: "${claim.visitType}"
     ${!!claim.guaranteeId ? `guaranteeId: "${claim.guaranteeId}"` : ""}
@@ -266,6 +266,8 @@ export function fetchClaim(mm, claimUuid, forFeedback) {
     "adjustment",
     "attachmentsCount",
     "healthFacility" + mm.getProjection("location.HealthFacilityPicker.projection"),
+    "referFrom" + mm.getProjection("location.HealthFacilityReferPicker.projection"),
+    "referTo" + mm.getProjection("location.HealthFacilityReferPicker.projection"),
     "insuree" + mm.getProjection("insuree.InsureePicker.projection"),
     "visitType" + mm.getProjection("medical.VisitTypePicker.projection"),
     "admin" + mm.getProjection("claim.ClaimAdminPicker.projection"),
