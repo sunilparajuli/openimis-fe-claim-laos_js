@@ -66,6 +66,12 @@ class ClaimMasterPanel extends FormPanel {
       "claimForm.referHF",
       true,
     );
+    this.claimTypeReferSymbol = props.modulesManager.getConf(
+      "fe-claim",
+      "claimForm.claimTypeReferSymbol",
+      'R',
+    );
+    this.EMPTY_STRING = ""
   }
 
   componentWillUnmount = () => {
@@ -92,10 +98,6 @@ class ClaimMasterPanel extends FormPanel {
     }
 
     return totalServices + totalItems;
-  }
-
-  filterReferHF(options, currentHFUuid=this.props.userHealthFacilityFullPath.uuid){
-    return options.filter((option)=>option.uuid!==currentHFUuid)
   }
   
   render() {
@@ -261,12 +263,12 @@ class ClaimMasterPanel extends FormPanel {
             <Grid item xs={3} className={classes.item}>
               <PublishedComponent
                 pubRef="location.HealthFacilityReferPicker"
-                label={formatMessage(intl, "claim", "referHF")}
-                value={(edited.visitType==='R' ? edited.referFrom: edited.referTo) ?? ""}
+                label={formatMessage(intl, "claim", "ClaimMasterPanel.referHFLabel")}
+                value={(edited.visitType === this.claimTypeReferSymbol ? edited.referFrom: edited.referTo) ?? this.EMPTY_STRING}
                 reset={reset}
                 readOnly={ro}
-                required={edited.visitType==='R' ? true : false}
-                filterOptions={(options)=>options?.filter((option)=>option.uuid!==userHealthFacilityFullPath?.uuid)}
+                required={edited.visitType === this.claimTypeReferSymbol ? true : false}
+                filterOptions={(options)=>options?.filter((option)=>option.uuid !== userHealthFacilityFullPath?.uuid)}
                 filterSelectedOptions={true}
                 onChange={(d) => this.updateAttribute("referHF", d)}
               />
