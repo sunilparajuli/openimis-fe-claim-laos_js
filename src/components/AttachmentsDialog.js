@@ -142,9 +142,6 @@ class AttachmentsDialogPreview extends Component { //this component is carousel
       if (this['status'] == 200) {          
         var file = window.URL.createObjectURL(this.response); //blob object {type : 'application/pdf' }
           thisRef.forcePdfTimeoutPreview(file);
-        while(false){ //didnot work 
-        }
-        //.src = file;
       }
     };
 
