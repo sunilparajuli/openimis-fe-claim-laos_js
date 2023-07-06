@@ -255,4 +255,4 @@
   "claim.edit.items.rejectall": "Reject All items",
   "claim.edit.items.delete": " ",
   "claim.claimAttachment.type": "SelectAttachmentType"
-}
+  "claim.ClaimMasterPanel.referHFLabel": "Referal HF"
