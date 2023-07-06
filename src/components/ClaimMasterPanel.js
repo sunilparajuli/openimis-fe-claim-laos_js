@@ -56,6 +56,7 @@ class ClaimMasterPanel extends FormPanel {
     this.codeMaxLength = props.modulesManager.getConf("fe-claim", "claimForm.codeMaxLength", 8);
     this.guaranteeIdMaxLength = props.modulesManager.getConf("fe-claim", "claimForm.guaranteeIdMaxLength", 50);
     this.showAdjustmentAtEnter = props.modulesManager.getConf("fe-claim", "claimForm.showAdjustmentAtEnter", false);
+    this.autoGenerateClaimCode = props.modulesManager.getConf("fe-claim", "claimForm.autoGenerateClaimCode", false);
     this.insureePicker = props.modulesManager.getConf(
       "fe-claim",
       "claimForm.insureePicker",
@@ -291,12 +292,12 @@ class ClaimMasterPanel extends FormPanel {
                 label="claim.code"
                 module="claim"
                 onChange={(code) => this.updateAttribute("code", code)}
-                readOnly={readOnly || !!forReview || !!forFeedback}
-                required={true}
+                readOnly={readOnly || !!forReview || !!forFeedback || this.autoGenerateClaimCode}
+                required={this.autoGenerateClaimCode ? false : true}
                 setValidAction={claimCodeSetValid}
                 shouldValidate={this.shouldValidate}
                 validationError={codeValidationError}
-                value={!!this.state.data ? this.state.data.code : null}
+                value={!!this.state.data ? this.state.data.code : (this.autoGenerateClaimCode ? formatMessage(intl, "claim", "ClaimMasterPanel.autogenerate") : null)}
                 inputProps={{
                   "maxLength": this.codeMaxLength,
                 }}
