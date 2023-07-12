@@ -92,6 +92,7 @@ class ClaimForm extends Component {
       "claimForm.claimTypeReferSymbol",
       'R',
     );
+    this.autoGenerateClaimCode = props.modulesManager.getConf("fe-claim", "claimForm.autoGenerateClaimCode", false);
   }
 
   _newClaim() {
@@ -171,7 +172,7 @@ class ClaimForm extends Component {
   };
 
   canSave = (forFeedback) => {
-    if (!this.state.claim.code) return false;
+    if (!this.autoGenerateClaimCode && !this.state.claim.code) return false;
     if (this.state.lockNew) return false;
     if (!this.props.isClaimCodeValid) return false;
     if (!!this.state.claim.codeError) return false;
