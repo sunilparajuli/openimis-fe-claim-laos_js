@@ -86,6 +86,11 @@ class ClaimForm extends Component {
       "canSaveClaimWithoutServiceNorItem",
       true,
     );
+    this.claimValidationMultipleServicesExplanationRequired = props.modulesManager.getConf(
+      "fe-claim",
+      "claimValidationMultipleServicesExplanationRequired",
+      false,
+    );
     this.claimAttachments = props.modulesManager.getConf("fe-claim", "claimAttachments", true);
     this.claimTypeReferSymbol = props.modulesManager.getConf(
       "fe-claim",
@@ -201,6 +206,12 @@ class ClaimForm extends Component {
       let services = [];
       if (!!this.state.claim.services) {
         services = [...this.state.claim.services];
+        if (this.claimValidationMultipleServicesExplanationRequired){
+          const isValid = services.every(item => !(item.qtyProvided > 1 && !item?.explanation));
+          if (!isValid){
+            return false;
+          }
+        }
         if (!this.props.forReview) services.pop();
         if (services.length && services.filter((s) => !this.canSaveDetail(s, "service")).length) {
           return false;
