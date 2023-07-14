@@ -50,19 +50,19 @@ It is dedicated to be deployed as a module of [openimis-fe_js](https://github.co
 - `CLAIM_CLAIM_{REQ|RESP|ERR}`: loading a claim (double click on claim in result table)
 - `CLAIM_LAST_CLAIM_AT_{REQ|RESP|ERR}`: loading the last (other) claim of the claim insuree at the claim health facility (cfr. `claim.ClaimMasterPanelExt`)
 - `CLAIM_MUTATION_{REQ|ERR}`: sending a mutation (update, deliver feedback,...)
-- `CLAIM_CREATE_CLAIM_RESP`: recieving the result of create claim mutation
-- `CLAIM_UPDATE_CLAIM_RESP`: recieving the result of update claim mutation
-- `CLAIM_SUBMIT_CLAIMS_RESP`: recieving the result of submit claim(s) mutation
-- `CLAIM_DELETE_CLAIMS_RESP`: recieving the result of delete claim(s) mutation
-- `CLAIM_SELECT_CLAIMS_FOR_FEEDBACK_RESP`: recieving the result of select claim(s) for feedback mutation
-- `CLAIM_BYPASS_CLAIMS_FEEDBACK_RESP`: recieving the result of bypass claim(s) feedback mutation
-- `CLAIM_SKIP_CLAIMS_FEEDBACK_RESP`: recieving the result of skip claim(s) feedback mutation
-- `CLAIM_DELIVER_CLAIM_FEEDBACK_RESP`: recieving the result of deliver claim feedback mutation
-- `CLAIM_SELECT_CLAIMS_FOR_REVIEW_RESP`: recieving the result of select claim(s) for review mutation
-- `CLAIM_BYPASS_CLAIMS_REVIEW_RESP`: recieving the result of bypass claim(s) review mutation
-- `CLAIM_SKIP_CLAIMS_REVIEW_RESP`: recieving the result of skip claim(s) review mutation
-- `CLAIM_DELIVER_CLAIM_REVIEW_RESP`: recieving the result of deliver claim review mutation
-- `CLAIM_PROCESS_CLAIMS_RESP`: recieving the result of process claim(s) mutation
+- `CLAIM_CREATE_CLAIM_RESP`: receiving the result of create claim mutation
+- `CLAIM_UPDATE_CLAIM_RESP`: receiving the result of update claim mutation
+- `CLAIM_SUBMIT_CLAIMS_RESP`: receiving the result of submit claim(s) mutation
+- `CLAIM_DELETE_CLAIMS_RESP`: receiving the result of delete claim(s) mutation
+- `CLAIM_SELECT_CLAIMS_FOR_FEEDBACK_RESP`: receiving the result of select claim(s) for feedback mutation
+- `CLAIM_BYPASS_CLAIMS_FEEDBACK_RESP`: receiving the result of bypass claim(s) feedback mutation
+- `CLAIM_SKIP_CLAIMS_FEEDBACK_RESP`: receiving the result of skip claim(s) feedback mutation
+- `CLAIM_DELIVER_CLAIM_FEEDBACK_RESP`: receiving the result of deliver claim feedback mutation
+- `CLAIM_SELECT_CLAIMS_FOR_REVIEW_RESP`: receiving the result of select claim(s) for review mutation
+- `CLAIM_BYPASS_CLAIMS_REVIEW_RESP`: receiving the result of bypass claim(s) review mutation
+- `CLAIM_SKIP_CLAIMS_REVIEW_RESP`: receiving the result of skip claim(s) review mutation
+- `CLAIM_DELIVER_CLAIM_REVIEW_RESP`: receiving the result of deliver claim review mutation
+- `CLAIM_PROCESS_CLAIMS_RESP`: receiving the result of process claim(s) mutation
 - `CLAIM_PRINT`: emit print claim request
 - `CLAIM_PRINT_DONE`: recieved print claim response (pdf)
 - `CLAIM_EDIT_HEALTH_FACILITY_SET`: selected health facility in claim edit form. Known usage: `medical_pricelist` (to load the corresponding pricelist)
@@ -98,3 +98,5 @@ None
 - `claimAttachments`, boolean to enable/disable claim attachments. Default true;
 - `claimValidationMultipleServicesExplanationRequired`, validate if user provided explanation for service with quantity>1. Default false.
 - `claimForm.referHF`, boolean to enable/disable referal HF (mandatory when visit type = Referal, optional without). Default true;
+- `claimForm.claimTypeReferSymbol`, used for checking referHF option, indicate which letter represents referal. Default R.
+- `claimForm.autoGenerateClaimCode`, boolean to enable autogenerating claim code by the backend. Default false.
