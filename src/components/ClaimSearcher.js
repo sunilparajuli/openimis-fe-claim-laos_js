@@ -4,7 +4,7 @@ import { connect } from "react-redux";
 import { injectIntl } from "react-intl";
 import _ from "lodash";
 import { withTheme, withStyles } from "@material-ui/core/styles";
-import { IconButton, Typography, Tooltip, Grid, Divider } from "@material-ui/core";
+import { IconButton, Typography, Tooltip } from "@material-ui/core";
 import AttachIcon from "@material-ui/icons/AttachFile";
 import TabIcon from "@material-ui/icons/Tab";
 import { Searcher } from "@openimis/fe-core";
@@ -22,12 +22,7 @@ import { fetchClaimSummaries } from "../actions";
 
 const CLAIM_SEARCHER_CONTRIBUTION_KEY = "claim.Searcher";
 
-const styles = theme => ({
-  paper: theme.paper.paper,
-  tableHeader: theme.table.header,
-  item : theme.paper.item,
-  custompanel : theme.customPanel,
-})
+const styles = (theme) => ({});
    
 class ClaimSearcher extends Component {
   state = {
@@ -47,7 +42,6 @@ class ClaimSearcher extends Component {
     this.highlightAltInsurees = props.modulesManager.getConf("fe-claim", "claimFilter.highlightAltInsurees", true);
     this.claimAttachments = props.modulesManager.getConf("fe-claim", "claimAttachments", true);
     this.extFields = props.modulesManager.getConf("fe-claim", "extFields", []);
-    this.claimSn = 0; //adding S.N in table searcher
   }
 
   canSelectAll = (selection) =>
@@ -174,7 +168,6 @@ class ClaimSearcher extends Component {
 
   headers = () => {
     var result = [
-      "claim.sn",
       "claimSummaries.code",
       "claimSummaries.healthFacility",
       "claimSummaries.insuree",
@@ -201,8 +194,8 @@ class ClaimSearcher extends Component {
   sorts = () => {
     var result = [
       ["code", true],
-      [this.props.modulesManager.getRef("location.HealthFacilityPicker.sort"), true],//+            ['healthFacility__code', true],
-      [this.props.modulesManager.getRef("insuree.InsureePicker.sort"), true], // +            ['insuree__last_name', true],
+      [this.props.modulesManager.getRef("location.HealthFacilityPicker.sort"), true],
+      [this.props.modulesManager.getRef("insuree.InsureePicker.sort"), true],
       ["dateClaimed", false],
       null,
       null,
@@ -226,7 +219,6 @@ class ClaimSearcher extends Component {
 
   itemFormatters = () => {
     var result = [
-      (c) => c.sn,
       (c) => c.code,
       (c) => (
         <PublishedComponent
@@ -271,11 +263,6 @@ class ClaimSearcher extends Component {
     ));
     return result;
   };
-  
-  getItemSerialNumber() { //get item serial number
-    this.claimSn += 1;
-    return this.claimSn;
-  }
 
   rowLocked = (selection, claim) => !!claim.clientMutationId;
   rowHighlighted = (selection, claim) => !!this.highlightAmount && claim.claimed > this.highlightAmount;
@@ -292,19 +279,14 @@ class ClaimSearcher extends Component {
       fetchingClaims,
       fetchedClaims,
       errorClaims,
-      classes,
       FilterExt,
       filterPaneContributionsKey,
       actions,
       defaultFilters,
       cacheFiltersKey,
       onDoubleClick,
-      actionsContributionKey, //commented out
+      actionsContributionKey,
     } = this.props;
-
-    for(var i=0; claims!=null && i<claims.length; i++){
-      claims[i]['sn']= i+1;
-    }
 
     let count = !!this.state.random && this.state.random.value;
     if (!count) {
@@ -312,7 +294,6 @@ class ClaimSearcher extends Component {
     }
 
     count = count.toString().replace(/\B(?=(\d{3})+(?!\d))/g, ",");
-    //let preHeaders = this.preHeaders;
     return (
       <Fragment>
         <PublishedComponent
@@ -322,7 +303,6 @@ class ClaimSearcher extends Component {
           close={(e) => this.setState({ attachmentsClaim: null })}
         />
         <Searcher
-          //classes = {classes}              
           module="claim"
           canSelectAll={this.canSelectAll}
           defaultFilters={defaultFilters}
