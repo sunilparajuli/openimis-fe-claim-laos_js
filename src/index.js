@@ -76,7 +76,7 @@ const DEFAULT_CONFIG = {
     { key: "claim.CreateClaim.feedbackStatus", ref: 1 },
     { key: "claim.CreateClaim.reviewStatus", ref: 1 },
     { key: "claim.CreateClaim.claimTypeReferSymbol", ref: "R" },
-    { key: "claim.ClaimFilterByInsureeGender", ref: ClaimFilterByInsureeGender},
+    { key: "claim.ClaimMasterPanelExt", ref: ClaimMasterPanelExt },
     { key: "claim.AttachmentsDialog", ref: AttachmentsDialog },
   ],
   "core.Router": [
