@@ -273,15 +273,6 @@ class ClaimForm extends Component {
         icon: <AttachIcon />,
       });
     }
-    if (!!this.claimAttachments && (!readOnly || claim.attachmentsCount > 0) && !this.state.isAttachmentsClaimSet ) {
-      if( ClaimFormGetUrlParameter('open_attachment')){
-          this.setState({ isAttachmentsClaimSet: true });
-          this.setState({ attachmentsClaim: claim });
-
-        
-      }
-                            
-    }
 
     const editingProps = {
               edited_id: claim_uuid,
