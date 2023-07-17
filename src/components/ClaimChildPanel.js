@@ -76,7 +76,7 @@ class ClaimChildPanel extends Component {
   _updateData = (idx, updates) => {
       const data = [...this.state.data];
       updates.forEach((update) => (data[idx][update.attr] = update.v));
-      if (!this.props.forReview && data.length === (idx + 1)) {
+      if (!this.props.forReview && data.length === idx + 1) {
           data.push({});
       }
       return data;
@@ -99,7 +99,7 @@ class ClaimChildPanel extends Component {
 }
 
   _onChangeItem = (idx, attr, v) => {
-    let data = this._updateData(idx, attr, v);
+    let data = this._updateData(idx, [{attr, v}]);
     if (!v) {
       data[idx].priceAsked = null;
       data[idx].qtyProvided = null;
