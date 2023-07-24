@@ -178,6 +178,19 @@ class ClaimForm extends Component {
       let items = [];
       if (!!this.state.claim.items) {
         items = [...this.state.claim.items];
+
+        let isUnderMaximumAmount = true;
+        
+        items.forEach(item => {
+          if (parseFloat(item.qtyProvided) >= parseFloat(item?.item?.maximumAmount ?? +Infinity)) {
+            isUnderMaximumAmount = false;
+          }
+        });
+
+        if (!isUnderMaximumAmount) {
+          return false;
+        } 
+
         if (!this.props.forReview) items.pop();
         if (items.length && items.filter((i) => !this.canSaveDetail(i, "item")).length) {
           return false;
@@ -186,6 +199,19 @@ class ClaimForm extends Component {
       let services = [];
       if (!!this.state.claim.services) {
         services = [...this.state.claim.services];
+
+        let isUnderMaximumAmount = true;
+
+        services.forEach(item => {
+          if (parseFloat(item.qtyProvided) >= parseFloat(item?.service?.maximumAmount ?? +Infinity)) {
+            isUnderMaximumAmount = false;
+          }
+        });
+
+        if (!isUnderMaximumAmount) {
+          return false;
+        } 
+        
         if (this.claimValidationMultipleServicesExplanationRequired){
           const isValid = services.every(item => !(item.qtyProvided > 1 && !item?.explanation));
           if (!isValid){
