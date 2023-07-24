@@ -176,12 +176,22 @@ class ClaimChildPanel extends Component {
       `edit.${type}s.explanation`,
     ];
 
+    let filterItemsOptions = (options) => {
+      let currentItemsIds = edited.items ? edited.items.map((claimItem) => claimItem?.item?.id) : [];
+      return options.filter((option) => !currentItemsIds.includes(option.id));
+    }
+    let filterServicesOptions = (options) => {
+      let currentServicesIds = edited.services ? edited.services.map((claimService) => claimService?.service?.id) : [];
+      return options.filter((option) => !currentServicesIds.includes(option.id));
+    }
+
     let itemFormatters = [
       (i, idx) => (
         <Box minWidth={400}>
           <PublishedComponent
             readOnly={!!forReview || readOnly}
             pubRef={picker}
+            filterOptions={this.props.type==='item' ? filterItemsOptions : filterServicesOptions}
             withLabel={false}
             value={i[type]}
             fullWidth
