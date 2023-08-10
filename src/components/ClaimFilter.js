@@ -586,6 +586,23 @@ class Details extends Component {
         </Grid>
         <Grid item xs={1} className={classes.item}>
           <PublishedComponent
+            pubRef="claim.VisitTypeOutInPatientPicker"
+            name="visitTypeOutInPatient"
+            value={filters["visitTypeOutInPatient"] && filters["visitTypeOutInPatient"]["value"]}
+            onChange={(value) =>{
+              onChangeFilters([
+                {
+                  id: "visitTypeOutInPatient",
+                  value: value,
+                  filter: !!value ? `visitTypeOutInPatient: "${value}"` : null,
+                },
+              ])
+            }
+            }
+          />
+        </Grid>
+        <Grid item xs={1} className={classes.item}>
+          <PublishedComponent
             pubRef="claim.AttachmentStatusPicker"
             name="attachmentStatus"
             value={filters["attachmentStatus"] && filters["attachmentStatus"]["value"]}

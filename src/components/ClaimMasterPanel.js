@@ -78,6 +78,11 @@ class ClaimMasterPanel extends FormPanel {
       "claimForm.numberOfAdditionalDiagnosis",
       DEFAULT_ADDITIONAL_DIAGNOSIS_NUMBER,
     );
+    this.isExplanationMandatoryForIPD = props.modulesManager.getConf(
+      "fe-claim",
+      "claimForm.isExplanationMandatoryForIPD",
+      true,
+    );
     this.EMPTY_STRING = ""
   }
 
@@ -239,6 +244,24 @@ class ClaimMasterPanel extends FormPanel {
                 onChange={(v, s) => this.updateAttribute("visitType", v)}
                 readOnly={ro}
                 required={true}
+              />
+            </Grid>
+          }
+        />
+        <ControlledField
+          module="claim"
+          id="Claim.visitTypeOutInPatient"
+          field={
+            <Grid item xs={forFeedback || forReview ? 2 : 3} className={classes.item}>
+              <PublishedComponent
+                pubRef="claim.VisitTypeOutInPatientPicker"
+                name="visitTypeOutInPatient"
+                withNull={false}
+                value={edited.visitTypeOutInPatient}
+                reset={reset}
+                onChange={(v) => this.updateAttribute("visitTypeOutInPatient", v)}
+                readOnly={ro}
+                required={false}
               />
             </Grid>
           }
@@ -448,6 +471,7 @@ class ClaimMasterPanel extends FormPanel {
                     reset={reset}
                     onChange={(v) => this.updateAttribute("explanation", v)}
                     readOnly={ro}
+                    required={this.isExplanationMandatoryForIPD && edited.visitTypeOutInPatient=="IPD" ? true : false}
                   />
                 </Grid>
               }

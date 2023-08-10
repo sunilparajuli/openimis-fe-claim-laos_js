@@ -102,6 +102,7 @@ None
 - `claimForm.claimTypeReferSymbol`, used for checking referHF option, indicate which letter represents referal. Default R.
 - `claimForm.autoGenerateClaimCode`, boolean to enable autogenerating claim code by the backend. Default false.
 - `claimForm.numberOfAdditionalDiagnosis`, integer to enable required number of additional diagnoses. Default 4, up to 4 supported.
+- `claimForm.isExplanationMandatoryForIPD`, boolean to enable check for required explanation if visit type is IPD. Default false.
 - `reviews.defaultFilters`, default filters for claim review searcher. Example code from ReviewsPage.js:
   "reviews.defaultFilters", {
     "claimStatus": {

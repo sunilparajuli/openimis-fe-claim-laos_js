@@ -213,6 +213,7 @@ export function formatClaimGQL(modulesManager, claim) {
     ${!!claim.icd4 ? `icd4Id: ${decodeId(claim.icd4.id)}` : ""}
     ${`jsonExt: ${formatJsonField(claim.jsonExt)}`}
     feedbackStatus: ${modulesManager.getRef("claim.CreateClaim.feedbackStatus")}
+    visitTypeOutInPatient: "${claim.visitTypeOutInPatient}"
     reviewStatus: ${modulesManager.getRef("claim.CreateClaim.reviewStatus")}
     dateClaimed: "${claim.dateClaimed}"
     ${claim.referHF ? `${handleReferHFType(modulesManager, claim)}${decodeId(claim.referHF.id)}` : ""}
@@ -273,6 +274,7 @@ export function fetchClaim(mm, claimUuid, forFeedback) {
     "explanation",
     "adjustment",
     "attachmentsCount",
+    "visitTypeOutInPatient",
     "healthFacility" + mm.getProjection("location.HealthFacilityPicker.projection"),
     "referFrom" + mm.getProjection("location.HealthFacilityReferPicker.projection"),
     "referTo" + mm.getProjection("location.HealthFacilityReferPicker.projection"),

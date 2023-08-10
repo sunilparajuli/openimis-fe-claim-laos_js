@@ -8,6 +8,7 @@ export const REJECTION_REASONS = _.range(-1, 20);
 export const FEEDBACK_ASSESSMENTS = _.range(-1, 6);
 // NULL - all claims, 1 - with attachments, 2 - without attachments
 export const ATTACHMENT_STATUS = [1, 2];
+export const IN_OUT_STATUS = ["IPD", "OPD"];
 
 export const MODULE_NAME = "claim";
 
