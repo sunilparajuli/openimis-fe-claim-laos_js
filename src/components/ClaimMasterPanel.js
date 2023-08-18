@@ -250,16 +250,16 @@ class ClaimMasterPanel extends FormPanel {
         />
         <ControlledField
           module="claim"
-          id="Claim.visitTypeOutInPatient"
+          id="Claim.careType"
           field={
             <Grid item xs={forFeedback || forReview ? 2 : 3} className={classes.item}>
               <PublishedComponent
-                pubRef="claim.VisitTypeOutInPatientPicker"
-                name="visitTypeOutInPatient"
+                pubRef="claim.CareTypePicker"
+                name="careType"
                 withNull={false}
-                value={edited.visitTypeOutInPatient}
+                value={edited.careType}
                 reset={reset}
-                onChange={(v) => this.updateAttribute("visitTypeOutInPatient", v)}
+                onChange={(value) => this.updateAttribute("careType", value)}
                 readOnly={ro}
                 required={false}
               />
@@ -471,7 +471,7 @@ class ClaimMasterPanel extends FormPanel {
                     reset={reset}
                     onChange={(v) => this.updateAttribute("explanation", v)}
                     readOnly={ro}
-                    required={this.isExplanationMandatoryForIPD && edited.visitTypeOutInPatient=="IPD" ? true : false}
+                    required={this.isExplanationMandatoryForIPD && edited.careType==="IPD" ? true : false}
                   />
                 </Grid>
               }
