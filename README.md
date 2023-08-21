@@ -110,3 +110,4 @@ None
       "filter": "status: 4",
     },
   }
+- `claimForm.showOrdinalNumber`, show "number" column as a first column in claim searcher and item/services table. Default false.
