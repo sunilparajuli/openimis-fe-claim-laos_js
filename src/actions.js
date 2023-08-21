@@ -236,8 +236,8 @@ function handleReferHFType(modulesManager, claim){
 }
 
 export function createClaim(mm, claim, clientMutationLabel) {
-  let shouldAutogenerate = mm.getConf("fe-claim", "claimForm.autoGenerateClaimCode", false)
-  let mutation = formatMutation("createClaim", formatClaimGQL(mm, claim, shouldAutogenerate), clientMutationLabel);
+  const shouldAutogenerate = mm.getConf("fe-claim", "claimForm.autoGenerateClaimCode", false)
+  const mutation = formatMutation("createClaim", formatClaimGQL(mm, claim, shouldAutogenerate), clientMutationLabel);
   var requestedDateTime = new Date();
   return graphql(mutation.payload, ["CLAIM_MUTATION_REQ", "CLAIM_CREATE_CLAIM_RESP", "CLAIM_MUTATION_ERR"], {
     clientMutationId: mutation.clientMutationId,
@@ -247,7 +247,7 @@ export function createClaim(mm, claim, clientMutationLabel) {
 }
 
 export function updateClaim(mm, claim, clientMutationLabel) {
-  let mutation = formatMutation("updateClaim", formatClaimGQL(mm, claim, false), clientMutationLabel);
+  const mutation = formatMutation("updateClaim", formatClaimGQL(mm, claim, false), clientMutationLabel);
   var requestedDateTime = new Date();
   claim.clientMutationId = mutation.clientMutationId;
   return graphql(mutation.payload, ["CLAIM_MUTATION_REQ", "CLAIM_UPDATE_CLAIM_RESP", "CLAIM_MUTATION_ERR"], {
