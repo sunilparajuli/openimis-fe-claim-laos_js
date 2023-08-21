@@ -41,6 +41,7 @@ class ClaimChildPanel extends Component {
       "claimForm.showJustificationAtEnter",
       false,
     );
+    this.showOrdinalNumber = props.modulesManager.getConf("fe-claim", "claimForm.showOrdinalNumber", false);
   }
 
   initData = () => {
@@ -354,6 +355,7 @@ class ClaimChildPanel extends Component {
           itemFormatters={itemFormatters}
           items={!fetchingPricelist ? this.state.data : []}
           onDelete={!forReview && !readOnly && this._onDelete}
+          showOrdinalNumber = {this.showOrdinalNumber}
         />
       </Paper>
     );
