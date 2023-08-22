@@ -28,7 +28,7 @@ import ClaimMasterPanel from "./ClaimMasterPanel";
 import ClaimChildPanel from "./ClaimChildPanel";
 import ClaimFeedbackPanel from "./ClaimFeedbackPanel";
 
-import { RIGHT_ADD, RIGHT_LOAD, RIGHT_PRINT } from "../constants";
+import { RIGHT_ADD, RIGHT_LOAD, RIGHT_PRINT, CARE_TYPE_STATUS, IN_PATIENT_STRING } from "../constants";
 
 const CLAIM_FORM_CONTRIBUTION_KEY = "claim.ClaimForm";
 
@@ -82,6 +82,16 @@ class ClaimForm extends Component {
       'R',
     );
     this.autoGenerateClaimCode = props.modulesManager.getConf("fe-claim", "claimForm.autoGenerateClaimCode", false);
+    this.isExplanationMandatoryForIPD = props.modulesManager.getConf(
+      "fe-claim",
+      "claimForm.isExplanationMandatoryForIPD",
+      false,
+    );
+    this.isCareTypeMandatory = props.modulesManager.getConf(
+      "fe-claim",
+      "claimForm.isCareTypeMandatory",
+      false,
+    );
   }
 
   _newClaim() {
@@ -175,6 +185,12 @@ class ClaimForm extends Component {
     if (this.state.claim.dateClaimed < this.state.claim.dateFrom) return false;
     if (!!this.state.claim.dateTo && this.state.claim.dateFrom > this.state.claim.dateTo) return false;
     if (!this.state.claim.icd) return false;
+    if (this.isCareTypeMandatory){
+      if (!CARE_TYPE_STATUS.includes(this.state.claim.careType)) return false;
+    }
+    if (this.isExplanationMandatoryForIPD){
+      if (this.state.claim.careType===IN_PATIENT_STRING && !this.state.claim.explanation) return false;
+    }
     if (!forFeedback) {
       if (!this.state.claim.items && !this.state.claim.services) {
         return !!this.canSaveClaimWithoutServiceNorItem;
