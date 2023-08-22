@@ -213,7 +213,7 @@ export function formatClaimGQL(modulesManager, claim, shouldAutogenerate) {
     ${!!claim.icd4 ? `icd4Id: ${decodeId(claim.icd4.id)}` : ""}
     ${`jsonExt: ${formatJsonField(claim.jsonExt)}`}
     feedbackStatus: ${modulesManager.getRef("claim.CreateClaim.feedbackStatus")}
-    careType: "${claim.careType}"
+    ${!!claim.careType ? `careType: "${claim.careType}"` : ""}
     reviewStatus: ${modulesManager.getRef("claim.CreateClaim.reviewStatus")}
     dateClaimed: "${claim.dateClaimed}"
     ${claim.referHF ? `${handleReferHFType(modulesManager, claim)}${decodeId(claim.referHF.id)}` : ""}

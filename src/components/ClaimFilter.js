@@ -588,7 +588,7 @@ class Details extends Component {
           <PublishedComponent
             pubRef="claim.CareTypePicker"
             name="careType"
-            value={filters["careType"] && filters["careType"]["value"]}
+            value={filters["careType"] && filters["careType"]["value"] || null}
             onChange={(value) =>{
               onChangeFilters([
                 {

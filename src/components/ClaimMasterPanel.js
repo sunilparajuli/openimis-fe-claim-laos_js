@@ -29,7 +29,7 @@ import ClaimStatusPicker from "../pickers/ClaimStatusPicker";
 import FeedbackStatusPicker from "../pickers/FeedbackStatusPicker";
 import ReviewStatusPicker from "../pickers/ReviewStatusPicker";
 import _debounce from "lodash/debounce";
-import { DEFAULT_ADDITIONAL_DIAGNOSIS_NUMBER } from "../constants";
+import { DEFAULT_ADDITIONAL_DIAGNOSIS_NUMBER, IN_PATIENT_STRING } from "../constants";
 
 const CLAIM_MASTER_PANEL_CONTRIBUTION_KEY = "claim.MasterPanel";
 
@@ -81,7 +81,12 @@ class ClaimMasterPanel extends FormPanel {
     this.isExplanationMandatoryForIPD = props.modulesManager.getConf(
       "fe-claim",
       "claimForm.isExplanationMandatoryForIPD",
-      true,
+      false,
+    );
+    this.isCareTypeMandatory = props.modulesManager.getConf(
+      "fe-claim",
+      "claimForm.isCareTypeMandatory",
+      false,
     );
     this.EMPTY_STRING = ""
   }
@@ -256,12 +261,12 @@ class ClaimMasterPanel extends FormPanel {
               <PublishedComponent
                 pubRef="claim.CareTypePicker"
                 name="careType"
-                withNull={false}
+                withNull={!this.isCareTypeMandatory}
                 value={edited.careType}
                 reset={reset}
                 onChange={(value) => this.updateAttribute("careType", value)}
                 readOnly={ro}
-                required={false}
+                required={this.isCareTypeMandatory}
               />
             </Grid>
           }
@@ -471,7 +476,7 @@ class ClaimMasterPanel extends FormPanel {
                     reset={reset}
                     onChange={(v) => this.updateAttribute("explanation", v)}
                     readOnly={ro}
-                    required={this.isExplanationMandatoryForIPD && edited.careType==="IPD" ? true : false}
+                    required={this.isExplanationMandatoryForIPD && edited.careType===IN_PATIENT_STRING ? true : false}
                   />
                 </Grid>
               }
