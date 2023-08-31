@@ -270,7 +270,7 @@
   "claim.ClaimHistoryReport.claimStatus.2": "Entered",
   "claim.ClaimHistoryReport.claimStatus.4": "Checked",
   "claim.ClaimHistoryReport.claimStatus.8": "Processed",
-  "claim.ClaimHistoryReport.claimStatus.16": "Valuated"
+  "claim.ClaimHistoryReport.claimStatus.16": "Valuated",
   "claim.attachmentType.null": "Any",
   "claim.attachmentType.Bill": "Bill",
   "claim.attachmentType.Medical": "Medical",
