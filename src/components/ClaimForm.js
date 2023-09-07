@@ -261,7 +261,7 @@ class ClaimForm extends Component {
         let isUnderMaximumAmount = true;
 
         items.forEach((item) => {
-          if (parseFloat(item.qtyProvided) >= parseFloat(item?.item?.maximumAmount ?? this.quantityMaxValue + 1)) {
+          if (parseFloat(item.qtyProvided) > parseFloat(item?.item?.maximumAmount ?? this.quantityMaxValue)) {
             isUnderMaximumAmount = false;
           }
         });
@@ -282,7 +282,7 @@ class ClaimForm extends Component {
         let isUnderMaximumAmount = true;
 
         services.forEach((item) => {
-          if (parseFloat(item.qtyProvided) >= parseFloat(item?.service?.maximumAmount ?? this.quantityMaxValue + 1)) {
+          if (parseFloat(item.qtyProvided) > parseFloat(item?.service?.maximumAmount ?? this.quantityMaxValue)) {
             isUnderMaximumAmount = false;
           }
         });

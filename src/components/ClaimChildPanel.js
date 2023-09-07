@@ -250,7 +250,7 @@ class ClaimChildPanel extends Component {
           readOnly={!!forReview || readOnly}
           value={i.qtyProvided}
           onChange={(v) => this._onChange(idx, "qtyProvided", v)}
-          max={this.quantityMaxValue}
+          max={parseInt(i?.item?.maximumAmount) || this.quantityMaxValue}
         />
       ),
       (i, idx) => (
