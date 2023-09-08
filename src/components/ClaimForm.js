@@ -1,22 +1,24 @@
 import React, { Component, Fragment } from "react";
-import { withStyles, withTheme } from "@material-ui/core/styles";
-import { Fab } from "@material-ui/core";
-import { injectIntl } from "react-intl";
-import { connect } from "react-redux";
 import { bindActionCreators } from "redux";
+import { connect } from "react-redux";
+import { injectIntl } from "react-intl";
+import moment from "moment";
+
+import { Fab } from "@material-ui/core";
+import { withStyles, withTheme } from "@material-ui/core/styles";
 import CheckIcon from "@material-ui/icons/Check";
 import ReplayIcon from "@material-ui/icons/Replay";
 import PrintIcon from "@material-ui/icons/ListAlt";
 import AttachIcon from "@material-ui/icons/AttachFile";
 import RestorePageIcon from "@material-ui/icons/RestorePage";
 import FileCopyIcon from "@material-ui/icons/FileCopy";
+
 import {
   Contributions,
   Form,
   formatMessage,
   formatMessageWithValues,
   Helmet,
-  historyPush,
   journalize,
   ProgressOrError,
   PublishedComponent,
@@ -25,12 +27,6 @@ import {
   withModulesManager,
 } from "@openimis/fe-core";
 import { claimHealthFacilitySet, fetchClaim, generate, print } from "../actions";
-import moment from "moment";
-
-import ClaimMasterPanel from "./ClaimMasterPanel";
-import ClaimChildPanel from "./ClaimChildPanel";
-import ClaimFeedbackPanel from "./ClaimFeedbackPanel";
-
 import {
   RIGHT_ADD,
   RIGHT_LOAD,
@@ -40,9 +36,12 @@ import {
   RIGHT_RESTORE,
   STATUS_REJECTED,
   STORAGE_KEY_ADMIN,
-  STORAGE_KEY_CLAIM_HEALTH_FACILITY
+  STORAGE_KEY_CLAIM_HEALTH_FACILITY,
+  DEFAULT_QUANTITY_MAX_VALUE
 } from "../constants";
-
+import ClaimMasterPanel from "./ClaimMasterPanel";
+import ClaimChildPanel from "./ClaimChildPanel";
+import ClaimFeedbackPanel from "./ClaimFeedbackPanel";
 
 const CLAIM_FORM_CONTRIBUTION_KEY = "claim.ClaimForm";
 
@@ -99,10 +98,11 @@ class ClaimForm extends Component {
       "claimForm.isExplanationMandatoryForIPD",
       false,
     );
-    this.isCareTypeMandatory = props.modulesManager.getConf(
+    this.isCareTypeMandatory = props.modulesManager.getConf("fe-claim", "claimForm.isCareTypeMandatory", false);
+    this.quantityMaxValue = props.modulesManager.getConf(
       "fe-claim",
-      "claimForm.isCareTypeMandatory",
-      false,
+      "claimForm.quantityMaxValue",
+      DEFAULT_QUANTITY_MAX_VALUE,
     );
   }
 
@@ -261,7 +261,7 @@ class ClaimForm extends Component {
         let isUnderMaximumAmount = true;
 
         items.forEach((item) => {
-          if (parseFloat(item.qtyProvided) >= parseFloat(item?.item?.maximumAmount ?? +Infinity)) {
+          if (parseFloat(item.qtyProvided) > parseFloat(item?.item?.maximumAmount ?? this.quantityMaxValue)) {
             isUnderMaximumAmount = false;
           }
         });
@@ -282,7 +282,7 @@ class ClaimForm extends Component {
         let isUnderMaximumAmount = true;
 
         services.forEach((item) => {
-          if (parseFloat(item.qtyProvided) >= parseFloat(item?.service?.maximumAmount ?? +Infinity)) {
+          if (parseFloat(item.qtyProvided) > parseFloat(item?.service?.maximumAmount ?? this.quantityMaxValue)) {
             isUnderMaximumAmount = false;
           }
         });
