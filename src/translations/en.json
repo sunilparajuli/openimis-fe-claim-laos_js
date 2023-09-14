@@ -220,6 +220,14 @@
   "claim.ClaimMasterPanelExt.InsureeLastVisit.claimCode": "Claim No.",
   "claim.ClaimMasterPanelExt.InsureeLastVisit.lastClaimAtFrom": "Visit Date From",
   "claim.ClaimMasterPanelExt.InsureeLastVisit.lastClaimAtTo": "Visit Date To",
+  "ClaimMasterPanelExt.InsureeInfo.Header": "Insuree information",
+  "ClaimMasterPanelExt.InsureeInfo.insureeAge": "Insuree age",
+  "ClaimMasterPanelExt.InsureeInfo.lastClaim": "Last Claim",
+  "ClaimMasterPanelExt.InsureeInfo.visitDuration": "Duration of the visit",
+  "ClaimMasterPanelExt.InsureeInfo.FSP": "FSP",
+  "ClaimMasterPanelExt.InsureeInfo.lastClaimSameDiagnosis.Header": "Same diagnosis claim",
+  "ClaimMasterPanelExt.InsureeInfo.lastClaimSameDiagnosis": "Last Claim with the same Diagnosis",
+  "ClaimMasterPanelExt.InsureeInfo.goToClaim.Button": "Go to claim",
   "claim.ClaimMasterPanelExt.restore": "Restored from claim:",
   "claim.claimAttachment.type": "Type",
   "claim.claimAttachment.title": "Title",
@@ -310,6 +318,10 @@
   "claim.attachmentStatus.null": "All",
   "claim.attachmentStatus.1": "With attachment",
   "claim.attachmentStatus.2": "Without attachment",
-  "claim.showRestored": "Show Restored"
+  "claim.showRestored": "Show Restored",
+  "claim.calculateAge.util.dobNotProvided": "Date of birth not provided",
+  "claim.calculateAge.util.days": "Day(s)",
+  "claim.calculateAge.util.weeks": "Week(s)",
+  "claim.calculateAge.util.months": "Month(s)",
+  "claim.calculateAge.util.years": "Year(s)"
 }
-
