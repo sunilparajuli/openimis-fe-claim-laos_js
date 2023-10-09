@@ -21,35 +21,37 @@ const AdditionalPanelInsuree = ({ dateTo, dateFrom, insuree, dateClaimed }) => {
 
   return (
     <Grid item xs={6} className={classes.item}>
-      <Grid className={classes.item}>
-        <TextInput
-          module="claim"
-          label="ClaimMasterPanelExt.InsureeInfo.insureeAge"
-          name="insureeAge"
-          readOnly={true}
-          withNull={true}
-          value={insureeAge}
-        />
-      </Grid>
-      <Grid className={classes.item}>
-        <TextInput
-          module="claim"
-          label="ClaimMasterPanelExt.InsureeInfo.visitDuration"
-          name="lastClaimDays"
-          displayZero={true}
-          readOnly={true}
-          value={visitDuration}
-        />
-      </Grid>
-      <Grid className={classes.item}>
-        <PublishedComponent
-          pubRef="location.HealthFacilityPicker"
-          label={formatMessage("ClaimMasterPanelExt.InsureeInfo.FSP")}
-          value={insuree?.healthFacility ?? null}
-          district={null}
-          module="claim"
-          readOnly={true}
-        />
+      <Grid container>
+        <Grid className={classes.item} xs={4}>
+          <TextInput
+            module="claim"
+            label="ClaimMasterPanelExt.InsureeInfo.insureeAge"
+            name="insureeAge"
+            readOnly={true}
+            withNull={true}
+            value={insureeAge}
+          />
+        </Grid>
+        <Grid className={classes.item} xs={4}>
+          <TextInput
+            module="claim"
+            label="ClaimMasterPanelExt.InsureeInfo.visitDuration"
+            name="lastClaimDays"
+            displayZero={true}
+            readOnly={true}
+            value={visitDuration}
+          />
+        </Grid>
+        <Grid className={classes.item} xs={4}>
+          <PublishedComponent
+            pubRef="location.HealthFacilityPicker"
+            label={formatMessage("ClaimMasterPanelExt.InsureeInfo.FSP")}
+            value={insuree?.healthFacility ?? null}
+            district={null}
+            module="claim"
+            readOnly={true}
+          />
+        </Grid>
       </Grid>
     </Grid>
   );

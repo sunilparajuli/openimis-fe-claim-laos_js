@@ -217,6 +217,8 @@
   "claim.ClaimMasterPanelExt.InsureeLastVisit.header": "Insuree Last Visit",
   "ClaimMasterPanelExt.InsureeLastVisit.noOtheClaim": "No Other Visit (Claim)",
   "ClaimMasterPanelExt.InsureeLastVisit.thisClaimIsLastVisit": "This is the last visit (Claim)",
+  "ClaimMasterPanelExt.sameDiagnosisClaim.noClaim": "Claim with the same diagnosis not found.",
+  "ClaimMasterPanelExt.sameDiagnosisClaim.onlyThis": "This is the only claim with such a diagnosis.",
   "claim.ClaimMasterPanelExt.InsureeLastVisit.claimCode": "Claim No.",
   "claim.ClaimMasterPanelExt.InsureeLastVisit.lastClaimAtFrom": "Visit Date From",
   "claim.ClaimMasterPanelExt.InsureeLastVisit.lastClaimAtTo": "Visit Date To",
