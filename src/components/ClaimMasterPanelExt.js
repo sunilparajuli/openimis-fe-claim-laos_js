@@ -198,10 +198,10 @@ class ClaimMasterPanelExt extends Component {
           <Grid item xs={6} className={classes.item}>
             <ProgressOrError progress={fetchingSameDiagnosisClaim} error={errorSameDiagnosisClaim} />
             {!!fetchedSameDiagnosisClaim && !sameDiagnosisClaim && (
-              <FormattedMessage module="claim" id="ClaimMasterPanelExt.InsureeLastVisit.noOtheClaim" />
+              <FormattedMessage module="claim" id="ClaimMasterPanelExt.sameDiagnosisClaim.noClaim" />
             )}
             {!!fetchedSameDiagnosisClaim && sameDiagnosisClaim?.uuid === claim.uuid && (
-              <FormattedMessage module="claim" id="ClaimMasterPanelExt.InsureeLastVisit.thisClaimIsLastVisit" />
+              <FormattedMessage module="claim" id="ClaimMasterPanelExt.sameDiagnosisClaim.onlyThis" />
             )}
             {!!fetchedSameDiagnosisClaim && !!sameDiagnosisClaim && sameDiagnosisClaim?.uuid !== claim.uuid && (
               <AdditionalPanelClaim sameDiagnosisClaim={sameDiagnosisClaim} />
