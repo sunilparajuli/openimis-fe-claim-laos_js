@@ -65,7 +65,7 @@ class ClaimMasterPanel extends FormPanel {
     this.isReferHFMandatory = props.modulesManager.getConf(
       "fe-claim",
       "claimForm.isReferHFMandatory",
-      true,
+      false,
     );
     this.claimTypeReferSymbol = props.modulesManager.getConf(
       "fe-claim",

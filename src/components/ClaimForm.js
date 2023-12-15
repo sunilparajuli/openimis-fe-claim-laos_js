@@ -112,7 +112,7 @@ class ClaimForm extends Component {
     this.isReferHFMandatory = props.modulesManager.getConf(
       "fe-claim",
       "claimForm.isReferHFMandatory",
-      true,
+      false,
     );
   }
 
