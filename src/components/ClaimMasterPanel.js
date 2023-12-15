@@ -62,9 +62,9 @@ class ClaimMasterPanel extends FormPanel {
       "claimForm.insureePicker",
       "insuree.InsureeChfIdPicker",
     );
-    this.allowReferHF = props.modulesManager.getConf(
+    this.isReferHFMandatory = props.modulesManager.getConf(
       "fe-claim",
-      "claimForm.referHF",
+      "claimForm.isReferHFMandatory",
       true,
     );
     this.claimTypeReferSymbol = props.modulesManager.getConf(
@@ -297,7 +297,7 @@ class ClaimMasterPanel extends FormPanel {
             }
           />
         )}
-        {!!this.allowReferHF && <ControlledField
+        <ControlledField
           module="claim"
           id="Claim.referHealthFacility"
           field={
@@ -308,14 +308,14 @@ class ClaimMasterPanel extends FormPanel {
                 value={(edited.visitType === this.claimTypeReferSymbol ? edited.referFrom: edited.referTo) ?? this.EMPTY_STRING}
                 reset={reset}
                 readOnly={ro}
-                required={edited.visitType === this.claimTypeReferSymbol}
+                required={!!this.isReferHFMandatory&&(edited.visitType === this.claimTypeReferSymbol)}
                 filterOptions={(options)=>options?.filter((option)=>option.uuid !== userHealthFacilityFullPath?.uuid)}
                 filterSelectedOptions={true}
                 onChange={(d) => this.updateAttribute("referHF", d)}
               />
             </Grid>
           }
-        />}
+        />
         <ControlledField
           module="claim"
           id="Claim.code"
