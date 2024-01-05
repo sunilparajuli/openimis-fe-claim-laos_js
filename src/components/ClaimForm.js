@@ -50,6 +50,7 @@ const styles = (theme) => ({
   paperHeader: theme.paper.header,
   paperHeaderAction: theme.paper.action,
   item: theme.paper.item,
+  lockedPage: theme.page.locked,
 });
 
 class ClaimServicesPanel extends Component {
@@ -327,12 +328,10 @@ class ClaimForm extends Component {
   };
 
   reload = () => {
-    this.props.fetchClaim(
-      this.props.modulesManager,
-      this.state.claim_uuid,
-      this.state.claim.code,
-      this.props.forFeedback,
-    );
+    const { fetchClaim, modulesManager, forFeedback } = this.props;
+    const { claim_uuid: claimUuid } = this.state;
+
+    fetchClaim(modulesManager, claimUuid, forFeedback);
   };
 
   onEditedChanged = (claim) => {
@@ -341,7 +340,7 @@ class ClaimForm extends Component {
 
   _save = (claim) => {
     this.setState(
-      { lockNew: true }, // avoid duplicates
+      { lockNew: true },
       (e) => this.props.save(claim),
     );
   };
@@ -381,18 +380,21 @@ class ClaimForm extends Component {
       forReview = false,
       forFeedback = false,
       isHealthFacilityPage = false,
+      classes,
     } = this.props;
     const { claim, claim_uuid, lockNew } = this.state;
+
     let readOnly =
       lockNew ||
       (!forReview && !forFeedback && claim.status !== 2) ||
       (forReview && (claim.reviewStatus >= 8 || claim.status !== 4)) ||
       (forFeedback && claim.status !== 4) ||
       !rights.filter((r) => r === RIGHT_LOAD).length;
+
     var actions = [];
     if (!!claim_uuid) {
       actions.push({
-        doIt: (e) => this.reload(claim_uuid),
+        doIt: (e) => this.reload(),
         icon: <ReplayIcon />,
         onlyIfDirty: !readOnly,
       });
@@ -474,7 +476,7 @@ class ClaimForm extends Component {
       onEditedChanged: this.onEditedChanged,
     };
     return (
-      <Fragment>
+      <div className={readOnly ? classes.lockedPage : null}>
         <Helmet
           title={formatMessageWithValues(this.props.intl, "claim", "claim.edit.page.title", {
             code: this.state.claim?.code,
@@ -503,7 +505,7 @@ class ClaimForm extends Component {
             <Contributions contributionKey={CLAIM_FORM_CONTRIBUTION_KEY} {...editingProps} />
           </Fragment>
         )}
-      </Fragment>
+      </div>
     );
   }
 }
