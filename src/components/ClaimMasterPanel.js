@@ -250,7 +250,7 @@ class ClaimMasterPanel extends FormPanel {
               <PublishedComponent
                 pubRef="claim.CareTypePicker"
                 name="careType"
-                withNull={!this.isCareTypeMandatory}
+                withNull={false}
                 value={edited.careType}
                 reset={reset}
                 onChange={(value) => this.updateAttribute("careType", value)}
