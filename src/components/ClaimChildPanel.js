@@ -255,14 +255,6 @@ class ClaimChildPanel extends Component {
         </Paper>
       );
     }
-    const totalClaimed = _.round(
-      this.state.data.reduce((sum, r) => sum + claimedAmount(r), 0),
-      2,
-    );
-    const totalApproved = _.round(
-      this.state.data.reduce((sum, r) => sum + approvedAmount(r), 0),
-      2,
-    );
     let headers = [
       `edit.${type}s.${type}`,
       `edit.${type}s.quantity`,
