@@ -192,7 +192,6 @@ class ClaimMasterPanelExt extends Component {
             dateFrom={dateFrom}
             insuree={insuree}
             dateClaimed={claim?.dateClaimed}
-            claimCode={claim.code}
           />
         )}
         {this.isAdditionalPanelEnabled && (

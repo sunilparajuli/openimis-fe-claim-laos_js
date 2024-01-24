@@ -11,7 +11,7 @@ export const useStyles = makeStyles((theme) => ({
   item: theme.paper.item,
 }));
 
-const AdditionalPanelInsuree = ({ dateTo, claimCode, dateFrom, insuree, dateClaimed }) => {
+const AdditionalPanelInsuree = ({ dateTo, dateFrom, insuree, dateClaimed }) => {
   const modulesManager = useModulesManager();
   const classes = useStyles();
   const { formatMessage } = useTranslations("claim", modulesManager);
@@ -21,13 +21,13 @@ const AdditionalPanelInsuree = ({ dateTo, claimCode, dateFrom, insuree, dateClai
 
   const { data: firstServicePoint } = useGraphqlQuery(
     `
-    query AdditionalPanelInsuree($claimCode: String, $insureeCode: String) {
-      fspFromClaim(claimCode: $claimCode, insureeCode: $insureeCode)
+    query AdditionalPanelInsuree($insureeCode: String!, $dateClaimed: Date!) {
+      fspFromClaim(insureeCode: $insureeCode, dateClaimed: $dateClaimed)
       ${modulesManager.getProjection("location.HealthFacilityPicker.projection")}
     }
   `,
-    { claimCode, insureeCode: insuree?.chfId },
-    { skip: !claimCode || !insuree?.chfId },
+    { dateClaimed , insureeCode: insuree?.chfId },
+    { skip: !dateClaimed  || !insuree?.chfId },
   );
 
   return (
