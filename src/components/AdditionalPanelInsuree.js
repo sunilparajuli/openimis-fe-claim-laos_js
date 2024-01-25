@@ -11,7 +11,7 @@ export const useStyles = makeStyles((theme) => ({
   item: theme.paper.item,
 }));
 
-const AdditionalPanelInsuree = ({ dateTo, dateFrom, insuree, dateClaimed }) => {
+const AdditionalPanelInsuree = ({ dateTo, dateFrom, insuree, dateClaimed, isEdited }) => {
   const modulesManager = useModulesManager();
   const classes = useStyles();
   const { formatMessage } = useTranslations("claim", modulesManager);
@@ -26,8 +26,8 @@ const AdditionalPanelInsuree = ({ dateTo, dateFrom, insuree, dateClaimed }) => {
       ${modulesManager.getProjection("location.HealthFacilityPicker.projection")}
     }
   `,
-    { dateClaimed , insureeCode: insuree?.chfId },
-    { skip: !dateClaimed  || !insuree?.chfId },
+    { dateClaimed, insureeCode: insuree?.chfId },
+    { skip: !isEdited || !dateClaimed || !insuree?.chfId },
   );
 
   return (
