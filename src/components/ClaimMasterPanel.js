@@ -332,7 +332,7 @@ class ClaimMasterPanel extends FormPanel {
                 shouldValidate={this.shouldValidate}
                 validationError={codeValidationError}
                 value={
-                  !!this.state.data?.code
+                  this.state.data?.code
                     ? this.state.data.code
                     : this.autoGenerateClaimCode
                     ? formatMessage(intl, "claim", "ClaimMasterPanel.autogenerate")
