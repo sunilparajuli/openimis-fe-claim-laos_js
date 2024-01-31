@@ -199,7 +199,7 @@ export function formatAttachments(mm, attachments) {
 export function formatClaimGQL(modulesManager, claim, shouldAutogenerate) {
   // to simplify GQL and avoid additional coding, claim code is sent, even if shouldAutogenerate is set to true
   const claimCodePlaceholder="auto"
-  const isAutogenerateEnabled = shouldAutogenerate
+  const isAutogenerateEnabled = claim?.restore?.uuid ? false : shouldAutogenerate;
   return `
     ${claim.uuid !== undefined && claim.uuid !== null ? `uuid: "${claim.uuid}"` : ""}
     code: "${isAutogenerateEnabled ? claimCodePlaceholder : claim.code}"

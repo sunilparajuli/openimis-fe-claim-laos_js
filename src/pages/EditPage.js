@@ -32,7 +32,7 @@ class EditPage extends Component {
         this.props.modulesManager,
         claim,
         formatMessageWithValues(this.props.intl, "claim", "CreateClaim.mutationLabel", {
-          code: this.autoGenerateClaimCode ? "Auto" : claim.code,
+          code: this.autoGenerateClaimCode && !claim?.restore?.uuid ? "Auto" : claim.code,
         }),
       );
     } else {

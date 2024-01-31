@@ -334,7 +334,7 @@ class ClaimMasterPanel extends FormPanel {
                 value={
                   this.state.data?.code
                     ? this.state.data.code
-                    : this.autoGenerateClaimCode
+                    : this.autoGenerateClaimCode && !isRestored
                     ? formatMessage(intl, "claim", "ClaimMasterPanel.autogenerate")
                     : ""
                 }
