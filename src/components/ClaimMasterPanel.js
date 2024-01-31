@@ -336,7 +336,7 @@ class ClaimMasterPanel extends FormPanel {
                     ? this.state.data.code
                     : this.autoGenerateClaimCode
                     ? formatMessage(intl, "claim", "ClaimMasterPanel.autogenerate")
-                    : null
+                    : ""
                 }
                 inputProps={{
                   "maxLength": this.codeMaxLength,
