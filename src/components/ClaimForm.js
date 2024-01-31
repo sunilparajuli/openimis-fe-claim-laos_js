@@ -351,7 +351,7 @@ class ClaimForm extends Component {
       this.props
         .save(claim)
         .then(() => {
-          if (this.autoGenerateClaimCode) {
+          if (this.autoGenerateClaimCode && !this.state.isRestored) {
             const {
               mutation: { clientMutationId },
               fetchMutation,
