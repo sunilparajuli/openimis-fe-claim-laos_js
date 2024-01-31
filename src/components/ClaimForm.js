@@ -12,6 +12,7 @@ import PrintIcon from "@material-ui/icons/ListAlt";
 import AttachIcon from "@material-ui/icons/AttachFile";
 import RestorePageIcon from "@material-ui/icons/RestorePage";
 import FileCopyIcon from "@material-ui/icons/FileCopy";
+import CachedIcon from '@material-ui/icons/Cached';
 
 import {
   Contributions,
@@ -79,6 +80,7 @@ class ClaimForm extends Component {
     forcedDirty: false,
     isDuplicate: false,
     isRestored: false,
+    isSaved: false,
   };
 
   constructor(props) {
@@ -345,7 +347,7 @@ class ClaimForm extends Component {
   };
 
   _save = (claim) => {
-    this.setState({ lockNew: true }, () => {
+    this.setState({ lockNew: true, isSaved: true }, () => {
       this.props
         .save(claim)
         .then(() => {
@@ -382,7 +384,7 @@ class ClaimForm extends Component {
 
   _deliverReview = (claim) => {
     this.setState(
-      { lockNew: !claim.uuid }, // avoid duplicates submissions
+      { lockNew: !claim.uuid },
       (e) => this.props.deliverReview(claim),
     );
   };
@@ -399,6 +401,21 @@ class ClaimForm extends Component {
     this.setState({ isRestored: true });
   };
 
+  resetForm = () =>
+    this.setState(() => ({
+      lockNew: false,
+      reset: 0,
+      claim_uuid: null,
+      claim: this._newClaim(),
+      newClaim: true,
+      printParam: null,
+      attachmentsClaim: null,
+      forcedDirty: false,
+      isDuplicate: false,
+      isRestored: false,
+      isSaved: false,
+    }));
+
   render() {
     const {
       rights,
@@ -413,10 +430,11 @@ class ClaimForm extends Component {
       isHealthFacilityPage = false,
       classes,
     } = this.props;
-    const { claim, claim_uuid, lockNew } = this.state;
+    const { claim, claim_uuid, lockNew, isSaved } = this.state;
 
     let readOnly =
       lockNew ||
+      isSaved ||
       (!forReview && !forFeedback && claim.status !== 2) ||
       (forReview && (claim.reviewStatus >= 8 || claim.status !== 4)) ||
       (forFeedback && claim.status !== 4) ||
@@ -453,12 +471,7 @@ class ClaimForm extends Component {
           this.state.claim?.status === STATUS_REJECTED,
         content: (
           <span>
-            <Fab
-              color="primary"
-              onClick={(e) => {
-                this.restore();
-              }}
-            >
+            <Fab color="primary" onClick={(e) => this.restore()}>
               <RestorePageIcon />
             </Fab>
           </span>
@@ -466,16 +479,21 @@ class ClaimForm extends Component {
         tooltip: formatMessage(this.props.intl, "claim", "claim.edit.restore"),
       },
       {
+        condition: isSaved,
+        content: (
+          <span>
+            <Fab color="primary" onClick={(e) => this.resetForm()}>
+              <CachedIcon />
+            </Fab>
+          </span>
+        ),
+        tooltip: formatMessage(this.props.intl, "claim", "claim.edit.renew"),
+      },
+      {
         condition: claim_uuid && isHealthFacilityPage,
         content: (
           <span>
-            <Fab
-              color="primary"
-              disabled={!this.canSave(forFeedback, forReview)}
-              onClick={(e) => {
-                this.duplicate();
-              }}
-            >
+            <Fab color="primary" disabled={!this.canSave(forFeedback, forReview)} onClick={(e) => this.duplicate()}>
               <FileCopyIcon />
             </Fab>
           </span>
