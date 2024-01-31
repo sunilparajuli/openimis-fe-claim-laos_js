@@ -1,4 +1,4 @@
-import React, { Component } from "react";
+import React, { Component, Fragment } from "react";
 import { bindActionCreators } from "redux";
 import { connect } from "react-redux";
 import { injectIntl } from "react-intl";
@@ -6,6 +6,7 @@ import { withTheme, withStyles } from "@material-ui/core/styles";
 import SaveIcon from "@material-ui/icons/SaveAlt";
 import DeleteIcon from "@material-ui/icons/Delete";
 import FileIcon from "@material-ui/icons/Add";
+import LinkIcon from "@material-ui/icons/Link";
 import {
   Dialog,
   DialogTitle,
@@ -23,6 +24,7 @@ import {
   Table,
   TextInput,
   PublishedComponent,
+  withTooltip,
   formatMessage,
   formatMessageWithValues,
   journalize,
@@ -36,6 +38,8 @@ import {
   updateAttachment,
 } from "../actions";
 import { RIGHT_ADD } from "../constants";
+
+import AttachmentGeneralTypePicker from "../pickers/AttachmentGeneralTypePicker";
 
 const styles = (theme) => ({
   dialogTitle: theme.dialog.title,
@@ -202,6 +206,42 @@ class AttachmentsDialog extends Component {
     );
   }
 
+  urlSelected = (f, i) => {
+    if (!!f) {
+      let claimAttachments = [...this.state.claimAttachments];
+      claimAttachments[i].url = f;
+      claimAttachments[i].mime = "text/x-uri";
+      this.setState({ claimAttachments }, (e) => {
+        this.addAttachment(f);
+      });
+    }
+  };
+
+  formatUrl(a, i) {
+    if (!!a.mime){
+      return (
+        <Link onClick={() => window.open(a.url)} reset={this.state.reset}>
+          {withTooltip(
+            < LinkIcon />,
+            a.url,
+          )}
+        </Link>
+      );
+    }
+    return (
+      <Fragment>
+        <TextInput
+          reset={this.state.reset}
+          value={this.state.claimAttachments[i].url}
+          onChange={(v) => this.updateAttachment(i, "url", v)}
+        />
+        <IconButton variant="contained" component="label" onClick={(f) => this.urlSelected(this.state.claimAttachments[i].url, i)}>
+          < FileIcon />
+        </IconButton>
+      </Fragment>
+    );
+  }
+
   updateAttachment = (i, key, value) => {
     var state = { ...this.state };
     state.claimAttachments[i][key] = value;
@@ -216,8 +256,19 @@ class AttachmentsDialog extends Component {
     const { classes, claim, readOnly = false, fetchingClaimAttachments, errorClaimAttachments } = this.props;
     const { open, claimAttachments } = this.state;
     if (!claim) return null;
-    var headers = ["claimAttachment.type", "claimAttachment.title", "claimAttachment.date", "claimAttachment.fileName"];
+    var headers = ["claimAttachment.generalType", "claimAttachment.type", "claimAttachment.title", "claimAttachment.date", "claimAttachment.fileName"];
     var itemFormatters = [
+      (a, i) =>
+      this.cannotUpdate(a, i) ? (
+        this.state.claimAttachments[i].generalType
+      ) : (
+        <AttachmentGeneralTypePicker
+          reset={this.state.reset}
+          withNull={false}
+          value={this.state.claimAttachments[i].generalType ?? "URL"}
+          onChange={(v) => this.updateAttachment(i, "generalType", v)}
+        />
+      ),
       (a, i) =>
         this.cannotUpdate(a, i) ? (
           this.state.claimAttachments[i].type
@@ -249,7 +300,8 @@ class AttachmentsDialog extends Component {
             reset={this.state.reset}
           />
         ),
-      (a, i) => this.formatFileName(a, i),
+      (a, i) => 
+      this.state.claimAttachments[i].generalType === "URL" ? this.formatFileName(a, i) : this.formatUrl(a, i),
     ];
     if (!readOnly) {
       headers.push("claimAttachment.action");

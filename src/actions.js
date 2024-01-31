@@ -73,7 +73,7 @@ export function fetchClaimAttachments(claim) {
   const payload = formatPageQuery(
     "claimAttachments",
     [`claim_Uuid: "${claim.uuid}"`],
-    ["id", "type", "title", "date", "filename", "mime"],
+    ["id", "type", "title", "date", "filename", "url", "mime"],
   );
   return graphql(payload, "CLAIM_CLAIM_ATTACHMENTS");
 }
@@ -86,6 +86,7 @@ export function formatAttachment(attach) {
     ${!!attach.title ? `title: "${formatGQLString(attach.title)}"` : ""}
     ${!!attach.date ? `date: "${attach.date}"` : ""}
     ${!!attach.mime ? `mime: "${attach.mime}"` : ""}
+    ${!!attach.url ? `url: "${attach.url}"` : ""}
     ${!!attach.filename ? `filename: "${formatGQLString(attach.filename)}"` : ""}
     ${!!attach.document ? `document: "${attach.document}"` : ""}
   `;
