@@ -13,7 +13,7 @@ import {
 } from "@openimis/fe-core";
 import _ from "lodash";
 import _uuid from "lodash-uuid";
-import { CLAIMS_WITH_AT_LEAST_ENTERED_STATUS } from "./constants";
+import { CLAIMS_WITH_AT_LEAST_ENTERED_STATUS, DEFAULT } from "./constants";
 
 export function selectClaimAdmin(admin) {
   return (dispatch) => {
@@ -199,7 +199,7 @@ export function formatAttachments(mm, attachments) {
 export function formatClaimGQL(modulesManager, claim, shouldAutogenerate) {
   // to simplify GQL and avoid additional coding, claim code is sent, even if shouldAutogenerate is set to true
   const claimCodePlaceholder="auto"
-  const isAutogenerateEnabled = shouldAutogenerate
+  const isAutogenerateEnabled = claim?.restore?.uuid ? false : shouldAutogenerate;
   return `
     ${claim.uuid !== undefined && claim.uuid !== null ? `uuid: "${claim.uuid}"` : ""}
     code: "${isAutogenerateEnabled ? claimCodePlaceholder : claim.code}"
@@ -240,7 +240,7 @@ function handleReferHFType(modulesManager, claim){
 }
 
 export function createClaim(mm, claim, clientMutationLabel) {
-  const shouldAutogenerate = mm.getConf("fe-claim", "claimForm.autoGenerateClaimCode", false)
+  const shouldAutogenerate = mm.getConf("fe-claim", "claimForm.autoGenerateClaimCode", DEFAULT.AUTOGENERATE_CLAIM_CODE)
   const mutation = formatMutation("createClaim", formatClaimGQL(mm, claim, shouldAutogenerate), clientMutationLabel);
   var requestedDateTime = new Date();
   return graphql(mutation.payload, ["CLAIM_MUTATION_REQ", "CLAIM_CREATE_CLAIM_RESP", "CLAIM_MUTATION_ERR"], {
