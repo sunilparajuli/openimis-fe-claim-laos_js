@@ -8,6 +8,7 @@ const AttachmentGeneralTypePicker = (props) => {
     <ConstantBasedPicker
       module="claim"
       label="attachmentGeneralType"
+      withLabel={false}
       constants={ATTACHMENT_TYPE_STATUS}
       {...props}
     />
