@@ -192,6 +192,7 @@ class ClaimMasterPanelExt extends Component {
             dateFrom={dateFrom}
             insuree={insuree}
             dateClaimed={claim?.dateClaimed}
+            isEdited={claim?.uuid}
           />
         )}
         {this.isAdditionalPanelEnabled && (
