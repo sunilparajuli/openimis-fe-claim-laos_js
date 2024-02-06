@@ -1,4 +1,4 @@
-import React, { Component, Fragment } from "react";
+import React, { Component } from "react";
 import { bindActionCreators } from "redux";
 import { connect } from "react-redux";
 import { injectIntl } from "react-intl";
@@ -305,7 +305,7 @@ class AttachmentsDialog extends Component {
 
     if (!claim) return null;
 
-    var headers = [
+    const headers = [
       "claimAttachment.generalType",
       "claimAttachment.type",
       "claimAttachment.title",
@@ -313,7 +313,7 @@ class AttachmentsDialog extends Component {
       "claimAttachment.fileName",
     ];
 
-    var itemFormatters = [
+    const itemFormatters = [
       (attachment, index) =>
         this.cannotUpdate(attachment, index) ? (
           claimAttachments[index].generalType
