@@ -137,6 +137,10 @@ class AttachmentsDialog extends Component {
       return { isValid: false, error: "url.validation.invalidURL" };
     }
 
+    if (this.allowedDomainsAttachments.length === 0) {
+      return { isValid: true, error: null };
+    }
+
     const enteredDomain = parsedUrl.hostname;
     const isDomainAllowed = this.allowedDomainsAttachments.some((allowedDomain) =>
       enteredDomain.endsWith(allowedDomain),
