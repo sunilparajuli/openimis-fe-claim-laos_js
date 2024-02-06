@@ -4,7 +4,7 @@ import { connect } from "react-redux";
 import { injectIntl } from "react-intl";
 import _ from "lodash";
 import { withTheme, withStyles } from "@material-ui/core/styles";
-import { IconButton, Typography, Tooltip } from "@material-ui/core";
+import { IconButton, Typography, Tooltip, Badge } from "@material-ui/core";
 import AttachIcon from "@material-ui/icons/AttachFile";
 import TabIcon from "@material-ui/icons/Tab";
 import { Searcher } from "@openimis/fe-core";
@@ -251,8 +251,9 @@ class ClaimSearcher extends Component {
         (c) =>
           !!c.attachmentsCount && (
             <IconButton onClick={(e) => this.setState({ attachmentsClaim: c })}>
-              {" "}
-              <AttachIcon />
+              <Badge badgeContent={c.attachmentsCount ?? 0} color="primary">
+                <AttachIcon />
+              </Badge>
             </IconButton>
           ),
       );

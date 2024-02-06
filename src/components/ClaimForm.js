@@ -4,7 +4,7 @@ import { connect } from "react-redux";
 import { injectIntl } from "react-intl";
 import moment from "moment";
 
-import { Fab } from "@material-ui/core";
+import { Fab, Badge } from "@material-ui/core";
 import { withStyles, withTheme } from "@material-ui/core/styles";
 import CheckIcon from "@material-ui/icons/Check";
 import ReplayIcon from "@material-ui/icons/Replay";
@@ -12,7 +12,7 @@ import PrintIcon from "@material-ui/icons/ListAlt";
 import AttachIcon from "@material-ui/icons/AttachFile";
 import RestorePageIcon from "@material-ui/icons/RestorePage";
 import FileCopyIcon from "@material-ui/icons/FileCopy";
-import CachedIcon from '@material-ui/icons/Cached';
+import CachedIcon from "@material-ui/icons/Cached";
 
 import {
   Contributions,
@@ -383,10 +383,7 @@ class ClaimForm extends Component {
   };
 
   _deliverReview = (claim) => {
-    this.setState(
-      { lockNew: !claim.uuid },
-      (e) => this.props.deliverReview(claim),
-    );
+    this.setState({ lockNew: !claim.uuid }, (e) => this.props.deliverReview(claim));
   };
 
   duplicate = () => {
@@ -458,7 +455,11 @@ class ClaimForm extends Component {
     if (!!this.claimAttachments && (!readOnly || claim.attachmentsCount > 0)) {
       actions.push({
         doIt: (e) => this.setState({ attachmentsClaim: claim }),
-        icon: <AttachIcon />,
+        icon: (
+          <Badge badgeContent={this.state.claim?.attachmentsCount ?? 0} color="primary">
+            <AttachIcon />
+          </Badge>
+        ),
       });
     }
 

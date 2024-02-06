@@ -2,10 +2,7 @@ import React, { Component } from "react";
 import { bindActionCreators } from "redux";
 import { connect } from "react-redux";
 import { injectIntl } from "react-intl";
-import { withTheme, withStyles } from "@material-ui/core/styles";
-import SaveIcon from "@material-ui/icons/SaveAlt";
-import DeleteIcon from "@material-ui/icons/Delete";
-import FileIcon from "@material-ui/icons/Add";
+
 import {
   Dialog,
   DialogTitle,
@@ -16,6 +13,12 @@ import {
   Link,
   IconButton,
 } from "@material-ui/core";
+import { withTheme, withStyles } from "@material-ui/core/styles";
+import SaveIcon from "@material-ui/icons/SaveAlt";
+import DeleteIcon from "@material-ui/icons/Delete";
+import FileIcon from "@material-ui/icons/Add";
+import LinkIcon from "@material-ui/icons/Link";
+
 import {
   FormattedMessage,
   withModulesManager,
@@ -23,10 +26,12 @@ import {
   Table,
   TextInput,
   PublishedComponent,
+  withTooltip,
   formatMessage,
   formatMessageWithValues,
   journalize,
-  coreConfirm
+  coreConfirm,
+  coreAlert,
 } from "@openimis/fe-core";
 import {
   fetchClaimAttachments,
@@ -35,15 +40,24 @@ import {
   createAttachment,
   updateAttachment,
 } from "../actions";
-import { RIGHT_ADD } from "../constants";
+import { DEFAULT, RIGHT_ADD, URL_TYPE_STRING } from "../constants";
+import AttachmentGeneralTypePicker from "../pickers/AttachmentGeneralTypePicker";
 
 const styles = (theme) => ({
   dialogTitle: theme.dialog.title,
   dialogContent: theme.dialog.content,
 });
 
-
 class AttachmentsDialog extends Component {
+  constructor(props) {
+    super(props);
+    this.allowedDomainsAttachments = props.modulesManager.getConf(
+      "fe-claim",
+      "allowedDomainsAttachments",
+      DEFAULT.ALLOWED_DOMAINS_ATTACHMENTS,
+    );
+  }
+
   state = {
     open: false,
     claimUuid: null,
@@ -113,6 +127,31 @@ class AttachmentsDialog extends Component {
   }
 
   onClose = () => this.setState({ open: false }, (e) => !!this.props.close && this.props.close());
+
+  validateUrl(url) {
+    let parsedUrl;
+
+    try {
+      parsedUrl = new URL(url);
+    } catch (error) {
+      return { isValid: false, error: "url.validation.invalidURL" };
+    }
+
+    if (this.allowedDomainsAttachments.length === 0) {
+      return { isValid: true, error: null };
+    }
+
+    const enteredDomain = parsedUrl.hostname;
+    const isDomainAllowed = this.allowedDomainsAttachments.some((allowedDomain) =>
+      enteredDomain.endsWith(allowedDomain),
+    );
+
+    if (!isDomainAllowed) {
+      return { isValid: false, error: "url.validation.notAllowed" };
+    }
+
+    return { isValid: true, error: null };
+  }
 
   delete = (a, i) => {
     if (!!a.id) {
@@ -202,6 +241,56 @@ class AttachmentsDialog extends Component {
     );
   }
 
+  urlSelected = (f, i) => {
+    const { coreAlert, intl } = this.props;
+    const url = this.validateUrl(f);
+
+    if (!url.isValid) {
+      coreAlert(
+        formatMessage(intl, "claim", "url.validation.error"),
+        url.error
+          ? formatMessage(intl, "claim", url.error)
+          : formatMessage(intl, "claim", "url.validation.generalError"),
+      );
+      return;
+    }
+
+    if (!!f) {
+      let claimAttachments = [...this.state.claimAttachments];
+      claimAttachments[i].url = f;
+      claimAttachments[i].mime = "text/x-uri";
+      this.setState({ claimAttachments }, (e) => {
+        this.addAttachment(f);
+      });
+    }
+  };
+
+  formatUrl(a, i) {
+    if (!!a.mime) {
+      return (
+        <Link onClick={() => window.open(a.url)} reset={this.state.reset}>
+          {withTooltip(<LinkIcon />, a.url)}
+        </Link>
+      );
+    }
+    return (
+      <div style={{ display: "flex", flexDirection: "row", alignItems: "center" }}>
+        <TextInput
+          reset={this.state.reset}
+          value={this.state.claimAttachments[i].url}
+          onChange={(v) => this.updateAttachment(i, "url", v)}
+        />
+        <IconButton
+          variant="contained"
+          component="label"
+          onClick={(f) => this.urlSelected(this.state.claimAttachments[i].url, i)}
+        >
+          <FileIcon />
+        </IconButton>
+      </div>
+    );
+  }
+
   updateAttachment = (i, key, value) => {
     var state = { ...this.state };
     state.claimAttachments[i][key] = value;
@@ -210,59 +299,86 @@ class AttachmentsDialog extends Component {
     this.setState({ ...state });
   };
 
-  cannotUpdate = (a, i) => i < this.state.claimAttachments.length - 1 && !!this.state.claimUuid && !a.id;
+  cannotUpdate = (a, i) => {
+    return i < this.state.claimAttachments.length - 1 && !!this.state.claimUuid && !a.id;
+  };
 
   render() {
     const { classes, claim, readOnly = false, fetchingClaimAttachments, errorClaimAttachments } = this.props;
-    const { open, claimAttachments } = this.state;
+    const { open, claimAttachments, reset, updatedAttachments } = this.state;
+
     if (!claim) return null;
-    var headers = ["claimAttachment.type", "claimAttachment.title", "claimAttachment.date", "claimAttachment.fileName"];
-    var itemFormatters = [
-      (a, i) =>
-        this.cannotUpdate(a, i) ? (
-          this.state.claimAttachments[i].type
+
+    const headers = [
+      "claimAttachment.generalType",
+      "claimAttachment.type",
+      "claimAttachment.title",
+      "claimAttachment.date",
+      "claimAttachment.fileName",
+    ];
+
+    const itemFormatters = [
+      (attachment, index) =>
+        this.cannotUpdate(attachment, index) ? (
+          claimAttachments[index].generalType
         ) : (
-          <TextInput
-            reset={this.state.reset}
-            value={this.state.claimAttachments[i].type}
-            onChange={(v) => this.updateAttachment(i, "type", v)}
+          <AttachmentGeneralTypePicker
+            readOnly={claimAttachments[index].id}
+            reset={reset}
+            withNull={false}
+            value={claimAttachments[index].generalType}
+            onChange={(v) => this.updateAttachment(index, "generalType", v)}
           />
         ),
-      (a, i) =>
-        this.cannotUpdate(a, i) ? (
-          this.state.claimAttachments[i].title
+      (attachment, index) =>
+        this.cannotUpdate(attachment, index) ? (
+          claimAttachments[index].type
         ) : (
           <TextInput
-            reset={this.state.reset}
-            value={this.state.claimAttachments[i].title}
-            onChange={(v) => this.updateAttachment(i, "title", v)}
+            reset={reset}
+            value={claimAttachments[index].type}
+            onChange={(v) => this.updateAttachment(index, "type", v)}
           />
         ),
-      (a, i) =>
-        this.cannotUpdate(a, i) ? (
-          this.state.claimAttachments[i].date
+      (attachment, index) =>
+        this.cannotUpdate(attachment, index) ? (
+          claimAttachments[index].title
+        ) : (
+          <TextInput
+            reset={reset}
+            value={claimAttachments[index].title}
+            onChange={(v) => this.updateAttachment(index, "title", v)}
+          />
+        ),
+      (attachment, index) =>
+        this.cannotUpdate(attachment, index) ? (
+          claimAttachments[index].date
         ) : (
           <PublishedComponent
             pubRef="core.DatePicker"
-            onChange={(v) => this.updateAttachment(i, "date", v)}
-            value={this.state.claimAttachments[i].date || null}
-            reset={this.state.reset}
+            onChange={(v) => this.updateAttachment(index, "date", v)}
+            value={claimAttachments[index].date || null}
+            reset={reset}
           />
         ),
-      (a, i) => this.formatFileName(a, i),
+      (attachment, index) =>
+        claimAttachments[index].url || claimAttachments[index].generalType === URL_TYPE_STRING
+          ? this.formatUrl(attachment, index)
+          : this.formatFileName(attachment, index),
     ];
+
     if (!readOnly) {
       headers.push("claimAttachment.action");
-      itemFormatters.push((a, i) => {
-        if (!!a.id && this.state.updatedAttachments.has(i)) {
+      itemFormatters.push((attachment, index) => {
+        if (attachment.id && updatedAttachments.has(index)) {
           return (
-            <IconButton onClick={(e) => this.update(i)}>
+            <IconButton onClick={(e) => this.update(index)}>
               <SaveIcon />
             </IconButton>
           );
-        } else if (i < this.state.claimAttachments.length - 1) {
+        } else if (index < claimAttachments.length - 1) {
           return (
-            <IconButton onClick={(e) => this.delete(a, i)}>
+            <IconButton onClick={(e) => this.delete(attachment, index)}>
               <DeleteIcon />
             </IconButton>
           );
@@ -270,20 +386,21 @@ class AttachmentsDialog extends Component {
         return null;
       });
     }
+
     return (
       <Dialog open={open} fullWidth={true}>
         <DialogTitle className={classes.dialogTitle}>
-          <FormattedMessage module="claim" id="attachments.title" values={{ "code": claim.code }} />
+          <FormattedMessage module="claim" id="attachments.title" values={{ code: claim.code }} />
         </DialogTitle>
         <Divider />
-          <DialogContent className={classes.dialogContent}>
-            <ProgressOrError progress={fetchingClaimAttachments} error={errorClaimAttachments} />
-            {!fetchingClaimAttachments && !errorClaimAttachments && (
-              <Table module="claim" items={claimAttachments} headers={headers} itemFormatters={itemFormatters} />
-            )}
-          </DialogContent>
+        <DialogContent className={classes.dialogContent}>
+          <ProgressOrError progress={fetchingClaimAttachments} error={errorClaimAttachments} />
+          {!fetchingClaimAttachments && !errorClaimAttachments && (
+            <Table module="claim" items={claimAttachments} headers={headers} itemFormatters={itemFormatters} />
+          )}
+        </DialogContent>
         <DialogActions>
-          <Button onClick={this.onClose} color="primary">
+          <Button onClick={this.onClose} variant="contained" color="primary">
             <FormattedMessage module="claim" id="close" />
           </Button>
         </DialogActions>
@@ -313,6 +430,7 @@ const mapDispatchToProps = (dispatch) => {
       updateAttachment,
       coreConfirm,
       journalize,
+      coreAlert,
     },
     dispatch,
   );

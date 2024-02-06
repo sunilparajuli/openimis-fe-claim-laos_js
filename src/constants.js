@@ -11,10 +11,17 @@ export const STATUS_ENTERED = 2;
 export const REJECTION_REASONS = _.range(-1, 20);
 export const FEEDBACK_ASSESSMENTS = _.range(-1, 6);
 // NULL - all claims, 1 - with attachments, 2 - without attachments
-export const ATTACHMENT_STATUS = [1, 2];
+export const ATTACHMENT_STATUS_WITH = 1;
+export const ATTACHMENT_STATUS_WITHOUT = 2;
+export const ATTACHMENT_STATUS = [ATTACHMENT_STATUS_WITH, ATTACHMENT_STATUS_WITHOUT];
+
 export const IN_PATIENT_STRING = "IPD";
 export const OUT_PATIENT_STRING = "OPD";
 export const CARE_TYPE_STATUS = [IN_PATIENT_STRING, OUT_PATIENT_STRING];
+
+export const URL_TYPE_STRING = "URL";
+export const FILE_TYPE_STRING = "FILE";
+export const ATTACHMENT_TYPE_STATUS = [URL_TYPE_STRING, FILE_TYPE_STRING];
 
 export const MODULE_NAME = "claim";
 
@@ -42,6 +49,7 @@ export const DEFAULT = {
   QUANTITY_EXPLANATION_THRESHOLD: 1,
   QUANTITY_MAX_VALUE: 10000,
   AUTOGENERATE_CLAIM_CODE: false,
+  ALLOWED_DOMAINS_ATTACHMENTS: []
 };
 
 export const DAYS = {
