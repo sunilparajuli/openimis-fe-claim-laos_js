@@ -49,6 +49,7 @@ export const DEFAULT = {
   QUANTITY_EXPLANATION_THRESHOLD: 1,
   QUANTITY_MAX_VALUE: 10000,
   AUTOGENERATE_CLAIM_CODE: false,
+  ALLOWED_DOMAINS_ATTACHMENTS: ["claimdoc.hib.gov.np"]
 };
 
 export const DAYS = {

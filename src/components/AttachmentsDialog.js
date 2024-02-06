@@ -31,6 +31,7 @@ import {
   formatMessageWithValues,
   journalize,
   coreConfirm,
+  coreAlert,
 } from "@openimis/fe-core";
 import {
   fetchClaimAttachments,
@@ -39,7 +40,7 @@ import {
   createAttachment,
   updateAttachment,
 } from "../actions";
-import { RIGHT_ADD, URL_TYPE_STRING } from "../constants";
+import { DEFAULT, RIGHT_ADD, URL_TYPE_STRING } from "../constants";
 import AttachmentGeneralTypePicker from "../pickers/AttachmentGeneralTypePicker";
 
 const styles = (theme) => ({
@@ -48,6 +49,15 @@ const styles = (theme) => ({
 });
 
 class AttachmentsDialog extends Component {
+  constructor(props) {
+    super(props);
+    this.allowedDomainsAttachments = props.modulesManager.getConf(
+      "fe-claim",
+      "allowedDomainsAttachments",
+      DEFAULT.ALLOWED_DOMAINS_ATTACHMENTS,
+    );
+  }
+
   state = {
     open: false,
     claimUuid: null,
@@ -117,6 +127,27 @@ class AttachmentsDialog extends Component {
   }
 
   onClose = () => this.setState({ open: false }, (e) => !!this.props.close && this.props.close());
+
+  validateUrl(url) {
+    let parsedUrl;
+
+    try {
+      parsedUrl = new URL(url);
+    } catch (error) {
+      return { isValid: false, error: "url.validation.invalidURL" };
+    }
+
+    const enteredDomain = parsedUrl.hostname;
+    const isDomainAllowed = this.allowedDomainsAttachments.some((allowedDomain) =>
+      enteredDomain.endsWith(allowedDomain),
+    );
+
+    if (!isDomainAllowed) {
+      return { isValid: false, error: "url.validation.notAllowed" };
+    }
+
+    return { isValid: true, error: null };
+  }
 
   delete = (a, i) => {
     if (!!a.id) {
@@ -207,6 +238,19 @@ class AttachmentsDialog extends Component {
   }
 
   urlSelected = (f, i) => {
+    const { coreAlert, intl } = this.props;
+    const url = this.validateUrl(f);
+
+    if (!url.isValid) {
+      coreAlert(
+        formatMessage(intl, "claim", "url.validation.error"),
+        url.error
+          ? formatMessage(intl, "claim", url.error)
+          : formatMessage(intl, "claim", "url.validation.generalError"),
+      );
+      return;
+    }
+
     if (!!f) {
       let claimAttachments = [...this.state.claimAttachments];
       claimAttachments[i].url = f;
@@ -226,7 +270,7 @@ class AttachmentsDialog extends Component {
       );
     }
     return (
-      <div style={{ display: "flex", flexDirection: "row" }}>
+      <div style={{ display: "flex", flexDirection: "row", alignItems: "center" }}>
         <TextInput
           reset={this.state.reset}
           value={this.state.claimAttachments[i].url}
@@ -382,6 +426,7 @@ const mapDispatchToProps = (dispatch) => {
       updateAttachment,
       coreConfirm,
       journalize,
+      coreAlert,
     },
     dispatch,
   );
