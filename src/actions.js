@@ -88,12 +88,15 @@ export function formatAttachment(attach) {
     ${!!attach.mime ? `mime: "${attach.mime}"` : ""}
     ${!!attach.url ? `url: "${attach.url}"` : ""}
     ${!!attach.generalType ? `generalType: "${attach.generalType}"` : ""}
+    ${!!attach.predefinedType ? `predefinedType: "${attach.predefinedType.claimAttachmentType}"` : ""}
     ${!!attach.filename ? `filename: "${formatGQLString(attach.filename)}"` : ""}
     ${!!attach.document ? `document: "${attach.document}"` : ""}
   `;
 }
 
 export function createAttachment(attach, clientMutationLabel) {
+  console.log("create");
+  console.log(attach);
   let payload = formatAttachment(attach);
   let mutation = formatMutation("createClaimAttachment", payload, clientMutationLabel);
   var requestedDateTime = new Date();

@@ -174,7 +174,9 @@ class AttachmentsDialog extends Component {
   };
 
   addAttachment = (document) => {
+    console.log({document});
     let attachment = { ..._.last(this.state.claimAttachments), document };
+    console.log(attachment);
     if (!!this.state.claimUuid) {
       this.props.createAttachment(
         { ...attachment, claimUuid: this.state.claimUuid },
@@ -307,10 +309,13 @@ class AttachmentsDialog extends Component {
     const { classes, claim, readOnly = false, fetchingClaimAttachments, errorClaimAttachments } = this.props;
     const { open, claimAttachments, reset, updatedAttachments } = this.state;
 
+    console.log(claimAttachments);
+
     if (!claim) return null;
 
     const headers = [
       "claimAttachment.generalType",
+      "claimAttachment.predefinedType",
       "claimAttachment.type",
       "claimAttachment.title",
       "claimAttachment.date",
@@ -329,6 +334,23 @@ class AttachmentsDialog extends Component {
             value={claimAttachments[index].generalType}
             onChange={(v) => this.updateAttachment(index, "generalType", v)}
           />
+        ),
+      (attachment, index) =>
+        this.cannotUpdate(attachment, index) ? (
+          claimAttachments[index].predefinedType
+        ) : (
+          <PublishedComponent
+          pubRef="claim.ClaimAttachmentPredefinedTypePicker"
+          label="ClaimAttachmentPredefinedType"
+          value={claimAttachments[index].predefinedType}
+          module="claim"
+          reset={reset}
+          readOnly={readOnly||!claimAttachments[index].generalType}
+          withNull={false}
+          claimGeneralType={claimAttachments[index].generalType}
+          required={true}
+          onChange={(v) => this.updateAttachment(index, "predefinedType", v)}
+        />
         ),
       (attachment, index) =>
         this.cannotUpdate(attachment, index) ? (

@@ -242,6 +242,7 @@
   "claim.ClaimMasterPanelExt.restore": "Restored from claim:",
   "claim.claimAttachment.generalType": "General Type",
   "claim.claimAttachment.type": "Type",
+  "claim.claimAttachment.predefinedType": "Predefined Type",
   "claim.claimAttachment.title": "Title",
   "claim.claimAttachment.date": "Date",
   "claim.claimAttachment.fileName": " ",
