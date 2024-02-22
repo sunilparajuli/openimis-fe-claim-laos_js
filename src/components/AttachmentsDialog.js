@@ -159,11 +159,12 @@ class AttachmentsDialog extends Component {
 
   delete = (a, i) => {
     if (!!a.id) {
+      const filename = a.filename ? `(${a.filename})` : "";
       this.setState({ attachmentToDelete: a }, (e) =>
         this.props.coreConfirm(
           formatMessage(this.props.intl, "claim", "deleteClaimAttachment.confirm.title"),
           formatMessageWithValues(this.props.intl, "claim", "deleteClaimAttachment.confirm.message", {
-            file: `${a.title} ${a.filename ? `(${a.filename})` : ""}`,
+            file: `${a.title} ${filename}`,
           }),
         ),
       );
@@ -180,11 +181,12 @@ class AttachmentsDialog extends Component {
   addAttachment = (document) => {
     let attachment = { ..._.last(this.state.claimAttachments), document };
     if (!!this.state.claimUuid) {
+      const filename = attachment.filename ? `(${attachment.filename})` : "";
       this.props
         .createAttachment(
           { ...attachment, claimUuid: this.state.claimUuid },
           formatMessageWithValues(this.props.intl, "claim", "claim.ClaimAttachment.create.mutationLabel", {
-            file: `${attachment.title} ${attachment.filename ? `(${attachment.filename})` : ""}`,
+            file: `${attachment.title} ${filename}`,
             code: `${this.props.claim.code}`,
           }),
         )
@@ -211,10 +213,11 @@ class AttachmentsDialog extends Component {
 
   update = (i) => {
     let attachment = { claimUuid: this.state.claimUuid, ...this.state.claimAttachments[i] };
+    const filename = attachment.filename ? `(${attachment.filename})` : "";
     this.props.updateAttachment(
       attachment,
       formatMessageWithValues(this.props.intl, "claim", "claim.ClaimAttachment.update.mutationLabel", {
-        file: `${attachment.title} ${attachment.filename ? `(${attachment.filename})` : ""}`,
+        file: `${attachment.title} ${filename}`,
         code: `${this.props.claim.code}`,
       }),
     );

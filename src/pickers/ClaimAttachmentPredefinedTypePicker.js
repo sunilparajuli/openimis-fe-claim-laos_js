@@ -39,7 +39,7 @@ const ClaimAttachmentPredefinedTypePicker = ({
     { skip: true },
   );
 
-  filterOptions = (options) => {
+  const filterOptions = (options) => {
     return options.filter((option) => {
       return option.claimGeneralType === claimGeneralType;
     });
