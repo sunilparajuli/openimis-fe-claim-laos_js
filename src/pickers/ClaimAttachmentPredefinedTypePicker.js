@@ -7,7 +7,6 @@ const ClaimAttachmentPredefinedTypePicker = ({
   readOnly,
   required,
   value,
-  filterOptions,
   filterSelectedOptions,
   multiple,
   claimGeneralType,
