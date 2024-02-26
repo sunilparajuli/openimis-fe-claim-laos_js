@@ -394,6 +394,7 @@ class ClaimChildPanel extends Component {
           itemFormatters={itemFormatters}
           items={!fetchingPricelist ? this.state.data : []}
           onDelete={!forReview && !readOnly && this._onDelete}
+          disableDeleteOnEmptyRow
           showOrdinalNumber={this.showOrdinalNumber}
         />
       </Paper>
