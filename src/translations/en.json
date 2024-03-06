@@ -246,7 +246,7 @@
   "claim.claimAttachment.predefinedType": "Predefined Type",
   "claim.claimAttachment.title": "Title",
   "claim.claimAttachment.date": "Date",
-  "claim.claimAttachment.fileName": " ",
+  "claim.claimAttachment.fileName": "Attachment",
   "claim.claimAttachment.action": " ",
   "claim.deleteClaimAttachment.confirm.title": "Delete Claim Attachment",
   "claim.deleteClaimAttachment.confirm.message": "Are you sure you want to delete claim attachment {file}?",
