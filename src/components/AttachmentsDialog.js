@@ -114,12 +114,12 @@ class AttachmentsDialog extends Component {
       !!this.props.confirmed &&
       !!this.state.attachmentToDelete
     ) {
+      const title = this.state.attachmentToDelete.title ? `${this.state.attachmentToDelete.title}` : "";
+      const filename = this.state.attachmentToDelete.filename ? `(${this.state.attachmentToDelete.filename})` : "";
       this.props.deleteAttachment(
         this.state.attachmentToDelete,
         formatMessageWithValues(this.props.intl, "claim", "claim.ClaimAttachment.delete.mutationLabel", {
-          file: `${this.state.attachmentToDelete.title ? `${this.state.attachmentToDelete.title}` : ""} ${
-            this.state.attachmentToDelete.filename ? `(${this.state.attachmentToDelete.filename})` : ""
-          }`,
+          file: `${title} ${filename}`,
           code: `${this.props.claim.code}`,
         }),
       );
