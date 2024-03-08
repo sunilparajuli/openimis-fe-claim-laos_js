@@ -72,7 +72,7 @@ class AttachmentsDialog extends Component {
     if (!_.isEqual(prevProps.claimAttachments, this.props.claimAttachments)) {
       var claimAttachments = [...(this.props.claimAttachments || [])];
       if (!this.props.readOnly && this.props.rights.includes(RIGHT_ADD)) {
-        claimAttachments.push({});
+        claimAttachments.push({ title: "", type: "" });
       }
       this.setState({ claimAttachments, updatedAttachments: new Set() });
     } else if (!_.isEqual(prevProps.claim, this.props.claim) && !!this.props.claim && !!this.props.claim.uuid) {
@@ -114,12 +114,12 @@ class AttachmentsDialog extends Component {
       !!this.props.confirmed &&
       !!this.state.attachmentToDelete
     ) {
+      const title = this.state.attachmentToDelete.title ? `${this.state.attachmentToDelete.title}` : "";
+      const filename = this.state.attachmentToDelete.filename ? `(${this.state.attachmentToDelete.filename})` : "";
       this.props.deleteAttachment(
         this.state.attachmentToDelete,
         formatMessageWithValues(this.props.intl, "claim", "claim.ClaimAttachment.delete.mutationLabel", {
-          file: `${this.state.attachmentToDelete.title} ${
-            this.state.attachmentToDelete.filename ? `(${this.state.attachmentToDelete.filename})` : ""
-          }`,
+          file: `${title} ${filename}`,
           code: `${this.props.claim.code}`,
         }),
       );
@@ -186,7 +186,7 @@ class AttachmentsDialog extends Component {
         .createAttachment(
           { ...attachment, claimUuid: this.state.claimUuid },
           formatMessageWithValues(this.props.intl, "claim", "claim.ClaimAttachment.create.mutationLabel", {
-            file: `${attachment.title} ${filename}`,
+            file: `${attachment.title || ""} ${filename}`,
             code: `${this.props.claim.code}`,
           }),
         )
@@ -217,7 +217,7 @@ class AttachmentsDialog extends Component {
     this.props.updateAttachment(
       attachment,
       formatMessageWithValues(this.props.intl, "claim", "claim.ClaimAttachment.update.mutationLabel", {
-        file: `${attachment.title} ${filename}`,
+        file: `${attachment.title || ""} ${filename}`,
         code: `${this.props.claim.code}`,
       }),
     );
