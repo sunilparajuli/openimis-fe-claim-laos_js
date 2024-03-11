@@ -93,7 +93,7 @@ class ClaimMasterPanelExt extends Component {
   valuatePolicyValidity = (currentPolicy) => {
     const { classes } = this.props;
 
-    if (!currentPolicy || !currentPolicy.length) {
+    if (!currentPolicy?.length) {
       return { policyInfoLabel: INACTIVE_LABEL, policyInfoStyle: classes.inactiveLabel };
     }
 
