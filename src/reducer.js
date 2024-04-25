@@ -10,6 +10,7 @@ import {
 
 function reducer(
   state = {
+    excelUploadResponse: null,
     fetchingClaimAttachments: false,
     fetchedClaimAttachments: false,
     errorClaimAttachments: null,
@@ -116,6 +117,21 @@ function reducer(
         delete s.claimAdmin;
       }
       return s;
+    case "EXCEL_UPLOAD_REQ":
+      return {
+        ...state,
+        excelUploadResponse : null
+      }
+    case "EXCEL_UPLOAD_RESP":
+      return {
+        ...state,
+        excelUploadResponse : action.payload.data?.uploadExcel?.successCount ?? 0
+      }
+    case "EXCEL_UPLOAD_ERR":
+      return {
+        ...state,
+        excelUploadResponse : action.payload
+      }      
     case "CLAIM_CLAIM_SEARCHER_REQ":
       return {
         ...state,

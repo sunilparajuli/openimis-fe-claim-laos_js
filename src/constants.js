@@ -5,6 +5,8 @@ export const REVIEW_STATUS = [1, 2, 4, 8, 16];
 export const FEEDBACK_STATUS = [1, 2, 4, 8, 16];
 export const APPROVAL_STATUS = [1, 2];
 
+// export const SERVICE_TYPE = [1, 2, 3];
+
 export const CLAIM_DETAIL_REJECTED_STATUS = 2;
 export const STATUS_REJECTED = 1;
 export const STATUS_ENTERED = 2;
@@ -17,11 +19,28 @@ export const ATTACHMENT_STATUS = [ATTACHMENT_STATUS_WITH, ATTACHMENT_STATUS_WITH
 
 export const IN_PATIENT_STRING = "IPD";
 export const OUT_PATIENT_STRING = "OPD";
-export const CARE_TYPE_STATUS = [IN_PATIENT_STRING, OUT_PATIENT_STRING];
+export const ANC_PATIENT_STRING = "ANC";
+export const PNC_PATIENT_STRING = "PNC";
+export const CARE_TYPE_STATUS = [IN_PATIENT_STRING, OUT_PATIENT_STRING,PNC_PATIENT_STRING,ANC_PATIENT_STRING];
 
 export const URL_TYPE_STRING = "URL";
 export const FILE_TYPE_STRING = "FILE";
 export const ATTACHMENT_TYPE_STATUS = [URL_TYPE_STRING, FILE_TYPE_STRING];
+
+
+
+export const PATIENT_WITHIN_AREA = "PWA";
+export const PATIENT_CROSS_AREA = "PCA";
+export const PATIENT_REFERAL = "RP";
+export const SERVICE_AREA_STATUS = [PATIENT_WITHIN_AREA, PATIENT_CROSS_AREA, PATIENT_REFERAL];
+
+
+export const ST_GP = "GP";
+export const ST_PW = "PW";
+export const ST_CU5 = "CU5";
+
+export const SERVICE_TYPE = [ST_GP, ST_PW, ST_CU5];
+
 
 export const MODULE_NAME = "claim";
 

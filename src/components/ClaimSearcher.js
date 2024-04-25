@@ -7,8 +7,10 @@ import { withTheme, withStyles } from "@material-ui/core/styles";
 import { IconButton, Typography, Tooltip, Badge } from "@material-ui/core";
 import AttachIcon from "@material-ui/icons/AttachFile";
 import TabIcon from "@material-ui/icons/Tab";
-import { Searcher } from "@openimis/fe-core";
+import { Searcher, coreConfirm } from "@openimis/fe-core";
 import ClaimFilter from "./ClaimFilter";
+import ReceiptIcon from '@material-ui/icons/Receipt';
+import PaymentIcon from '@material-ui/icons/Payment';
 import {
   withModulesManager,
   formatMessageWithValues,
@@ -18,7 +20,7 @@ import {
   FormattedMessage,
   PublishedComponent,
 } from "@openimis/fe-core";
-import { fetchClaimSummaries } from "../actions";
+import { fetchClaimSummaries, printConsumerInvoice } from "../actions";
 
 const CLAIM_SEARCHER_CONTRIBUTION_KEY = "claim.Searcher";
 
@@ -28,6 +30,7 @@ class ClaimSearcher extends Component {
   state = {
     random: null,
     attachmentsClaim: null,
+    confirmedAction: null,
   };
 
   constructor(props) {
@@ -56,6 +59,17 @@ class ClaimSearcher extends Component {
 
   forcedFilters() {
     return !this.props.forcedFilters ? [] : [...this.props.forcedFilters.filter((f) => f.id !== "random")];
+  }
+
+  FnprintConsumerInvoice = (c) => {
+   
+    this.props.printConsumerInvoice(c.uuid);
+  }
+
+  componentDidUpdate(prevProps, prevState, snapshot) {
+  if (!prevProps.confirmed && this.props.confirmed && !!this.state.confirmedAction) {
+      this.state?.confirmedAction();
+    }
   }
 
   filtersToQueryParams = (state) => {
@@ -164,6 +178,7 @@ class ClaimSearcher extends Component {
     this.extFields.forEach((f) => {
       result.push("");
     });
+
     return result;
   };
 
@@ -271,9 +286,33 @@ class ClaimSearcher extends Component {
         </IconButton>
       </Tooltip>
     ));
+    result.push((c) => (
+      <Tooltip title={formatMessage(this.props.intl, "claim", "printInvoice.tooltip")}>
+     
+      
+      <PaymentIcon onClick={()=> this.confirmPrintCard(c)} />
+      </Tooltip>
+
+    ));
     return result;
   };
 
+
+  confirmPrintCard = (i) => {
+    let confirmedAction = () =>
+    this.FnprintConsumerInvoice(i);
+    let confirm = (e) =>
+      this.props.coreConfirm(
+        formatMessageWithValues(this.props.intl, "claim", "printInvoice.title", {label : `${i?.insuree?.chfId}`}),
+        formatMessageWithValues(this.props.intl, "claim", "printInvoice.message", 
+          {label : `${i?.otherNames} ${i?.lastName}`}
+        ),
+      );
+    this.setState({ confirmedAction }, confirm);
+  };
+
+
+  
   rowLocked = (selection, claim) => !!claim.clientMutationId;
 
   rowHighlighted = (selection, claim) => !!this.highlightAmount && claim.claimed > this.highlightAmount;
@@ -365,6 +404,7 @@ class ClaimSearcher extends Component {
 
 const mapStateToProps = (state) => ({
   claims: state.claim.claims,
+  confirmed: state.core.confirmed,
   claimsPageInfo: state.claim.claimsPageInfo,
   fetchingClaims: state.claim.fetchingClaims,
   fetchedClaims: state.claim.fetchedClaims,
@@ -374,7 +414,7 @@ const mapStateToProps = (state) => ({
 });
 
 const mapDispatchToProps = (dispatch) => {
-  return bindActionCreators({ fetchClaimSummaries }, dispatch);
+  return bindActionCreators({ fetchClaimSummaries , printConsumerInvoice, coreConfirm}, dispatch);
 };
 
 export default withModulesManager(

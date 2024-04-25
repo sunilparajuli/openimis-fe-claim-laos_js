@@ -134,6 +134,9 @@ class ClaimForm extends Component {
     claim.dateFrom = toISODate(moment().toDate());
     claim.visitType = this.props.modulesManager.getConf("fe-claim", "newClaim.visitType", "O");
     claim.code = "";
+    claim.dischargeReason = "";
+    claim.serviceType="";
+    claim.serviceArea="";
     claim.jsonExt = {};
     return claim;
   }

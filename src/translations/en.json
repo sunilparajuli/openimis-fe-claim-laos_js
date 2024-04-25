@@ -40,6 +40,7 @@
   "claim.feedbackButton.tooltip": "Deliver Feedback",
   "claim.reviewButton.tooltip": "Deliver Review",
   "claim.openNewTabButton.tooltip": "Open in new tab",
+  "claim.printInvoice.tooltip": "Print Invoice to Insuree",
   "claim.ClaimFilter.claimedDateFrom": "Claimed From",
   "claim.ClaimFilter.claimedDateTo": "Claimed To",
   "claim.ClaimFilter.claimedAbove": "Claimed More Than",
@@ -76,6 +77,22 @@
   "claim.careType.null": "Any",
   "claim.careType.IPD": "IPD",
   "claim.careType.OPD": "OPD",
+  "claim.careType.ANC": "ANC",
+  "claim.careType.PNC": "PNC",
+
+  "claim.ServiceArea": "Service Area ",
+  "claim.ServiceArea.null": "Any",
+  "claim.ServiceArea.PWA": "Patient within area",
+  "claim.ServiceArea.PCA": "Patient cross area",
+  "claim.ServiceArea.RP": "Referal patient",
+
+  "claim.serviceType": "Service Type ",
+  "claim.serviceType.null": "Any",
+  "claim.serviceType.GP": "General population",
+  "claim.serviceType.PW": "Pregnent Women",
+  "claim.serviceType.CU5": "Child under 5",
+
+
   "claim.attachmentGeneralType": "General Type",
   "claim.attachmentGeneralType.null": "Both",
   "claim.attachmentGeneralType.URL": "URL",
@@ -338,5 +355,7 @@
   "claim.calculateAge.util.days": "Day(s)",
   "claim.calculateAge.util.weeks": "Week(s)",
   "claim.calculateAge.util.months": "Month(s)",
-  "claim.calculateAge.util.years": "Year(s)"
+  "claim.calculateAge.util.years": "Year(s)",
+  "claim.printInvoice.title": "Print Invoice- {label}?",
+  "claim.printInvoice.message": "Do you really want to print Invoice?"
 }

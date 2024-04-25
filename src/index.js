@@ -25,7 +25,10 @@ import ClaimsOverviewReport from "./reports/ClaimsOverviewReport";
 import ClaimHistoryReport from "./reports/ClaimHistoryReport";
 import ClaimsPrimaryOperationalIndicators from "./reports/ClaimsPrimaryOperationalIndicators";
 import ClaimInsureeSummary from "./components/ClaimInsureeSummary";
-
+import ServiceAreaPicker from "./pickers/ServiceAreaPicker";
+import ServiceTypePicker from "./pickers/ServiceTypePicker";
+import UploadPage from "./pages/UploadPage";
+const ROUTE_CLAIM_UPLOAD = "claim/upload/excel";
 const ROUTE_HEALTH_FACILITIES = "claim/healthFacilities";
 const ROUTE_CLAIM_EDIT = "claim/healthFacilities/claim";
 const ROUTE_REVIEWS = "claim/reviews";
@@ -132,12 +135,14 @@ const DEFAULT_CONFIG = {
     },
   ],
   "refs": [
+    
     { key: "claim.route.healthFacilities", ref: ROUTE_HEALTH_FACILITIES },
     { key: "claim.route.claimEdit", ref: ROUTE_CLAIM_EDIT },
     { key: "claim.route.reviews", ref: ROUTE_REVIEWS },
     { key: "claim.route.feedback", ref: ROUTE_CLAIM_FEEDBACK },
     { key: "claim.route.review", ref: ROUTE_CLAIM_REVIEW },
     { key: "claim.ClaimAdminPicker", ref: ClaimAdminPicker },
+    { key: "claim.route.excelupload", ref: ROUTE_CLAIM_UPLOAD },
     {
       key: "claim.ClaimAdminPicker.projection",
       ref: [
@@ -169,6 +174,9 @@ const DEFAULT_CONFIG = {
     { key: "claim.CreateClaim.reviewStatus", ref: 1 },
     { key: "claim.CreateClaim.claimTypeReferSymbol", ref: "R" },
     { key: "claim.ClaimMasterPanelExt", ref: ClaimMasterPanelExt },
+    {key : "claim.ServiceAreaPicker", ref : ServiceAreaPicker},
+    {key : "claim.ServiceTypePicker", ref : ServiceTypePicker},
+    
     { key: "claim.AttachmentsDialog", ref: AttachmentsDialog },
   ],
   "core.Router": [
@@ -177,6 +185,7 @@ const DEFAULT_CONFIG = {
     { path: ROUTE_REVIEWS, component: ReviewsPage },
     { path: ROUTE_CLAIM_REVIEW + "/:claim_uuid", component: ReviewPage },
     { path: ROUTE_CLAIM_FEEDBACK + "/:claim_uuid", component: FeedbackPage },
+    { path: ROUTE_CLAIM_UPLOAD, component : UploadPage}
   ],
   "core.MainMenu": [ClaimMainMenu],
   "claim.MasterPanel": [ClaimMasterPanelExt],

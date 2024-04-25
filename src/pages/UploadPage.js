@@ -6,6 +6,14 @@ import { Fab, Tooltip } from "@material-ui/core";
 import { withTheme, withStyles } from "@material-ui/core/styles";
 import _ from "lodash";
 import AddIcon from "@material-ui/icons/Add";
+
+import Button from '@material-ui/core/Button';
+import Dialog from '@material-ui/core/Dialog';
+import DialogTitle from '@material-ui/core/DialogTitle';
+import DialogContent from '@material-ui/core/DialogContent';
+import DialogActions from '@material-ui/core/DialogActions';
+import CloudUploadIcon from '@material-ui/icons/CloudUpload';
+import { TextField } from '@material-ui/core';
 import {
   withHistory,
   historyPush,
@@ -18,7 +26,7 @@ import {
   clearCurrentPaginationPage,
 } from "@openimis/fe-core";
 import ClaimSearcher from "../components/ClaimSearcher";
-import { submit, del, selectHealthFacility, submitAll } from "../actions";
+import { submit, del, selectHealthFacility, submitAll, uploadExcelInsuree } from "../actions";
 import { RIGHT_ADD, RIGHT_LOAD, RIGHT_SUBMIT, RIGHT_DELETE, MODULE_NAME } from "../constants";
 
 const CLAIM_HF_FILTER_CONTRIBUTION_KEY = "claim.HealthFacilitiesFilter";
@@ -42,6 +50,7 @@ class HealthFacilitiesPage extends Component {
     this.state = {
       defaultFilters,
       confirmedAction: null,
+      open: false,
     };
   }
 
@@ -50,7 +59,7 @@ class HealthFacilitiesPage extends Component {
       this.props.journalize(this.props.mutation);
       this.setState({ reset: this.state.reset + 1 });
     } else if (!prevProps.confirmed && this.props.confirmed) {
-      //this.state.confirmedAction();
+      this.state.confirmedAction();
     }
   }
 
@@ -75,6 +84,26 @@ class HealthFacilitiesPage extends Component {
         selection.map((c) => c.code),
       );
     }
+  };
+
+  handleOpen = () => {
+    this.setState({ open: true });
+  };
+
+  handleClose = () => {
+    this.setState({ open: false });
+  };
+
+ handleUpload = (e) => {
+    const file = e.target.files[0];
+    const reader = new FileReader();
+    
+    reader.onload = (event) => {
+      const base64String = event.target.result.split(',')[1];
+      this.props.uploadExcelInsuree(base64String);
+    };
+    
+    reader.readAsDataURL(file);
   };
 
   submitAll = (selection) => {
@@ -153,52 +182,59 @@ class HealthFacilitiesPage extends Component {
     if (!pathname.includes(urlPath)) this.props.clearCurrentPaginationPage();
   };
 
+
   render() {
-    const { intl, classes, rights, generatingPrint } = this.props;
-    if (!rights.filter((r) => r >= RIGHT_ADD && r <= RIGHT_SUBMIT).length) return null;
-    let actions = [];
-    if (rights.includes(RIGHT_SUBMIT)) {
-      actions.push({ label: "claimSummaries.submitAll", enabled: this.canSubmitAll, action: this.submitAll });
-      actions.push({
-        label: "claimSummaries.submitSelected",
-        enabled: this.canSubmitSelected,
-        action: this.submitSelected,
-      });
-    }
-    if (rights.includes(RIGHT_DELETE)) {
-      actions.push({
-        label: "claimSummaries.deleteSelected",
-        enabled: this.canDeleteSelected,
-        action: this.deleteSelected,
-      });
-    }
+   
     return (
-      <div className={classes.page}>
-        <Helmet title={formatMessage(this.props.intl, "location", "location.healthFacilities.page.title")} />
-        <ClaimSearcher
-          defaultFilters={this.state.defaultFilters}
-          cacheFiltersKey="claimHealthFacilitiesPageFiltersCache"
-          onDoubleClick={rights.includes(RIGHT_LOAD) ? this.onDoubleClick : null}
-          actions={actions}
-          processing={generatingPrint}
-          filterPaneContributionsKey={CLAIM_HF_FILTER_CONTRIBUTION_KEY}
-          actionsContributionKey={CLAIM_SEARCHER_ACTION_CONTRIBUTION_KEY}
-        />
-        {!generatingPrint && rights.includes(RIGHT_ADD) && (
-          <Tooltip
-            title={
-              !this.canAdd()
-                ? formatMessage(intl, "claim", "newClaim.adminAndHFRequired")
-                : formatMessage(intl, "claim", "newClaim.tooltip")
-            }
-          >
-            <div className={classes.fab}>
-              <Fab color="primary" disabled={!this.canAdd()} onClick={this.onAdd}>
-                <AddIcon />
-              </Fab>
-            </div>
-          </Tooltip>
-        )}
+      <div style={{ display: 'flex', justifyContent: 'center', alignItems: 'center', height: '100vh' }}>
+     <div style={{ textAlign: 'center' }}>
+     <>
+        <Button
+          variant="contained"
+          color="primary"
+          onClick={this.handleOpen}
+          startIcon={<CloudUploadIcon />}
+        >
+          Upload Excel
+        </Button>
+        <Dialog open={this.state.open} onClose={this.handleClose}>
+          <DialogTitle>Upload Excel File</DialogTitle>
+          <DialogContent>
+            <form className="upload-form">
+              <TextField
+                type="file"
+                name="excelFile"
+                variant="outlined"
+                accept=".xlsx, .xls"
+                required
+              />
+              {/* Add other form fields here if needed */}
+            </form>
+          </DialogContent>
+          <DialogActions>
+            <Button onClick={this.handleClose} color="primary">
+              Cancel
+            </Button>
+                  <div>
+                    <input
+                      type="file"
+                      accept=".xlsx, .xls"
+                      style={{ display: 'none' }}
+                      onChange={this.handleUpload}
+                      ref={(fileInput) => (this.fileInput = fileInput)} // Ref for triggering file input click
+                    />
+                    <Button
+                      color="primary"
+                      onClick={() => this.fileInput.click()} // Trigger file input click
+                    >
+                      Upload
+                    </Button>
+                </div>
+          </DialogActions>
+        </Dialog>
+      </>
+       
+      </div>
       </div>
     );
   }
@@ -213,6 +249,7 @@ const mapStateToProps = (state) => ({
   mutation: state.claim.mutation,
   confirmed: state.core.confirmed,
   filtersCache: state.core.filtersCache,
+  excelUploadResponse : state.claim.excelUploadResponse,
   selectedFilters: state.core.filtersCache.claimHealthFacilitiesPageFiltersCache,
   module: state.core?.savedPagination?.module,
 });
@@ -227,6 +264,7 @@ const mapDispatchToProps = (dispatch) => {
       submitAll,
       del,
       clearCurrentPaginationPage,
+      uploadExcelInsuree
     },
     dispatch,
   );

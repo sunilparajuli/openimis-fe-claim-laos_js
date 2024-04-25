@@ -4,6 +4,9 @@ import { bindActionCreators } from "redux";
 import _ from "lodash";
 import _debounce from "lodash/debounce";
 import { injectIntl } from "react-intl";
+import Button from '@material-ui/core/Button';
+
+import { generateExcel } from "../actions";
 
 import { Grid, Divider, Checkbox, FormControlLabel } from "@material-ui/core";
 import { withTheme, withStyles } from "@material-ui/core/styles";
@@ -160,6 +163,7 @@ class Head extends Component {
 
   render() {
     const { classes, filters, onChangeFilters, userHealthFacilityId } = this.props;
+    console.log("this props", this.props);
     return (
       <Grid container className={classes.form}>
         <ControlledField
@@ -246,6 +250,11 @@ class Head extends Component {
             </Grid>
           }
         />
+
+        <Button variant="contained" color="primary" onClick={() => this.props.generateExcel(filters)}>
+          Excel Export
+        </Button>
+
       </Grid>
     );
   }
@@ -265,12 +274,14 @@ const mapDispatchToProps = (dispatch) => {
       selectHealthFacility,
       selectDistrict,
       selectRegion,
+      generateExcel
     },
     dispatch,
   );
 };
 
 const BoundHead = connect(mapStateToProps, mapDispatchToProps)(Head);
+
 
 class Details extends Component {
   debouncedOnChangeFilter = _debounce(
@@ -282,6 +293,10 @@ class Details extends Component {
     const { filters } = this.props;
     return !!filters && !!filters[k] ? filters[k].value : "";
   };
+
+  fnGenerateExcel = () => {
+    this.props.generateExcel(filters)
+  }
 
   render() {
     const { intl, classes, filters, onChangeFilters, filterPaneContributionsKey = null, FilterExt, } = this.props;
@@ -589,7 +604,7 @@ class Details extends Component {
             pubRef="claim.CareTypePicker"
             name="careType"
             value={filters["careType"] && filters["careType"]["value"] || null}
-            onChange={(value) =>{
+            onChange={(value) => {
               onChangeFilters([
                 {
                   id: "careType",
@@ -645,7 +660,6 @@ class Details extends Component {
           />
         </Grid>
 
-
         <Contributions
           filters={filters}
           onChangeFilters={onChangeFilters}
@@ -676,13 +690,16 @@ class Details extends Component {
 class ClaimFilter extends Component {
   render() {
     const { classes } = this.props;
+    // console.log("props", this.props);
     return (
       <form className={classes.container} noValidate autoComplete="off">
         <BoundHead {...this.props} />
-        <Details {...this.props} />
+        <Details {...this.props} generateExcel={() => this.fnGenerateExcel()} />
       </form>
     );
   }
 }
+
+
 
 export default withModulesManager(injectIntl(withTheme(withStyles(styles)(ClaimFilter))));

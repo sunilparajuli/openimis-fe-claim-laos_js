@@ -88,6 +88,27 @@ export function fetchClaimAttachments(claim) {
   return graphql(payload, "CLAIM_CLAIM_ATTACHMENTS");
 }
 
+export function fetchAnalytics() {
+  payload = `
+    query {
+      dashboard {
+        MedicalRejected,
+        totalClaimsByHospital {
+          hospitalName
+          totalClaim
+        }
+        topClaims {
+          claimId
+          claimedAmount
+          hospitalName
+        }
+        
+      }
+    }
+  `;
+  return graphql(payload, "CLAIM_CLAIM_Analytics");
+}
+
 export function formatAttachment(attach) {
   return `
     ${!!attach.id ? `id: "${decodeId(attach.id)}"` : ""}
@@ -158,7 +179,8 @@ export function fetchClaimSummaries(mm, filters, withAttachmentsCount) {
     "claimed",
     "approved",
     "status",
-    "restoreId",
+    "serviceArea",
+    "serviceType",
     "healthFacility { id uuid name code }",
     "insuree" + mm.getProjection("insuree.InsureePicker.projection"),
   ];
@@ -176,15 +198,13 @@ export function formatDetail(type, detail) {
     ${detail.priceAsked !== null ? `priceAsked: "${_.round(detail.priceAsked, 2).toFixed(2)}"` : ""}
     ${detail.qtyProvided !== null ? `qtyProvided: "${_.round(detail.qtyProvided, 2).toFixed(2)}"` : ""}
     status: 1
-    ${
-      detail.explanation !== undefined && detail.explanation !== null
-        ? `explanation: "${formatGQLString(detail.explanation)}"`
-        : ""
+    ${detail.explanation !== undefined && detail.explanation !== null
+      ? `explanation: "${formatGQLString(detail.explanation)}"`
+      : ""
     }
-    ${
-      detail.justification !== undefined && detail.justification !== null
-        ? `justification: "${formatGQLString(detail.justification)}"`
-        : ""
+    ${detail.justification !== undefined && detail.justification !== null
+      ? `justification: "${formatGQLString(detail.justification)}"`
+      : ""
     }
   }`;
 }
@@ -211,11 +231,15 @@ export function formatAttachments(mm, attachments) {
 
 export function formatClaimGQL(modulesManager, claim, shouldAutogenerate) {
   // to simplify GQL and avoid additional coding, claim code is sent, even if shouldAutogenerate is set to true
-  const claimCodePlaceholder="auto"
+  const claimCodePlaceholder = "auto"
   const isAutogenerateEnabled = claim?.restore?.uuid ? false : shouldAutogenerate;
+
   return `
     ${claim.uuid !== undefined && claim.uuid !== null ? `uuid: "${claim.uuid}"` : ""}
     code: "${isAutogenerateEnabled ? claimCodePlaceholder : claim.code}"
+    dischargeReason : "${claim?.dischargeReason}"
+    serviceArea : "${!!claim.serviceArea ? claim.serviceArea : ""}"
+    serviceType : "${!!claim.serviceType ? claim.serviceType : ""}"
     autogenerate: ${!!isAutogenerateEnabled}
     insureeId: ${decodeId(claim.insuree.id)}
     adminId: ${decodeId(claim.admin.id)}
@@ -240,15 +264,14 @@ export function formatClaimGQL(modulesManager, claim, shouldAutogenerate) {
     ${!!claim?.restore?.uuid ? `restore: "${formatGQLString(claim.restore.uuid)}"` : ""}
     ${formatDetails("service", claim.services)}
     ${formatDetails("item", claim.items)}
-    ${
-      !!claim.attachments && !!claim.attachments.length
-        ? `attachments: ${formatAttachments(modulesManager, claim.attachments)}`
-        : ""
+    ${!!claim.attachments && !!claim.attachments.length
+      ? `attachments: ${formatAttachments(modulesManager, claim.attachments)}`
+      : ""
     }
   `;
 }
 
-function handleReferHFType(modulesManager, claim){
+function handleReferHFType(modulesManager, claim) {
   return (claim.visitType === modulesManager.getRef("claim.CreateClaim.claimTypeReferSymbol") ? 'referFromId: ' : 'referToId: ')
 }
 
@@ -262,6 +285,19 @@ export function createClaim(mm, claim, clientMutationLabel) {
     requestedDateTime,
   });
 }
+
+
+export function uploadExcelInsuree(mm, file) {
+  
+  const mutation = `mutation {
+  uploadExcel(file :"${file}"){
+    successCount
+    }
+  }`;
+  var requestedDateTime = new Date();
+  return graphql(mutation, ["EXCEL_UPLOAD_REQ", "EXCEL_UPLOAD_RESP", "EXCEL_UPLOAD_ERR"]);
+}
+
 
 export function updateClaim(mm, claim, clientMutationLabel) {
   const mutation = formatMutation("updateClaim", formatClaimGQL(mm, claim, false), clientMutationLabel);
@@ -285,6 +321,8 @@ export function fetchClaim(mm, claimUuid, forFeedback) {
     "approved",
     "valuated",
     "status",
+    "serviceArea",
+    "serviceType",
     "feedbackStatus",
     "reviewStatus",
     "guaranteeId",
@@ -292,7 +330,7 @@ export function fetchClaim(mm, claimUuid, forFeedback) {
     "adjustment",
     "attachmentsCount",
     "careType",
-    "restore {uuid, code}",
+    "dischargeReason",
     "healthFacility" + mm.getProjection("location.HealthFacilityPicker.projection"),
     "referFrom" + mm.getProjection("location.HealthFacilityReferPicker.projection"),
     "referTo" + mm.getProjection("location.HealthFacilityReferPicker.projection"),
@@ -313,11 +351,11 @@ export function fetchClaim(mm, claimUuid, forFeedback) {
   } else {
     projections.push(
       "services{" +
-        "id, product { id, uuid }, service {id code name price maximumAmount} qtyProvided, priceAsked, qtyApproved, priceApproved, priceValuated, priceAdjusted, explanation, justification, rejectionReason, status" +
-        "}",
+      "id, product { id, uuid }, service {id code name price maximumAmount} qtyProvided, priceAsked, qtyApproved, priceApproved, priceValuated, priceAdjusted, explanation, justification, rejectionReason, status" +
+      "}",
       "items{" +
-        "id, product { id, uuid }, item {id code name price maximumAmount} qtyProvided, priceAsked, qtyApproved, priceApproved, priceValuated, priceAdjusted, explanation, justification, rejectionReason, status" +
-        "}",
+      "id, product { id, uuid }, item {id code name price maximumAmount} qtyProvided, priceAsked, qtyApproved, priceApproved, priceValuated, priceAdjusted, explanation, justification, rejectionReason, status" +
+      "}",
     );
   }
   const payload = formatQuery("claim", [`uuid: "${claimUuid}"`], projections);
@@ -488,26 +526,22 @@ export function deliverFeedback(claim, clientMutationLabel) {
     feedback: {
       ${!!feedback.feedbackDate ? `feedbackDate: "${feedback.feedbackDate}"` : ""}
       ${!!feedback.officerId ? `officerId: ${feedback.officerId}` : ""}
-      ${
-        feedback.careRendered !== undefined && feedback.careRendered !== null
-          ? `careRendered: ${feedback.careRendered}`
-          : ""
-      }
-      ${
-        feedback.paymentAsked !== undefined && feedback.paymentAsked !== null
-          ? `paymentAsked: ${feedback.paymentAsked}`
-          : ""
-      }
-      ${
-        feedback.drugPrescribed !== undefined && feedback.drugPrescribed !== null
-          ? `drugPrescribed: ${feedback.drugPrescribed}`
-          : ""
-      }
-      ${
-        feedback.drugReceived !== undefined && feedback.drugReceived !== null
-          ? `drugReceived: ${feedback.drugReceived}`
-          : ""
-      }
+      ${feedback.careRendered !== undefined && feedback.careRendered !== null
+      ? `careRendered: ${feedback.careRendered}`
+      : ""
+    }
+      ${feedback.paymentAsked !== undefined && feedback.paymentAsked !== null
+      ? `paymentAsked: ${feedback.paymentAsked}`
+      : ""
+    }
+      ${feedback.drugPrescribed !== undefined && feedback.drugPrescribed !== null
+      ? `drugPrescribed: ${feedback.drugPrescribed}`
+      : ""
+    }
+      ${feedback.drugReceived !== undefined && feedback.drugReceived !== null
+      ? `drugReceived: ${feedback.drugReceived}`
+      : ""
+    }
       ${feedback.asessment !== undefined && feedback.asessment !== null ? `asessment: ${feedback.asessment}` : ""}
     }
   `;
@@ -664,4 +698,100 @@ export function generate(uuid) {
       .then((blob) => openBlob(blob, `${_uuid.uuid()}.pdf`, "pdf"))
       .then((e) => dispatch({ type: "CLAIM_PRINT_DONE" }));
   };
+}
+
+export function printConsumerInvoice(code) {
+  var url = new URL(`${window.location.origin}/api/claim/claim/invoice/${code}/1`);
+
+  return (dispatch) => {
+    return fetch(url)
+      .then(response => response.blob())
+      .then(blob => openBlob(blob, `${_uuid.uuid()}.pdf`, "pdf"))
+      .then(e => dispatch({ type: 'CLAIM_PRINT_INVOICE' }))
+  }
+}
+
+export function generateExcel(data) {
+  let filename = "claim_report";
+  var url = new URL(`${window.location.origin}/api/insuree/claim/report/excel-export`);
+
+  for (const key in data) {
+
+    if (data.hasOwnProperty(key)) { // Fixed: changed 'filterObject' to 'data'
+      const element = data[key]; // Fixed: changed 'filterObject' to 'data'
+      // Check if the key starts with "parentLocation" and has a value
+      if (key.startsWith("claimStatus") && element.value) {
+        // Append the value to the URL search parameters
+        url.searchParams.set("status", element.value);
+      }
+      if (key.startsWith("healthFacility") && element.value) {
+        // Append the parentLocation_0 UUID to the URL search parameters
+        url.searchParams.set("health_facility__code", element.value.code);
+      }
+      if (key.startsWith("district") && element.value) {
+        // Append the parentLocation_0 UUID to the URL search parameters
+        url.searchParams.set("health_facility__location__code", element.value.code);
+      }
+      if (key.startsWith("region") && element.value) {
+        // Append the parentLocation_0 UUID to the URL search parameters
+        url.searchParams.set("health_facility__location__code", element.value.code);
+
+      }
+      if (key.startsWith("claimNo") && element.value) {
+        // Append the parentLocation_0 UUID to the URL search parameters
+        url.searchParams.set("code", element.value);
+      }
+      if (key.startsWith("chfId") && element.value) {
+        url.searchParams.set("insuree__chf_id", element.value);
+      }
+      if (key.startsWith("claimedUnder") && element.value) {
+        url.searchParams.set("claimed__lte", element.value);
+      }
+      if (key.startsWith("claimedAbove") && element.value) {
+        url.searchParams.set("claimed__gte", element.value);
+      }
+      if (key.startsWith("feedbackStatus") && element.value) {
+        url.searchParams.set("feedback_status", element.value);
+      }
+      if (key.startsWith("mainDiagnosis") && element.value) {
+        url.searchParams.set("icd__code", element.value.code);
+      }
+      if (key.startsWith("processedDateFrom") && element.value) {
+        url.searchParams.set("date_processed__gt", element.value);
+      }
+      if (key.startsWith("processedDateTo") && element.value) {
+        url.searchParams.set("date_processed__lt", element.value);
+      }
+
+      if (key.startsWith("visitDateFrom") && element.value) {
+        url.searchParams.set("date_from__gte", element.value);
+      }
+      if (key.startsWith("visitDateTo") && element.value) {
+        url.searchParams.set("date_to__lte", element.value);
+      }
+      if (key.startsWith("admin") && element.value.code) {
+        url.searchParams.set("admin__code", element.value.code);
+      }
+
+      // You can add more conditions for other keys if needed
+    }
+  }
+  return (dispatch) => {
+    return fetch(url)
+      .then(response => {
+        if (!response.ok) {
+          throw new Error('Network response was not ok');
+        }
+        return response.blob();
+      })
+      .then(blob => openBlob(blob, `${filename}.xlsx`, "xlsx"))
+      .then(() => {
+        dispatch({ type: 'CLAIM_PRINT_EXCEL_DONE' });
+      })
+      .catch(error => {
+        console.error('Error generating Excel:', error);
+        // Dispatch an error action if needed
+      });
+  };
+  
 }

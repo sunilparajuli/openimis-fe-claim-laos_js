@@ -25,6 +25,14 @@ class ClaimMainMenu extends Component {
         route: "/claim/reviews",
       });
     }
+    if (!!rights.filter((r) => r >= RIGHT_CLAIMREVIEW && r <= RIGHT_PROCESS).length) {
+      entries.push({
+        text: "Upload",
+        icon: <Assignment />,
+        route: "/claim/upload/excel",
+      });
+    }
+    
     entries.push(
       ...this.props.modulesManager
         .getContribs(CLAIM_MAIN_MENU_CONTRIBUTION_KEY)
